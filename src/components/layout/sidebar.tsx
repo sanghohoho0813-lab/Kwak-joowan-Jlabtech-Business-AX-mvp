@@ -42,7 +42,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
         "group flex h-9 items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
         active
           ? "bg-white/12 font-semibold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
-          : "text-white/65 hover:bg-white/8 hover:pl-3.5 hover:text-white",
+          : "text-white hover:bg-white/8 hover:pl-3.5",
       )}
     >
       <Icon
@@ -66,7 +66,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
 
 function SectionLabel({ children }: { children: string }) {
   return (
-    <p className="px-3 pb-1.5 pt-4 text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-white/35">
+    <p className="px-3 pb-1.5 pt-4 text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-white/55">
       {children}
     </p>
   );

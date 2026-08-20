@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Menu, X, CalendarDays, BookOpen, Compass } from "lucide-react";
+import { Bell, Menu, X, BookOpen, Compass } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSettings } from "@/lib/settings-context";
 import { pageTitles } from "./nav-config";
 import { SidebarContent } from "./sidebar";
 import { useDrawer } from "./drawer-context";
+import { LiveClock } from "./live-clock";
 
 export function Topbar() {
   const pathname = usePathname();
@@ -57,11 +58,8 @@ export function Topbar() {
           <span className="hidden whitespace-nowrap sm:inline">기획의도</span>
         </Link>
 
-        {/* 기준일 */}
-        <div className="hidden h-9 shrink-0 items-center gap-2 rounded-xl border border-line bg-ivory-50 px-3 text-xs font-medium text-inkbody lg:flex">
-          <CalendarDays className="h-3.5 w-3.5 text-pine-700" />
-          <span className="num whitespace-nowrap">2026.08.20 (목)</span>
-        </div>
+        {/* 현재 날짜·시각 */}
+        <LiveClock />
 
         {/* 알림 */}
         <button

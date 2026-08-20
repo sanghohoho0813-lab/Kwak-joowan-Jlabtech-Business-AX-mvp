@@ -73,8 +73,8 @@ function Section({
             <Icon size={22} strokeWidth={1.75} />
           </span>
           <div className="min-w-0">
-            <p className="num text-xs font-bold tracking-[0.14em] text-sand-600">{no}</p>
-            <h2 className="clamp-2 text-xl font-bold leading-tight text-pine-900 md:text-2xl">
+            <p className="num text-[0.75em] font-bold tracking-[0.14em] text-sand-600">{no}</p>
+            <h2 className="clamp-2 text-[1.25em] font-bold leading-tight text-pine-900 md:text-[1.5em]">
               {title}
             </h2>
           </div>
@@ -86,12 +86,12 @@ function Section({
 }
 
 function P({ children }: { children: React.ReactNode }) {
-  return <p className="text-base leading-relaxed text-inkbody">{children}</p>;
+  return <p className="text-[1em] leading-relaxed text-inkbody">{children}</p>;
 }
 
 function Lead({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-xl border-l-[3px] border-pine-600 bg-pine-50/60 py-3 pl-4 pr-4 text-base font-semibold leading-relaxed text-pine-900 md:text-lg">
+    <p className="rounded-xl border-l-[3px] border-pine-600 bg-pine-50/60 py-3 pl-4 pr-4 text-[1em] font-semibold leading-relaxed text-pine-900 md:text-[1.125em]">
       {children}
     </p>
   );
@@ -115,13 +115,13 @@ function BeforeAfter({
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <div className="rounded-xl border border-line bg-ivory-100/70 p-4">
-        <p className="mb-2.5 flex items-center gap-1.5 text-sm font-bold text-inkmuted">
+        <p className="mb-2.5 flex items-center gap-1.5 text-[0.875em] font-bold text-inkmuted">
           <X size={15} className="shrink-0" />
           {beforeTitle}
         </p>
         <ul className="space-y-1.5">
           {before.map((b) => (
-            <li key={b} className="flex items-start gap-2 text-sm leading-relaxed text-inkbody">
+            <li key={b} className="flex items-start gap-2 text-[0.875em] leading-relaxed text-inkbody">
               <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-inkmuted/50" />
               <span>{b}</span>
             </li>
@@ -129,13 +129,13 @@ function BeforeAfter({
         </ul>
       </div>
       <div className="rounded-xl border border-pine-100 bg-pine-50/70 p-4">
-        <p className="mb-2.5 flex items-center gap-1.5 text-sm font-bold text-pine-700">
+        <p className="mb-2.5 flex items-center gap-1.5 text-[0.875em] font-bold text-pine-700">
           <Check size={15} className="shrink-0" />
           {afterTitle}
         </p>
         <ul className="space-y-1.5">
           {after.map((a) => (
-            <li key={a} className="flex items-start gap-2 text-sm leading-relaxed text-pine-900">
+            <li key={a} className="flex items-start gap-2 text-[0.875em] leading-relaxed text-pine-900">
               <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-pine-600" />
               <span>{a}</span>
             </li>
@@ -155,7 +155,7 @@ function Flow({ steps }: { steps: string[] }) {
     <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 rounded-xl bg-ivory-100/70 p-4">
       {steps.map((s, i) => (
         <span key={s} className="flex items-center gap-1.5">
-          <span className="whitespace-nowrap rounded-lg border border-line bg-ivory-50 px-2.5 py-1.5 text-xs font-semibold text-pine-900">
+          <span className="whitespace-nowrap rounded-lg border border-line bg-ivory-50 px-2.5 py-1.5 text-[0.75em] font-semibold text-pine-900">
             {s}
           </span>
           {i < steps.length - 1 ? (
@@ -171,44 +171,168 @@ function Flow({ steps }: { steps: string[] }) {
  * 2026 정책 흐름 — 접어두기
  * ------------------------------------------------------------------ */
 
-const policyDetail = [
+interface PolicyBlock {
+  title: string;
+  body: string[];
+  bullets?: string[];
+  bulletsLabel?: string;
+  flow?: string[];
+  quote?: string;
+}
+
+const policyDetail: PolicyBlock[] = [
   {
-    title: "중소벤처기업진흥공단 — AX를 별도 정책자금 대상으로",
+    title: "중소벤처기업진흥공단 — AX를 별도 정책자금 대상으로 보기 시작",
     body: [
-      "2026년 중소기업 정책자금에 AX 우대 트랙이 신설되는 흐름입니다. 핵심은 지원 대상이 AI 개발회사에만 한정되지 않는다는 점입니다.",
-      "AI를 실제 업무에 도입·활용하는 기존 업종 기업까지 포함하는 방향이 뚜렷해지고 있습니다. 제조·유통·서비스 기업이 수요예측, 재고·발주 최적화, 고객 분석, 영업 자동화를 실제로 쓰고 있다면 'AX 기업'이라는 정책 논리를 만들 수 있습니다.",
-      "과거에는 'AI 기술회사를 지원한다'가 중심이었다면, 이제는 '기존 기업이 AI로 일하는 방식을 바꾸는 것' 자체가 지원 대상이 되고 있다는 뜻입니다.",
+      "2026년 중소기업 정책자금에는 AX 스프린트 우대트랙이 신설되는 흐름입니다. 핵심은 지원 대상이 단순 AI 개발회사에 한정되지 않는다는 점입니다.",
+      "AI 및 AI 관련 분야를 영위하는 기업뿐 아니라, AI를 실제 업무에 도입·활용하는 기업까지 지원 대상으로 포함하는 방향이 명확해졌습니다. 즉 제조·물류·서비스·유통·헬스케어 등 기존 업종도 아래와 같은 일을 실제 업무에 적용하고 있다면 'AX 기업'이라는 정책 논리를 만들 수 있습니다.",
     ],
+    bulletsLabel: "정책 논리를 만들 수 있는 활동",
+    bullets: [
+      "AI 기반 수요예측",
+      "고객 분석",
+      "재고·발주 최적화",
+      "생산계획 수립",
+      "경로·배차 최적화",
+      "상담·영업 자동화",
+      "재방문·재구매 분석",
+      "품질관리",
+      "반복 업무 자동화",
+    ],
+    quote:
+      "과거에는 'AI 기술회사를 지원한다'가 중심이었다면, 이제는 '기존 기업이 AI를 실제 사업에 활용해 일하는 방식을 바꾸는 것' 자체가 지원 대상이 되고 있습니다.",
   },
   {
-    title: "기술보증기금 — AX 수준을 지수로 측정",
+    title: "기술보증기금 — AX 수준을 별도 지수로 측정",
     body: [
-      "기술보증기금은 기업의 AX 수준을 전략·의지 / 자원·조직 / 기술·데이터 / 활용·성과 관점에서 측정하는 방향으로 움직이고 있습니다.",
-      "즉 'AI 프로그램이 있는가'보다 왜 추진하는지, 누가 운영하는지, 어떤 데이터를 쓰는지, 실제 현장에서 사용되는지, 어떤 성과가 나오는지를 함께 봅니다.",
-      "앞으로의 심사에서는 'AI 도입 예정'보다 실제 시스템 + 실제 데이터 + 실제 사용자 + 운영로그 + Before & After 를 가진 기업이 더 높은 설득력을 갖게 될 가능성이 큽니다.",
+      "기술보증기금은 2026년 'AX 혁신지수'를 도입했습니다. 기업의 AX 수준을 단순히 'AI 사용 여부'로 판단하지 않고, 대략 네 가지 관점에서 봅니다.",
     ],
+    bulletsLabel: "AX 혁신지수의 네 가지 관점",
+    bullets: ["전략 및 의지", "자원 및 조직", "기술 및 데이터", "활용 및 성과"],
+    flow: [
+      "왜 추진하는가",
+      "누가 운영하는가",
+      "어떤 데이터를 쓰는가",
+      "현장에서 쓰이는가",
+      "어떤 성과가 나오는가",
+    ],
+    quote:
+      "앞으로의 심사에서는 'AI 도입 예정'보다 실제 시스템 + 실제 데이터 + 실제 사용자 + 운영로그 + Before & After를 가진 기업이 더 높은 설득력을 갖게 될 가능성이 큽니다. 기보가 벤처기업을 진단한 결과에서도 AI의 필요성을 느끼는 기업은 많지만 실제 인프라·데이터·실행 수준은 상대적으로 낮은 것으로 나타났습니다.",
   },
   {
-    title: "신용보증기금 — AI를 별도 육성 분야로 강화",
+    title: "신용보증기금 — AI를 조직·보증·스타트업 육성의 별도 분야로 강화",
     body: [
-      "신용보증기금도 AI 전담조직을 두고 AI·첨단산업·혁신기업을 별도로 발굴·육성하는 방향을 강화하고 있습니다.",
-      "'AX를 도입하면 자동으로 몇 점 가산'같은 단순 가점표가 공개된 것은 아니지만, 심사의 핵심인 성장성·혁신성·차별성·기술성·사업확장성을 설명할 때 실제 AX 시스템과 데이터 기반 운영 전환은 매우 강한 근거가 됩니다.",
+      "신용보증기금도 2026년 AI 관련 지원체계를 강화했습니다. AI 전담조직을 두고 AI·첨단산업·혁신기업을 별도로 발굴·육성하는 방향을 명확히 했으며, AI 특화 스타트업 프로그램과 보증·투자·컨설팅 연계도 확대되고 있습니다.",
+      "현재 공개자료상 '일반기업이 AX를 도입하면 자동으로 몇 점을 가산한다'는 식의 단순 가점표가 공개된 것은 아닙니다. 다만 심사의 핵심 항목을 설명할 때 실제 AX 시스템과 데이터 기반 운영 전환은 매우 강한 근거가 될 수 있습니다.",
     ],
+    bulletsLabel: "심사에서 설명해야 하는 항목",
+    bullets: ["성장성", "혁신성", "차별성", "기술성", "사업확장성", "매출 가능성"],
   },
   {
-    title: "정부 무상지원사업 — 'AI 개발'에서 '산업 AX 실증'으로",
+    title: "정부 무상지원사업 — 'AI 개발'에서 '산업 AX 실증'으로 확대",
     body: [
-      "중소벤처기업부·과학기술정보통신부·산업통상자원부를 중심으로 AI Agent, 산업현장 AI, AX Sprint, AI 바우처, 산업 AI 솔루션 실증, 제조AI 스마트공장, 지역 AX 실증 같은 사업이 확대되고 있습니다.",
-      "중요한 것은 사업의 중심이 'AI 모델을 개발했다'에서 끝나지 않는다는 점입니다. 실제 산업문제 → 실제 수요기업 → AI 솔루션 → 현장 실증 → 상용화 → 매출·생산성 구조를 요구합니다.",
-      "그래서 '우리는 AI 회사가 아니다'라고 생각할 필요가 없습니다. 오히려 '이 업종에서 오래 일하며 쌓은 현장 데이터와 업무방식을 AI로 구조화해 생산성과 매출을 높였다'는 형태가 도메인 AX 관점에서 좋은 스토리가 됩니다.",
+      "2026년에는 중소벤처기업부, 과학기술정보통신부, 산업통상자원부 등을 중심으로 AI와 AX 관련 사업이 크게 확대됐습니다.",
     ],
+    bulletsLabel: "확대되고 있는 사업 방향",
+    bullets: [
+      "AI Agent 기술개발",
+      "산업현장 AI Agent",
+      "중소제조 Multi AI Agent",
+      "AX Sprint",
+      "AI 통합바우처",
+      "산업 AI 솔루션 실증·확산",
+      "제조AI 특화 스마트공장",
+      "지역 AX 실증·기술개발",
+      "AI·디지털 기반 서비스혁신",
+      "AI 기반 창업·사업화",
+      "AI·AX R&D",
+    ],
+    flow: [
+      "실제 산업문제",
+      "실제 수요기업",
+      "AI 솔루션",
+      "현장 실증",
+      "상용화",
+      "매출·생산성",
+    ],
+    quote:
+      "중요한 것은 사업의 중심이 'AI 모델을 개발했다'에서 끝나지 않는다는 점입니다. 최근 사업들은 점점 더 위와 같은 구조를 요구합니다.",
+  },
+  {
+    title: "AX-Sprint 및 실증형 과제 선정기업의 공통점",
+    body: [
+      "대표적인 AX 실증형 사업에서 선정된 과제들을 보면 공통점이 있습니다.",
+    ],
+    bulletsLabel: "선정 과제의 유형",
+    bullets: [
+      "농업 현장 상태를 AI가 판단해 자동화",
+      "제조공정의 이상·품질을 AI가 분석",
+      "물류·배차·운영계획을 데이터로 최적화",
+      "현장 안전을 AI·로봇·드론으로 점검",
+      "고객·사용자 행동 데이터를 분석해 서비스 개선",
+      "반복 행정·상담·운영 업무를 AI Agent가 지원",
+    ],
+    quote:
+      "정부가 원하는 AX는 대부분 '기존 산업의 명확한 문제를 AI와 데이터로 해결한 사례'입니다. 그래서 '우리 회사는 AI 회사가 아니다'라고 생각할 필요가 없습니다. 오히려 '우리 업종에서 오래 일하며 쌓은 현장 데이터와 업무방식을 AI로 구조화해 생산성과 매출을 높였다'는 형태가 도메인 AX 관점에서 매우 좋은 스토리가 됩니다.",
+  },
+  {
+    title: "창업패키지·초격차·R&D에서도 AI·AX 강조",
+    body: [
+      "창업지원사업 역시 AI 특화 프로그램과 트랙이 확대되고 있습니다. 일반 창업패키지에서도 AI 인재·실증형 과제가 등장하고 있고, 초격차 스타트업 프로젝트에서도 AI가 핵심 전략분야로 다뤄지고 있습니다.",
+    ],
+    bulletsLabel: "최근 중요해지는 키워드",
+    bullets: [
+      "Domain AX",
+      "Vertical AI",
+      "LLM 응용",
+      "AI Agent",
+      "스마트제조",
+      "AI 기반 서비스혁신",
+    ],
+    quote:
+      "R&D도 마찬가지입니다. 기술 자체만 개발하는 과제보다 실제 수요기업이 있고 → 현장에서 사용하고 → 사업화되는 구조가 점점 중요해지고 있습니다.",
   },
   {
     title: "정책기관이 실제로 보고 싶어하는 기업의 모습",
     body: [
-      "기존 사업의 실제 문제 → 회사 내부 데이터 → 운영시스템 구축 → AI 분석·예측·추천·자동화 → 실제 직원/고객 사용 → 운영로그 축적 → Before & After 측정 → 생산성·비용·매출 개선 → 새로운 서비스·사업모델 → 정책자금·보증·R&D 활용",
-      "사업계획서에 'AI'라는 단어를 넣거나 챗봇을 하나 붙이는 것만으로 유리해지지는 않습니다. 왜 이 업무에 AI가 필요한지, 어떤 데이터를 쓰는지, 업무가 어떻게 달라지는지, 누가 실제로 쓰는지, 어떤 기록이 남는지, 숫자가 어떻게 달라졌는지에 답할 수 있어야 합니다.",
+      "현재 흐름을 종합하면, 정책금융과 정부지원사업에서 설득력이 높은 AX 기업은 대략 다음과 같은 형태입니다.",
     ],
+    flow: [
+      "기존 사업의 실제 문제",
+      "회사 내부 데이터",
+      "운영시스템 구축",
+      "AI 분석·예측·추천·자동화",
+      "실제 직원·고객 사용",
+      "운영로그 축적",
+      "Before & After 측정",
+      "생산성·비용·매출 개선",
+      "새로운 서비스·사업모델",
+      "정책자금·보증·R&D 활용",
+    ],
+  },
+  {
+    title: "단순 AI 기능만으로는 부족합니다",
+    body: [
+      "정부 정책에서 AI가 강조된다고 해서 사업계획서에 'AI'라는 단어를 넣거나 챗봇을 하나 붙이는 것만으로 유리해지는 것은 아닙니다. 오히려 다음 질문에 실제 데이터로 답할 수 있어야 합니다.",
+    ],
+    bulletsLabel: "심사에서 답해야 하는 7가지 질문",
+    bullets: [
+      "왜 이 업무에 AI가 필요한가?",
+      "어떤 데이터를 활용하는가?",
+      "실제 업무가 어떻게 달라지는가?",
+      "누가 실제로 사용하는가?",
+      "어떤 기록이 남는가?",
+      "시간·비용·오류·매출이 어떻게 달라졌는가?",
+      "이 구조를 다른 고객·거래처로 확장할 수 있는가?",
+    ],
+    quote:
+      "이 질문에 답할 수 있어야 'AI 기능이 있는 회사'가 아니라 'AX가 진행된 회사'로 보일 수 있습니다.",
+  },
+  {
+    title: "2026년 정책 흐름의 핵심 문장",
+    body: [],
+    quote:
+      "정부는 AI 기업만 지원하는 것이 아니라, 기존 중소기업이 자신의 업종 데이터와 경험에 AI를 결합해 생산성·매출·제품·서비스·사업모델을 바꾸는 AX 기업을 본격적인 정책지원 대상으로 보기 시작했습니다. 따라서 이 시스템의 목표는 단순 프로그램 구축이 아니라, 실제 사업을 변화시키고 그 결과를 기록으로 남겨 정책금융·정부지원·R&D·보증·투자까지 연결할 수 있는 '혁신기업의 증거'를 만드는 것입니다.",
   },
 ];
 
@@ -222,7 +346,7 @@ function PolicyAccordion() {
         className="flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-left transition-colors hover:bg-pine-50/50"
         aria-expanded={open}
       >
-        <span className="clamp-1 text-sm font-bold text-pine-900">
+        <span className="clamp-1 text-[0.875em] font-bold text-pine-900">
           2026년 AX 정책 흐름 자세히 보기
         </span>
         <ChevronDown
@@ -242,28 +366,73 @@ function PolicyAccordion() {
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="space-y-4 border-t border-line px-4 py-4">
+            <div className="space-y-5 border-t border-line px-4 py-5">
               {policyDetail.map((d, i) => (
-                <div key={d.title}>
-                  <p className="mb-1.5 flex items-start gap-2 text-sm font-bold text-pine-900">
-                    <span className="num mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-pine-50 text-[0.625rem] text-pine-700">
+                <div key={d.title} className="border-b border-line/60 pb-5 last:border-0 last:pb-0">
+                  <p className="mb-2.5 flex items-start gap-2.5 text-[0.9375em] font-bold text-pine-900">
+                    <span className="num mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-pine-900 text-[0.6875em] text-sand-400">
                       {i + 1}
                     </span>
                     <span>{d.title}</span>
                   </p>
-                  <div className="space-y-1.5 pl-7">
+
+                  <div className="space-y-2.5 sm:pl-[2.125rem]">
                     {d.body.map((b, j) => (
-                      <p key={j} className="text-sm leading-relaxed text-inkmuted">
+                      <p key={j} className="text-[0.875em] leading-relaxed text-inkbody">
                         {b}
                       </p>
                     ))}
+
+                    {d.bullets ? (
+                      <div className="rounded-lg border border-line bg-ivory-50 p-3">
+                        {d.bulletsLabel ? (
+                          <p className="mb-2 text-[0.75em] font-bold uppercase tracking-wider text-sand-600">
+                            {d.bulletsLabel}
+                          </p>
+                        ) : null}
+                        <ul className="grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
+                          {d.bullets.map((b) => (
+                            <li
+                              key={b}
+                              className="flex items-start gap-2 text-[0.8125em] leading-relaxed text-inkbody"
+                            >
+                              <span className="mt-[0.5em] h-1 w-1 shrink-0 rounded-full bg-pine-600" />
+                              <span>{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+
+                    {d.flow ? (
+                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 rounded-lg bg-pine-50/60 p-3">
+                        {d.flow.map((s, k) => (
+                          <span key={s} className="flex items-center gap-1.5">
+                            <span className="whitespace-nowrap rounded-md border border-pine-100 bg-ivory-50 px-2 py-1 text-[0.75em] font-semibold text-pine-900">
+                              {s}
+                            </span>
+                            {k < d.flow!.length - 1 ? (
+                              <ArrowRight size={11} className="shrink-0 text-sand-500" />
+                            ) : null}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {d.quote ? (
+                      <p className="rounded-lg border-l-[3px] border-sand-500 bg-sand-100/40 py-2.5 pl-3.5 pr-3 text-[0.875em] font-medium leading-relaxed text-inkbody">
+                        {d.quote}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               ))}
-              <p className="rounded-lg bg-ivory-200/70 p-3 text-xs leading-relaxed text-inkmuted">
-                정부 사업명·예산·금리·보증한도·공고기간은 매년 바뀝니다. 실제 신청
-                시점에는 반드시 최신 공고를 확인해야 하며, 위 내용은 정책의 방향성을
-                정리한 것입니다.
+
+              <p className="rounded-lg bg-ivory-200/70 p-3.5 text-[0.8125em] leading-relaxed text-inkmuted">
+                정부 사업명·예산·지원금액·금리·보증한도·공고기간은 매년 바뀝니다. 실제
+                신청 시점에는 반드시 최신 공고를 확인해야 하며, 위 내용은 정책의
+                방향성을 정리한 것입니다. 또한 이 시스템이 있다고 해서 정책자금 수령이나
+                지원사업 선정이 보장되지는 않습니다.
               </p>
             </div>
           </motion.div>
@@ -279,21 +448,21 @@ function PolicyAccordion() {
 
 export default function IntentPage() {
   return (
-    <div className="space-y-4">
+    <div className="intent-scale space-y-4">
       {/* 히어로 — 사업전환 문장 */}
       <Reveal>
         <Card className="overflow-hidden border-0 bg-pine-900 text-white">
           <CardContent className="relative p-7 md:p-9">
-            <p className="text-xs font-semibold tracking-[0.18em] text-sand-400">
+            <p className="text-[0.75em] font-semibold tracking-[0.18em] text-sand-400">
               JLAB TECH — INDUSTRIAL MEASUREMENT BUSINESS AX
             </p>
-            <h1 className="mt-3 max-w-3xl text-2xl font-bold leading-snug md:text-4xl">
+            <h1 className="mt-3 max-w-3xl text-[1.5em] font-bold leading-snug md:text-[2.25em]">
               계측기를 납품하는 회사에서,
               <br />
               고객의 계측 데이터와 설비 상태를
               <br className="hidden sm:block" /> 함께 관리하는 회사로.
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
+            <p className="mt-4 max-w-2xl text-[1em] leading-relaxed text-white/70 md:text-[1.125em]">
               이 시스템을 만든 목적은 전산화가 아닙니다. 제이랩테크가 이미 가진
               재고·견적·고객·설치장비 데이터를 하나로 잇고, 그 데이터가 다음 매출과
               사업 확장의 근거가 되도록 만드는 것입니다.
@@ -302,7 +471,7 @@ export default function IntentPage() {
               {["업무 효율", "매출 확대", "사업 고도화 근거"].map((t) => (
                 <span
                   key={t}
-                  className="rounded-full border border-white/15 bg-white/8 px-3.5 py-1.5 text-xs font-semibold text-white/85"
+                  className="rounded-full border border-white/15 bg-white/8 px-3.5 py-1.5 text-[0.75em] font-semibold text-white/85"
                 >
                   {t}
                 </span>
@@ -474,12 +643,12 @@ export default function IntentPage() {
                   key={s.n}
                   className="flex gap-3.5 rounded-xl border border-line/70 bg-ivory-100/60 p-3.5 transition-colors hover:border-pine-100 hover:bg-pine-50/40"
                 >
-                  <span className="num flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-pine-900 text-sm font-bold text-sand-400">
+                  <span className="num flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-pine-900 text-[0.875em] font-bold text-sand-400">
                     {s.n}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-base font-bold text-pine-900">{s.t}</p>
-                    <p className="mt-0.5 text-sm leading-relaxed text-inkmuted">{s.d}</p>
+                    <p className="text-[1em] font-bold text-pine-900">{s.t}</p>
+                    <p className="mt-0.5 text-[0.875em] leading-relaxed text-inkmuted">{s.d}</p>
                   </div>
                 </div>
               ))}
@@ -548,7 +717,7 @@ export default function IntentPage() {
               ].map((t) => (
                 <span
                   key={t}
-                  className="rounded-full border border-sand-400/40 bg-sand-100/60 px-3 py-1.5 text-xs font-semibold text-sand-600"
+                  className="rounded-full border border-sand-400/40 bg-sand-100/60 px-3 py-1.5 text-[0.75em] font-semibold text-sand-600"
                 >
                   {t}
                 </span>
@@ -583,11 +752,11 @@ export default function IntentPage() {
                   key={c.t}
                   className="flex min-h-[9rem] flex-col rounded-xl border border-line bg-ivory-100/60 p-5 transition-all hover:-translate-y-0.5 hover:border-pine-100 hover:shadow-card"
                 >
-                  <span className="num mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-pine-900 text-sm font-bold text-sand-400">
+                  <span className="num mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-pine-900 text-[0.875em] font-bold text-sand-400">
                     {i + 1}
                   </span>
-                  <p className="text-lg font-bold text-pine-900">{c.t}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-inkmuted">{c.d}</p>
+                  <p className="text-[1.125em] font-bold text-pine-900">{c.t}</p>
+                  <p className="mt-1.5 text-[0.875em] leading-relaxed text-inkmuted">{c.d}</p>
                 </div>
               ))}
             </div>
@@ -612,17 +781,17 @@ export default function IntentPage() {
                 "소스코드와 데이터의 소유권을 명확히 합니다.",
                 "실제 DB 연결 후에는 여러 직원이 같은 데이터를 함께 씁니다.",
               ].map((t) => (
-                <li key={t} className="flex items-start gap-2.5 text-base leading-relaxed text-inkbody">
+                <li key={t} className="flex items-start gap-2.5 text-[1em] leading-relaxed text-inkbody">
                   <Check size={17} className="mt-1 shrink-0 text-pine-600" />
                   <span>{t}</span>
                 </li>
               ))}
             </ul>
             <div className="rounded-xl border border-sand-400/40 bg-sand-100/50 p-4">
-              <p className="text-base font-semibold leading-relaxed text-inkbody">
+              <p className="text-[1em] font-semibold leading-relaxed text-inkbody">
                 그리고 한 가지 원칙이 있습니다. 예상치를 실제 성과처럼 표시하지 않습니다.
               </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-inkmuted">
+              <p className="mt-1.5 text-[0.875em] leading-relaxed text-inkmuted">
                 현재 화면의 숫자는 데모 데이터이며, 화면에도 그렇게 표기했습니다. 실제
                 데이터를 연결하기 전까지는 목표 KPI로, 연결한 뒤에는 실제 결과로 구분해
                 보여드립니다. 보기 좋은 숫자보다 심사에서 설명할 수 있는 숫자가 중요하기
@@ -672,13 +841,13 @@ export default function IntentPage() {
                 },
               ].map((c) => (
                 <div key={c.t} className="rounded-xl border border-line bg-ivory-100/60 p-4">
-                  <p className="text-base font-bold text-pine-900">{c.t}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-inkmuted">{c.d}</p>
+                  <p className="text-[1em] font-bold text-pine-900">{c.t}</p>
+                  <p className="mt-1 text-[0.875em] leading-relaxed text-inkmuted">{c.d}</p>
                 </div>
               ))}
             </div>
             <div className="rounded-xl bg-ivory-200/60 p-4">
-              <p className="text-sm leading-relaxed text-inkmuted">
+              <p className="text-[0.875em] leading-relaxed text-inkmuted">
                 다만 분명히 해 둡니다. 이 시스템이 있다고 정책자금 수령이나 정부지원사업
                 선정이 보장되지는 않습니다. 심사에서 설명할 근거가 생기고, AX·혁신기업
                 관점의 설득력이 높아지며, 공고 요건에 맞는 경우 신청 가능성이 열리는
@@ -733,7 +902,7 @@ export default function IntentPage() {
                   )}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="clamp-1 text-base font-bold text-pine-900">{p.n}</p>
+                    <p className="clamp-1 text-[1em] font-bold text-pine-900">{p.n}</p>
                     <Badge
                       tone={
                         p.tone === "done"
@@ -746,7 +915,7 @@ export default function IntentPage() {
                       {p.s}
                     </Badge>
                   </div>
-                  <p className="mt-1.5 text-sm leading-relaxed text-inkmuted">{p.d}</p>
+                  <p className="mt-1.5 text-[0.875em] leading-relaxed text-inkmuted">{p.d}</p>
                 </div>
               ))}
             </div>
@@ -762,15 +931,15 @@ export default function IntentPage() {
       <Reveal delay={0.1}>
         <Card className="overflow-hidden border-0 bg-pine-900 text-white">
           <CardContent className="relative p-7 md:p-9">
-            <span className="inline-flex items-center gap-2 rounded-full border border-sand-500/30 bg-sand-500/10 px-3 py-1.5 text-xs font-semibold text-sand-400">
+            <span className="inline-flex items-center gap-2 rounded-full border border-sand-500/30 bg-sand-500/10 px-3 py-1.5 text-[0.75em] font-semibold text-sand-400">
               <Layers size={13} /> 지금 결정해야 할 것
             </span>
-            <h2 className="mt-3.5 max-w-3xl text-xl font-bold leading-snug md:text-2xl">
+            <h2 className="mt-3.5 max-w-3xl text-[1.25em] font-bold leading-snug md:text-[1.5em]">
               이 화면들은 완성품이 아니라, 제이랩테크에 맞게 다듬기 위한 출발점입니다.
             </h2>
             <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-xl border border-white/12 bg-white/5 p-5">
-                <p className="text-base font-bold text-white">
+                <p className="text-[1em] font-bold text-white">
                   실제로 쓰기 시작하면 생기는 것
                 </p>
                 <ul className="mt-2.5 space-y-1.5">
@@ -780,7 +949,7 @@ export default function IntentPage() {
                     "견적 시간·발주 누락·재구매율의 Before & After",
                     "교정·소모품에서 나오는 추가 매출 라인",
                   ].map((t) => (
-                    <li key={t} className="flex items-start gap-2 text-sm leading-relaxed text-white/70">
+                    <li key={t} className="flex items-start gap-2 text-[0.875em] leading-relaxed text-white/70">
                       <Check size={15} className="mt-0.5 shrink-0 text-sand-400" />
                       <span>{t}</span>
                     </li>
@@ -788,7 +957,7 @@ export default function IntentPage() {
                 </ul>
               </div>
               <div className="rounded-xl border border-white/12 bg-white/5 p-5">
-                <p className="text-base font-bold text-white">그 기록이 향하는 곳</p>
+                <p className="text-[1em] font-bold text-white">그 기록이 향하는 곳</p>
                 <ul className="mt-2.5 space-y-1.5">
                   {[
                     "정책금융이 보는 전략·조직·기술·성과 네 관점의 증거",
@@ -796,7 +965,7 @@ export default function IntentPage() {
                     "R&D·바우처·실증사업 신청 시 설명 가능한 현장 사례",
                     "다음 단계 투자·확장을 판단할 회사 자체 데이터",
                   ].map((t) => (
-                    <li key={t} className="flex items-start gap-2 text-sm leading-relaxed text-white/70">
+                    <li key={t} className="flex items-start gap-2 text-[0.875em] leading-relaxed text-white/70">
                       <ArrowRight size={15} className="mt-0.5 shrink-0 text-sand-400" />
                       <span>{t}</span>
                     </li>
@@ -804,7 +973,7 @@ export default function IntentPage() {
                 </ul>
               </div>
             </div>
-            <p className="mt-5 max-w-3xl text-base leading-relaxed text-white/70">
+            <p className="mt-5 max-w-3xl text-[1em] leading-relaxed text-white/70">
               시스템을 도입한다는 것은 프로그램을 하나 사는 일이 아닙니다. 회사가 판단하는
               방식을 데이터 위에 올려놓고, 그 과정을 기록으로 남기기 시작한다는 뜻입니다.
               그 기록은 시간이 지날수록 쌓이기만 하고 줄지 않습니다. 지금 시작하면 1년 뒤에
@@ -827,7 +996,7 @@ export default function IntentPage() {
                 </Button>
               </Link>
             </div>
-            <p className="mt-6 border-t border-white/10 pt-4 text-xs text-white/40">
+            <p className="mt-6 border-t border-white/10 pt-4 text-[0.75em] text-white/40">
               Planned &amp; Built by 미래에이아이랩 &amp; 곽주완
             </p>
             <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-sand-500/10 blur-3xl" />

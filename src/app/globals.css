@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 /* ---- Font-size scale (설정 페이지의 글자 크기 조정과 연동) ----
-   기존 14 / 16 / 18px 에서 각 단계를 10% 확대한 값 */
+   모바일·태블릿 기준값. PC(lg 이상)에서는 아래에서 5% 더 키운다. */
 html {
   font-size: 17.6px;
 }
@@ -14,6 +14,19 @@ html[data-fontsize="small"] {
 }
 html[data-fontsize="large"] {
   font-size: 19.8px;
+}
+
+/* PC 전용 — 세 단계 모두 5% 확대 */
+@media (min-width: 1024px) {
+  html {
+    font-size: 18.48px;
+  }
+  html[data-fontsize="small"] {
+    font-size: 16.17px;
+  }
+  html[data-fontsize="large"] {
+    font-size: 20.79px;
+  }
 }
 
 html {
@@ -63,6 +76,18 @@ body {
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #b8b19c;
+  }
+}
+
+/* ---- 기획의도 페이지 전용 글자 확대 ----
+   페이지 내부의 글자 크기는 모두 em 기반이므로, 여기서 기준값만 올리면
+   전체가 비례해서 커진다. 모바일 +7%, PC +10%. */
+.intent-scale {
+  font-size: 1.07rem;
+}
+@media (min-width: 1024px) {
+  .intent-scale {
+    font-size: 1.1rem;
   }
 }
 

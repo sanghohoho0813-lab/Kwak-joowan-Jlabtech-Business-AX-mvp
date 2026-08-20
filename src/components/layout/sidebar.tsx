@@ -79,16 +79,35 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <Link
         href="/"
         onClick={onNavigate}
-        className="flex items-center gap-3 px-4 pb-4 pt-6"
+        className="block px-4 pb-4 pt-6 transition-opacity hover:opacity-90"
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
-          <Ruler className="h-5 w-5 text-sand-400" strokeWidth={1.75} />
+        <div className="flex items-start gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
+            <Ruler className="h-[1.375rem] w-[1.375rem] text-sand-400" strokeWidth={1.75} />
+          </div>
+          <div className="min-w-0 pt-0.5">
+            <p className="text-lg font-bold leading-tight tracking-tight text-white">
+              제이랩테크(주)
+            </p>
+            <p className="text-[0.6875rem] font-semibold leading-tight tracking-[0.05em] text-white/50">
+              JLAB TECH
+            </p>
+          </div>
         </div>
-        <div className="min-w-0">
-          <p className="text-base font-bold tracking-tight text-white">JLAB TECH</p>
-          <p className="clamp-1 text-[0.625rem] font-medium tracking-wide text-white/45">
-            Industrial Measurement Business AX
+
+        {/* 사업 정체성 — 잘리지 않게 두 줄로 명확히 */}
+        <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2.5">
+          <p className="text-[0.6875rem] font-medium leading-snug text-white/55">
+            Industrial Measurement
           </p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <p className="text-sm font-bold leading-tight tracking-wide text-sand-400">
+              Business AX
+            </p>
+            <span className="inline-flex h-[1.125rem] shrink-0 items-center rounded-md bg-sand-500/20 px-1.5 text-[0.625rem] font-bold leading-none tracking-wider text-sand-400 ring-1 ring-sand-500/25">
+              MVP
+            </span>
+          </div>
         </div>
       </Link>
 
@@ -127,8 +146,10 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             박
           </div>
           <div className="min-w-0">
-            <p className="clamp-1 text-base font-semibold text-white">박지훈 대표님</p>
-            <p className="clamp-2 text-[0.625rem] leading-snug text-white/40">
+            <p className="clamp-1 text-[1.1rem] font-semibold leading-tight text-white">
+              박지훈 대표님
+            </p>
+            <p className="clamp-2 mt-0.5 text-[0.65rem] leading-snug text-white/40">
               Planned &amp; Built by
               <br />
               미래에이아이랩 &amp; 곽주완

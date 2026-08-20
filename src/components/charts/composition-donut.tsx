@@ -11,7 +11,7 @@ interface Props {
 
 export function CompositionDonut({ data, centerLabel, centerValue }: Props) {
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-6">
+    <div className="flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-6">
       <div className="relative h-44 w-44 shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -48,7 +48,7 @@ export function CompositionDonut({ data, centerLabel, centerValue }: Props) {
         ) : null}
       </div>
 
-      <ul className="w-full max-w-[12rem] space-y-2">
+      <ul className="w-full min-w-0 max-w-[12rem] space-y-2">
         {data.map((slice) => (
           <li key={slice.name} className="flex items-center gap-2.5 text-xs">
             <span

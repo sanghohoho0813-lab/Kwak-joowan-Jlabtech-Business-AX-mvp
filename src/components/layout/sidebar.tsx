@@ -128,8 +128,10 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </div>
           <div className="min-w-0">
             <p className="clamp-1 text-base font-semibold text-white">박지훈 대표님</p>
-            <p className="clamp-1 text-[0.625rem] leading-relaxed text-white/40">
-              Planned &amp; Built by 미래에이아이랩 &amp; 곽주완
+            <p className="clamp-2 text-[0.625rem] leading-snug text-white/40">
+              Planned &amp; Built by
+              <br />
+              미래에이아이랩 &amp; 곽주완
             </p>
           </div>
         </div>

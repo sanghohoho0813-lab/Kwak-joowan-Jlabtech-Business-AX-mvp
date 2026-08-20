@@ -137,15 +137,15 @@ export default function TutorialPage() {
                 <Card className="group h-full transition-all hover:-translate-y-0.5 hover:border-pine-100 hover:shadow-card-hover">
                   <CardContent className="flex h-full flex-col p-6">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="flex min-w-0 items-center gap-4">
-                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-pine-50 text-pine-700 transition-colors group-hover:bg-pine-700 group-hover:text-white">
-                          <Icon size={26} strokeWidth={1.75} />
+                      <div className="flex min-w-0 items-center gap-3.5 sm:gap-4">
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-pine-50 text-pine-700 transition-colors group-hover:bg-pine-700 group-hover:text-white sm:h-14 sm:w-14">
+                          <Icon size={24} strokeWidth={1.75} />
                         </span>
                         <div className="min-w-0">
                           <p className="num text-sm font-bold tracking-wider text-sand-600">
                             {item.step}
                           </p>
-                          <h3 className="clamp-2 text-[1.75rem] font-bold leading-tight text-pine-900">
+                          <h3 className="text-2xl font-bold leading-tight text-pine-900 sm:text-[1.75rem]">
                             {item.title}
                           </h3>
                         </div>

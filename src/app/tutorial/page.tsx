@@ -109,7 +109,7 @@ const steps: Step[] = [
     menu: "마진 가드",
     spot: "'할인 시뮬레이터'의 할인율 슬라이더",
     body: "할인을 얼마까지 줘도 되는지 알려줍니다. 견적을 내기 전에 시뮬레이터에서 할인율을 움직여 보면 마진율이 하한선을 넘는지 바로 확인할 수 있습니다.",
-    tip: "매출이 늘어도 마진이 새면 남는 것이 없습니다. 견적 전 1분이면 됩니다.",
+    tip: "견적 전에 한 번만 확인해도, 매출은 늘었는데 남는 것이 없는 상황을 피할 수 있습니다.",
   },
   {
     icon: Wrench,
@@ -125,12 +125,12 @@ const steps: Step[] = [
   {
     icon: Compass,
     label: "기획의도",
-    title: "기획의도를 꼭 읽어보세요",
+    title: "기획의도 — 큰 그림 보기",
     href: "/intent",
     group: "안내",
     menu: "기획의도",
     spot: "화면 오른쪽 위 [기획의도] 버튼 · 03번 섹션의 정책 브리핑",
-    body: "이 시스템을 왜 만들었는지, 회사가 어디로 갈 수 있는지, 정책자금·정부지원사업과 어떻게 연결되는지가 정리되어 있습니다. 5분이면 읽습니다.",
+    body: "이 시스템이 회사의 경쟁력·자금·비용·매출·사업모델과 각각 어떻게 연결되는지 정리되어 있습니다. 5분이면 전체 그림이 잡힙니다.",
     tip: "03번 섹션 안의 '2026년 AX 정책 흐름' 브리핑은 9개 기관별로 하나씩 확인할 수 있습니다.",
   },
   {
@@ -211,10 +211,52 @@ export default function TutorialPage() {
                 <Check size={32} strokeWidth={2.2} />
               </span>
               <h1 className="text-2xl font-bold md:text-3xl">안내를 모두 보셨습니다</h1>
-              <p className="mx-auto mt-3 max-w-xl text-lg leading-relaxed text-white/70">
-                이제 대시보드를 열면 오늘 할 일이 정리되어 있습니다. 헤매실 일이 생기면
-                오른쪽 위 &lsquo;사용 방법&rsquo; 버튼으로 언제든 돌아오세요.
+              <p className="mx-auto mt-3 max-w-2xl text-lg leading-relaxed text-white/70">
+                이제 대시보드를 열면 오늘 할 일이 정리되어 있습니다. 다시 확인하고 싶으실 때는
+                오른쪽 위 &lsquo;사용 방법&rsquo; 버튼으로 언제든 돌아오실 수 있습니다.
               </p>
+
+              {/* 이 시스템으로 할 수 있게 되는 것 */}
+              <div className="mx-auto mt-7 grid max-w-3xl grid-cols-1 gap-3 text-left sm:grid-cols-2">
+                {[
+                  {
+                    n: "01",
+                    t: "낭비되던 시간이 줄어듭니다",
+                    d: "재고 파악, 견적 작성, 발주 판단이 화면 하나에서 끝납니다.",
+                  },
+                  {
+                    n: "02",
+                    t: "매출이 나오는 곳이 보입니다",
+                    d: "어느 고객이 언제 다시 살지, 어떤 품목이 마진을 지키는지 데이터가 알려줍니다.",
+                  },
+                  {
+                    n: "03",
+                    t: "기록이 회사 자산으로 남습니다",
+                    d: "발주·견적·고객 접촉이 담당자 기억이 아니라 시스템에 쌓입니다.",
+                  },
+                  {
+                    n: "04",
+                    t: "다음 단계의 근거가 됩니다",
+                    d: "쌓인 기록은 사업 고도화와 정책자금 검토에서 설명할 자료가 됩니다.",
+                  },
+                ].map((c) => (
+                  <div
+                    key={c.n}
+                    className="rounded-xl border border-white/12 bg-white/5 p-4 transition-colors hover:border-sand-500/30 hover:bg-white/[0.08]"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="num shrink-0 text-base font-bold leading-none text-sand-500/50">
+                        {c.n}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-lg font-bold leading-snug text-sand-400">{c.t}</p>
+                        <p className="mt-1 text-base leading-relaxed text-white/65">{c.d}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <div className="mt-7 flex flex-wrap justify-center gap-3">
                 <Link href="/">
                   <Button variant="gold" size="lg">
@@ -262,7 +304,7 @@ export default function TutorialPage() {
                           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-pine-50 text-pine-700 transition-colors group-hover:bg-pine-700 group-hover:text-white">
                             <MIcon size={21} strokeWidth={1.9} />
                           </span>
-                          <span className="clamp-1">{m.title}</span>
+                          <span className="clamp-2 leading-tight">{m.title}</span>
                         </span>
                         <ArrowRight
                           size={20}
@@ -312,8 +354,8 @@ export default function TutorialPage() {
           사용 방법
         </h1>
         <p className="mt-2.5 max-w-3xl text-lg leading-relaxed text-inkmuted">
-          아래 [다음]을 누르면 순서대로 안내해 드립니다. 각 단계마다 그 기능이 화면
-          어디에 있는지도 함께 알려드립니다.
+          8단계를 따라가시면 이 시스템으로 무엇을 할 수 있는지 한 바퀴 보실 수 있습니다.
+          각 단계마다 그 기능이 화면 어디에 있는지도 함께 알려드립니다.
         </p>
       </Reveal>
 

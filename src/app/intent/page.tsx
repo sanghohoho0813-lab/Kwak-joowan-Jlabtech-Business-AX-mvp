@@ -1401,7 +1401,7 @@ export default function IntentPage() {
             </h2>
             <p className="mt-3 max-w-3xl text-[1.05em] leading-relaxed text-white/70 md:text-[1.18em]">
               재고를 정리하려고 만든 프로그램 하나가, 실제로는 경쟁력·자금·비용·매출·
-              사업모델까지 함께 건드립니다. 이미 여러 업종의 기업들이 같은 이유로 AX
+              사업모델까지 함께 담당합니다. 이미 여러 업종의 기업들이 같은 이유로 AX
               도입을 시작하고 있습니다.
             </p>
 
@@ -1437,18 +1437,25 @@ export default function IntentPage() {
                   title: "흔들리지 않는 운영 체계",
                   body: "담당자가 바뀌어도, 회사가 커져도 판단 기준이 그대로 남습니다. 개인의 기억이 아니라 회사의 데이터가 일하기 때문입니다.",
                 },
-              ].map((c) => {
+              ].map((c, ci) => {
                 const CIcon = c.icon;
                 return (
                   <div
                     key={c.title}
                     className="rounded-xl border border-white/12 bg-white/5 p-5 transition-colors duration-200 hover:border-sand-500/30 hover:bg-white/[0.08]"
                   >
-                    <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-sand-500/15 text-sand-400">
-                      <CIcon size={19} strokeWidth={1.9} />
-                    </span>
-                    <p className="text-[1.05em] font-bold text-white">{c.title}</p>
-                    <p className="mt-1.5 text-[0.92em] leading-relaxed text-white/65">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sand-500/15 text-sand-400">
+                        <CIcon size={19} strokeWidth={1.9} />
+                      </span>
+                      <span className="num text-[1.1em] font-bold leading-none text-sand-500/45">
+                        {String(ci + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <p className="text-[1.21em] font-bold leading-snug text-sand-400">
+                      {c.title}
+                    </p>
+                    <p className="mt-2 text-[0.92em] leading-relaxed text-white/65">
                       {c.body}
                     </p>
                   </div>

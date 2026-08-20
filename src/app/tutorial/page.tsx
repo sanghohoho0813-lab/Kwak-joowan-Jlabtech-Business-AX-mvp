@@ -4,10 +4,11 @@
  * 사용 방법 — 스텝형 튜토리얼
  *
  * 카드를 하나씩 눌러 보는 방식이 아니라, [다음] 버튼으로 순서대로 흘러가는
- * 가이드 투어. 마지막 스텝에서 확장 모듈을 소개하고 대시보드로 보낸다.
+ * 가이드 투어. 각 스텝에는 "이 기능이 화면 어디에 있는지"를 함께 보여주고,
+ * 좌측 목차는 현재 스텝 위치로 자동 스크롤된다.
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -27,6 +28,9 @@ import {
   Landmark,
   Check,
   RotateCcw,
+  MapPin,
+  PanelLeft,
+  Crosshair,
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +45,12 @@ interface Step {
   label: string;
   title: string;
   href: string;
+  /** 사이드바에서 어느 그룹에 있는지 */
+  group: string;
+  /** 사이드바 메뉴 이름 */
+  menu: string;
+  /** 페이지 안에서 정확히 어느 부분을 보라는 안내 */
+  spot: string;
   body: string;
   tip: string;
 }
@@ -51,6 +61,9 @@ const steps: Step[] = [
     label: "대시보드",
     title: "대시보드에서 시작하세요",
     href: "/",
+    group: "운영",
+    menu: "대시보드",
+    spot: "화면 맨 위 '오늘의 실행 과제' 4칸",
     body: "매일 아침 이 화면 하나면 됩니다. 맨 위 '오늘의 실행 과제'가 오늘 발주할 품목, 연락할 고객, 교정 갈 현장, 마진이 위험한 품목을 한 줄로 정리해 줍니다.",
     tip: "숫자 카드 아래 작은 그래프는 최근 흐름을 보여줍니다.",
   },
@@ -59,14 +72,20 @@ const steps: Step[] = [
     label: "재고·수요",
     title: "재고·수요 관리",
     href: "/inventory",
+    group: "운영",
+    menu: "재고·수요 관리",
+    spot: "'품목별 재고 현황' 표의 맨 오른쪽 [발주] 버튼",
     body: "품목별 재고와 30일 예측 수요를 비교해 줍니다. '발주' 버튼이 보이는 품목은 곧 재고가 부족해진다는 신호이고, 버튼을 누르면 권장 수량으로 발주가 등록됩니다.",
-    tip: "등록한 발주는 대기 → 확정 → 입고 순서로 상태를 넘길 수 있습니다.",
+    tip: "등록한 발주는 표 아래 '발주 현황'에서 대기 → 확정 → 입고 순서로 넘길 수 있습니다.",
   },
   {
     icon: Sparkles,
     label: "AI 추천",
     title: "AI 추천·견적",
     href: "/recommend",
+    group: "운영",
+    menu: "AI 추천·견적",
+    spot: "왼쪽 '고객 상황 입력' 패널 → [추천 받기]",
     body: "고객의 업종, 측정 목적, 설치 환경, 예산 4가지만 고르면 적합한 장비와 함께 팔면 좋은 소모품, 예상 견적 흐름까지 제안합니다.",
     tip: "추천 사유가 함께 표시되므로 고객 설명 자료로도 쓸 수 있습니다.",
   },
@@ -75,6 +94,9 @@ const steps: Step[] = [
     label: "재구매",
     title: "재구매 예측",
     href: "/repurchase",
+    group: "운영",
+    menu: "재구매 예측",
+    spot: "'우선 관리 고객' 카드의 [연락 기록] 버튼",
     body: "기존 고객의 구매 주기를 분석해 '언제, 누구에게, 무엇을' 제안할지 알려줍니다. 즉시 연락 고객부터 확인하고, 연락한 뒤에는 기록을 남겨 두세요.",
     tip: "고객이 연락하기 전에 우리가 먼저 제안하는 것이 이 기능의 핵심입니다.",
   },
@@ -83,6 +105,9 @@ const steps: Step[] = [
     label: "마진 가드",
     title: "마진 가드로 수익을 지키세요",
     href: "/margin",
+    group: "수익·자산 관리",
+    menu: "마진 가드",
+    spot: "'할인 시뮬레이터'의 할인율 슬라이더",
     body: "할인을 얼마까지 줘도 되는지 알려줍니다. 견적을 내기 전에 시뮬레이터에서 할인율을 움직여 보면 마진율이 하한선을 넘는지 바로 확인할 수 있습니다.",
     tip: "매출이 늘어도 마진이 새면 남는 것이 없습니다. 견적 전 1분이면 됩니다.",
   },
@@ -91,6 +116,9 @@ const steps: Step[] = [
     label: "설치장비",
     title: "설치장비 관리",
     href: "/installed",
+    group: "수익·자산 관리",
+    menu: "설치장비 관리",
+    spot: "'교정 예정 장비 (30일 내)' 카드의 [방문 예약]",
     body: "고객 현장에 설치된 장비의 교정 시기와 보증 상태를 봅니다. 30일 내 교정 대상이 자동으로 뜨고, 방문 예약을 눌러 일정을 기록할 수 있습니다.",
     tip: "교정 방문 시 소모품을 함께 제안하면 방문 1회로 두 가지 매출이 생깁니다.",
   },
@@ -99,20 +127,26 @@ const steps: Step[] = [
     label: "기획의도",
     title: "기획의도를 꼭 읽어보세요",
     href: "/intent",
+    group: "안내",
+    menu: "기획의도",
+    spot: "화면 오른쪽 위 [기획의도] 버튼 · 03번 섹션의 정책 브리핑",
     body: "이 시스템을 왜 만들었는지, 회사가 어디로 갈 수 있는지, 정책자금·정부지원사업과 어떻게 연결되는지가 정리되어 있습니다. 5분이면 읽습니다.",
-    tip: "화면 오른쪽 위 '기획의도' 버튼으로 언제든 다시 열 수 있습니다.",
+    tip: "03번 섹션 안의 '2026년 AX 정책 흐름' 브리핑은 9개 기관별로 하나씩 확인할 수 있습니다.",
   },
   {
     icon: Settings,
     label: "설정",
     title: "내게 맞게 설정하기",
     href: "/settings",
+    group: "안내",
+    menu: "설정",
+    spot: "맨 위 '글자 크기' — 작게 / 기본 / 크게",
     body: "글자가 작게 느껴지면 설정에서 글자 크기를 '크게'로 바꿔 보세요. 새로고침해도 유지됩니다. 저장된 발주·견적·활동 기록도 여기서 확인하고 초기화할 수 있습니다.",
     tip: "이 안내를 다시 보고 싶을 때도 설정에서 초기화할 수 있습니다.",
   },
 ];
 
-/** 마지막 스텝에서 함께 소개하는 나머지 확장 모듈 */
+/** 마지막 완료 화면에서 함께 소개하는 나머지 확장 모듈 */
 const remainingModules = [
   {
     icon: DraftingCompass,
@@ -138,6 +172,22 @@ export default function TutorialPage() {
   const [index, setIndex] = useState(0);
   const [done, setDone] = useState(false);
 
+  // 목차가 현재 스텝을 따라 스크롤되도록
+  const tocRef = useRef<HTMLDivElement | null>(null);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  useEffect(() => {
+    const el = itemRefs.current[index];
+    const container = tocRef.current;
+    if (!el || !container) return;
+    const eb = el.getBoundingClientRect();
+    const cb = container.getBoundingClientRect();
+    const outside = eb.top < cb.top || eb.bottom > cb.bottom || eb.left < cb.left || eb.right > cb.right;
+    if (outside) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    }
+  }, [index]);
+
   const step = steps[index];
   const Icon = step.icon;
   const isLast = index === steps.length - 1;
@@ -160,9 +210,7 @@ export default function TutorialPage() {
               <span className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-sand-500/20 text-sand-400">
                 <Check size={32} strokeWidth={2.2} />
               </span>
-              <h1 className="text-2xl font-bold md:text-3xl">
-                안내를 모두 보셨습니다
-              </h1>
+              <h1 className="text-2xl font-bold md:text-3xl">안내를 모두 보셨습니다</h1>
               <p className="mx-auto mt-3 max-w-xl text-lg leading-relaxed text-white/70">
                 이제 대시보드를 열면 오늘 할 일이 정리되어 있습니다. 헤매실 일이 생기면
                 오른쪽 위 &lsquo;사용 방법&rsquo; 버튼으로 언제든 돌아오세요.
@@ -191,7 +239,6 @@ export default function TutorialPage() {
           </Card>
         </Reveal>
 
-        {/* 나머지 확장 모듈 */}
         <Reveal delay={0.08}>
           <Card>
             <CardContent className="p-6">
@@ -265,13 +312,14 @@ export default function TutorialPage() {
           사용 방법
         </h1>
         <p className="mt-2.5 max-w-3xl text-lg leading-relaxed text-inkmuted">
-          아래 [다음]을 누르면 순서대로 안내해 드립니다. 8단계, 5분이면 끝납니다.
+          아래 [다음]을 누르면 순서대로 안내해 드립니다. 각 단계마다 그 기능이 화면
+          어디에 있는지도 함께 알려드립니다.
         </p>
       </Reveal>
 
-      {/* 진행 표시 */}
+      {/* 진행률 */}
       <Reveal delay={0.04}>
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <div className="flex items-baseline justify-between gap-3">
             <p className="num text-base font-bold text-pine-800">
               {index + 1}
@@ -288,7 +336,6 @@ export default function TutorialPage() {
               건너뛰기
             </button>
           </div>
-
           <div className="h-2 overflow-hidden rounded-full bg-ivory-400/60">
             <motion.div
               className="h-full rounded-full bg-pine-700"
@@ -297,97 +344,172 @@ export default function TutorialPage() {
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             />
           </div>
+        </div>
+      </Reveal>
 
-          {/* 스텝 점 — 클릭으로 이동도 가능 */}
-          <div className="flex flex-wrap gap-1.5">
-            {steps.map((s, i) => (
-              <button
-                key={s.label}
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-label={`${i + 1}단계 ${s.label}`}
-                className={cn(
-                  "h-1.5 flex-1 rounded-full transition-all duration-300",
-                  i === index
-                    ? "bg-sand-500"
-                    : i < index
-                      ? "bg-pine-600/50"
-                      : "bg-line hover:bg-sage-500/60",
-                )}
-              />
-            ))}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[16rem_1fr]">
+        {/* 목차 — 현재 단계로 자동 스크롤 */}
+        <Reveal delay={0.06} className="min-w-0">
+          <Card className="xl:sticky xl:top-24">
+            <CardContent className="p-3">
+              <p className="px-2 pb-2 pt-1 text-sm font-bold uppercase tracking-wider text-inkmuted">
+                목차
+              </p>
+              <div
+                ref={tocRef}
+                className="flex gap-2 overflow-x-auto pb-1 xl:max-h-[26rem] xl:flex-col xl:gap-1 xl:overflow-y-auto xl:overflow-x-visible xl:pb-0"
+              >
+                {steps.map((s, i) => {
+                  const SIcon = s.icon;
+                  const active = i === index;
+                  const passed = i < index;
+                  return (
+                    <button
+                      key={s.label}
+                      type="button"
+                      ref={(el) => {
+                        itemRefs.current[i] = el;
+                      }}
+                      onClick={() => setIndex(i)}
+                      className={cn(
+                        "flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-all duration-200 xl:w-full xl:shrink",
+                        active
+                          ? "bg-pine-700 text-white shadow-sm"
+                          : passed
+                            ? "bg-pine-50/70 text-pine-800 hover:bg-pine-50"
+                            : "text-inkmuted hover:bg-ivory-200",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-sm font-bold",
+                          active
+                            ? "bg-white/15 text-sand-400"
+                            : passed
+                              ? "bg-pine-600 text-white"
+                              : "bg-ivory-200 text-inkmuted",
+                        )}
+                      >
+                        {passed ? <Check size={14} strokeWidth={3} /> : i + 1}
+                      </span>
+                      <span className="flex min-w-0 items-center gap-2">
+                        <SIcon size={16} className="shrink-0 opacity-70" />
+                        <span
+                          className={cn(
+                            "whitespace-nowrap text-base xl:truncate",
+                            active ? "font-bold" : "font-medium",
+                          )}
+                        >
+                          {s.label}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </Reveal>
+
+        {/* 본문 */}
+        <div className="min-w-0 overflow-x-clip">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Card>
+                <CardContent className="p-6 md:p-8">
+                  <div className="flex items-center gap-4">
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-pine-50 text-pine-700 md:h-16 md:w-16">
+                      <Icon size={28} strokeWidth={1.75} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="num text-base font-bold tracking-wider text-sand-600">
+                        STEP {index + 1}
+                      </p>
+                      <h2 className="text-2xl font-bold leading-tight text-pine-900 md:text-[2rem]">
+                        {step.title}
+                      </h2>
+                    </div>
+                  </div>
+
+                  {/* 위치 안내 — 어디를 보면 되는지 */}
+                  <div className="mt-5 rounded-xl border border-pine-100 bg-pine-50/60 p-4 md:p-5">
+                    <p className="mb-3 flex items-center gap-2 text-base font-bold uppercase tracking-wider text-pine-700">
+                      <MapPin size={17} />
+                      이 기능은 여기 있습니다
+                    </p>
+
+                    {/* 사이드바 경로 */}
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                      <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-ivory-50 px-2.5 py-1.5 text-base font-medium text-inkmuted ring-1 ring-line">
+                        <PanelLeft size={15} />
+                        왼쪽 메뉴
+                      </span>
+                      <ArrowRight size={15} className="shrink-0 text-sand-500" />
+                      <span className="whitespace-nowrap rounded-lg bg-ivory-50 px-2.5 py-1.5 text-base font-medium text-inkmuted ring-1 ring-line">
+                        {step.group}
+                      </span>
+                      <ArrowRight size={15} className="shrink-0 text-sand-500" />
+                      <span className="whitespace-nowrap rounded-lg bg-pine-700 px-2.5 py-1.5 text-base font-bold text-white">
+                        {step.menu}
+                      </span>
+                    </div>
+
+                    {/* 화면 내 위치 */}
+                    <p className="mt-3 flex items-start gap-2.5 border-t border-pine-100 pt-3 text-lg leading-relaxed text-pine-900">
+                      <Crosshair size={20} className="mt-1 shrink-0 text-pine-600" />
+                      <span>
+                        <span className="font-semibold">화면에서 볼 곳 · </span>
+                        {step.spot}
+                      </span>
+                    </p>
+                  </div>
+
+                  <p className="mt-5 text-2xl leading-relaxed text-inkbody">{step.body}</p>
+
+                  <p className="mt-5 flex items-start gap-3 rounded-xl bg-ivory-100 p-4 text-lg leading-relaxed text-inkmuted md:p-5">
+                    <Lightbulb size={24} className="mt-1 shrink-0 text-sand-500" />
+                    <span>{step.tip}</span>
+                  </p>
+
+                  <Link
+                    href={step.href}
+                    className="mt-5 inline-flex items-center gap-2 text-lg font-semibold text-pine-700 underline-offset-4 transition-colors hover:text-pine-600 hover:underline"
+                  >
+                    이 화면 직접 열어보기
+                    <ArrowRight size={18} />
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* 이동 버튼 */}
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <Button
+              variant="outline"
+              size="lg"
+              disabled={index === 0}
+              onClick={() => setIndex((i) => Math.max(0, i - 1))}
+            >
+              <ArrowLeft size={16} />
+              이전
+            </Button>
+            <Button
+              size="lg"
+              onClick={() => (isLast ? setDone(true) : setIndex((i) => i + 1))}
+            >
+              {isLast ? "안내 마치기" : "다음"}
+              {isLast ? <Check size={16} /> : <ArrowRight size={16} />}
+            </Button>
           </div>
         </div>
-      </Reveal>
-
-      {/* 본문 카드 — 전환 시 x축 슬라이드가 화면 밖으로 나가지 않도록 가로만 클립 */}
-      <div className="min-h-[24rem] overflow-x-clip">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -24 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <Card>
-              <CardContent className="p-6 md:p-8">
-                <div className="flex items-center gap-4">
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-pine-50 text-pine-700 md:h-16 md:w-16">
-                    <Icon size={28} strokeWidth={1.75} />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="num text-base font-bold tracking-wider text-sand-600">
-                      STEP {index + 1}
-                    </p>
-                    <h2 className="text-2xl font-bold leading-tight text-pine-900 md:text-[2rem]">
-                      {step.title}
-                    </h2>
-                  </div>
-                </div>
-
-                <p className="mt-6 text-2xl leading-relaxed text-inkbody">{step.body}</p>
-
-                <p className="mt-5 flex items-start gap-3 rounded-xl bg-ivory-100 p-4 text-lg leading-relaxed text-inkmuted md:p-5">
-                  <Lightbulb size={24} className="mt-1 shrink-0 text-sand-500" />
-                  <span>{step.tip}</span>
-                </p>
-
-                <Link
-                  href={step.href}
-                  className="mt-5 inline-flex items-center gap-2 text-lg font-semibold text-pine-700 underline-offset-4 transition-colors hover:text-pine-600 hover:underline"
-                >
-                  이 화면 직접 열어보기
-                  <ArrowRight size={18} />
-                </Link>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </AnimatePresence>
       </div>
-
-      {/* 이동 버튼 */}
-      <Reveal delay={0.06}>
-        <div className="flex items-center justify-between gap-3">
-          <Button
-            variant="outline"
-            size="lg"
-            disabled={index === 0}
-            onClick={() => setIndex((i) => Math.max(0, i - 1))}
-          >
-            <ArrowLeft size={16} />
-            이전
-          </Button>
-
-          <Button
-            size="lg"
-            onClick={() => (isLast ? setDone(true) : setIndex((i) => i + 1))}
-          >
-            {isLast ? "안내 마치기" : "다음"}
-            {isLast ? <Check size={16} /> : <ArrowRight size={16} />}
-          </Button>
-        </div>
-      </Reveal>
     </div>
   );
 }

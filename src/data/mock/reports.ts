@@ -58,15 +58,15 @@ export const reports: ReportDefinition[] = [
     description: "품목별 마진 구조와 할인으로 인한 수익 영향을 분석합니다.",
     period: "최근 90일",
     metrics: [
-      { label: "평균 마진율", value: "27.4%", deltaLabel: "하한선 대비 +2.1%p", positive: true },
-      { label: "마진 위험 품목", value: "2개 품목", deltaLabel: "즉시 조정 필요", positive: false },
-      { label: "할인 손실 추정", value: "₩ 1.8억", deltaLabel: "정가 대비 실판매 차액" },
-      { label: "개선 기회", value: "₩ 0.9억", deltaLabel: "하한선 복원 시 추정" },
+      { label: "평균 마진율", value: "29.3%", deltaLabel: "판매량 가중 평균", positive: true },
+      { label: "마진 위험 품목", value: "3개 품목", deltaLabel: "하한선 아래로 판매 중", positive: false },
+      { label: "할인 손실 추정", value: "₩ 5.7억", deltaLabel: "정가 대비 실판매 차액" },
+      { label: "회복 가능 금액", value: "₩ 1.4억", deltaLabel: "하한선 복원 시 추정" },
     ],
     highlights: [
-      "온도 센서(TS-200)의 실판매 마진율이 하한선을 밑돌아 단가 재협상이 필요합니다.",
-      "압력 센서(PS-150)는 할인 폭이 커 판매량 대비 수익 기여가 낮습니다.",
-      "액세서리 품목은 마진율이 높아 장비 판매 시 동반 제안을 늘리는 것이 유효합니다.",
+      "압력 센서(PS-150)는 마진율 11.8%로 하한선(24%)을 크게 밑돌아 단가 재협상이 시급합니다.",
+      "온도 센서(TS-200)는 판매량이 가장 많은 품목이면서 마진율이 17.9%에 그쳐, 회복 시 효과가 가장 큽니다.",
+      "액세서리(교정 키트·pH 프로브)는 마진율 40% 이상으로 장비 판매 시 동반 제안을 늘리는 것이 유효합니다.",
     ],
   },
 ];

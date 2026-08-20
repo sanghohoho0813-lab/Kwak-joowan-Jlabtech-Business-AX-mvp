@@ -31,7 +31,7 @@ export function Topbar() {
           <h2 className="clamp-1 text-sm font-bold text-pine-900 md:text-base">
             {title}
           </h2>
-          <p className="clamp-1 hidden text-2xs text-inkmuted md:block">
+          <p className="hidden truncate text-2xs text-inkmuted md:block">
             JLAB TECH AX 플랫폼 — 데이터 기반 운영 인사이트
           </p>
         </div>

@@ -8,20 +8,21 @@ import {
   Boxes,
   Sparkles,
   RefreshCcw,
-  Settings,
+  LayoutGrid,
   type LucideIcon,
 } from "lucide-react";
+import { useDrawer } from "./drawer-context";
 
 const tabs: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/", label: "홈", icon: LayoutDashboard },
   { href: "/inventory", label: "재고", icon: Boxes },
   { href: "/recommend", label: "AI 추천", icon: Sparkles },
   { href: "/repurchase", label: "재구매", icon: RefreshCcw },
-  { href: "/settings", label: "설정", icon: Settings },
 ];
 
 export function MobileNav() {
   const pathname = usePathname();
+  const { setOpen } = useDrawer();
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ivory-50/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden">
@@ -57,6 +58,20 @@ export function MobileNav() {
             </Link>
           );
         })}
+
+        {/* 전체 메뉴 — 확장 모듈 전체에 접근 */}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex flex-col items-center justify-center gap-1 text-inkmuted transition-colors hover:text-pine-700"
+        >
+          <span className="flex h-7 w-10 items-center justify-center rounded-full">
+            <LayoutGrid size={17} strokeWidth={1.75} />
+          </span>
+          <span className="whitespace-nowrap text-[0.5625rem] font-medium leading-none">
+            전체 메뉴
+          </span>
+        </button>
       </div>
     </nav>
   );

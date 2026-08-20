@@ -8,6 +8,7 @@ import {
   Bell,
   GraduationCap,
   DatabaseBackup,
+  Database,
   Info,
   Check,
 } from "lucide-react";
@@ -17,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { useSettings, ONBOARDING_KEY, type FontSize } from "@/lib/settings-context";
+import { useStore } from "@/lib/store-context";
 import { cn } from "@/lib/utils";
 
 const fontSizes: { value: FontSize; label: string; sample: string }[] = [
@@ -59,6 +61,7 @@ function SettingRow({
 export default function SettingsPage() {
   const { fontSize, setFontSize, notifications, setNotifications, resetAll } =
     useSettings();
+  const { orders, quotes, activities, clearAll } = useStore();
   const router = useRouter();
   const [resetDone, setResetDone] = useState(false);
 
@@ -71,6 +74,7 @@ export default function SettingsPage() {
 
   const handleReset = () => {
     resetAll();
+    clearAll();
     setResetDone(true);
     setTimeout(() => setResetDone(false), 2500);
   };
@@ -178,12 +182,37 @@ export default function SettingsPage() {
           </SettingRow>
         </StaggerItem>
 
+        {/* 저장 데이터 현황 */}
+        <StaggerItem>
+          <SettingRow
+            icon={Database}
+            title="저장된 운영 데이터"
+            description="발주·견적·고객 접촉 기록이 이 기기에 저장되어 있습니다. 실제 DB 연동 시 회사 공용 데이터로 전환됩니다."
+          >
+            <div className="flex gap-2">
+              {[
+                { label: "발주", value: orders.length },
+                { label: "견적", value: quotes.length },
+                { label: "활동", value: activities.length },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="flex h-16 w-16 flex-col items-center justify-center rounded-xl border border-line bg-ivory-100"
+                >
+                  <span className="num text-base font-bold text-pine-900">{s.value}</span>
+                  <span className="text-2xs font-medium text-inkmuted">{s.label}</span>
+                </div>
+              ))}
+            </div>
+          </SettingRow>
+        </StaggerItem>
+
         {/* 데이터 초기화 */}
         <StaggerItem>
           <SettingRow
             icon={DatabaseBackup}
             title="데이터 초기화"
-            description="글자 크기, 알림, 온보딩 등 이 기기에 저장된 설정을 기본값으로 되돌립니다. (mock 데이터는 영향 없음)"
+            description="글자 크기·알림 설정과 함께 저장된 발주·견적·활동 기록을 모두 지웁니다. (기본 mock 데이터는 영향 없음)"
           >
             <Button
               variant={resetDone ? "secondary" : "outline"}

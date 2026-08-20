@@ -7,16 +7,25 @@ import {
   AlertTriangle,
   TrendingDown,
   ShoppingCart,
+  ClipboardList,
+  ArrowRight,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, HoverCard } from "@/components/ui/card";
 import { Badge, statusTone } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem, Reveal } from "@/components/ui/motion";
 import { MiniSparkline } from "@/components/charts/mini-sparkline";
 import { DemandTrendChart } from "@/components/charts/demand-trend-chart";
+import { useStore } from "@/lib/store-context";
+import { useToast } from "@/components/ui/toast";
 import { repo } from "@/data/repository";
-import { cn, formatNumber } from "@/lib/utils";
-import type { InventoryCategory, InventoryStatus } from "@/data/types";
+import { cn, formatNumber, formatManwon, formatDate } from "@/lib/utils";
+import type {
+  InventoryCategory,
+  InventoryStatus,
+  OrderStatus,
+} from "@/data/types";
 
 const inventory = repo.getInventory();
 const trend = repo.getDemandTrend();
@@ -32,10 +41,25 @@ const categories: ("전체" | InventoryCategory)[] = [
 
 const statuses: ("전체" | InventoryStatus)[] = ["전체", "정상", "주의", "부족", "과잉"];
 
+const orderStatusTone: Record<OrderStatus, "warning" | "info" | "success"> = {
+  "발주 대기": "warning",
+  "발주 완료": "info",
+  "입고 완료": "success",
+};
+
+/** 권장 발주 수량 — 30일 예측 수요를 채우고 발주점 여유를 확보하는 수준 */
+function suggestQty(forecast: number, stock: number, reorderPoint: number) {
+  return Math.max(10, Math.ceil((forecast + reorderPoint - stock) / 10) * 10);
+}
+
 export default function InventoryPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof categories)[number]>("전체");
   const [status, setStatus] = useState<(typeof statuses)[number]>("전체");
+  const { orders, createOrder, advanceOrder } = useStore();
+  const toast = useToast();
+
+  const orderedItemIds = new Set(orders.map((o) => o.itemId));
 
   const filtered = useMemo(
     () =>
@@ -56,6 +80,22 @@ export default function InventoryPage() {
   const needsOrder = inventory.filter((i) => i.needsOrder);
   const overstock = inventory.filter((i) => i.status === "과잉");
   const watchCount = inventory.filter((i) => i.status === "주의" || i.status === "부족").length;
+
+  const placeOrder = (item: (typeof inventory)[number]) => {
+    const qty = suggestQty(item.forecastDemand30, item.stockQty, item.reorderPoint);
+    createOrder({
+      itemId: item.id,
+      itemName: item.name,
+      model: item.model,
+      qty,
+      amountManwon: Math.round(qty * item.unitPriceManwon),
+      memo: `예측 수요 ${item.forecastDemand30}개 · 발주점 ${item.reorderPoint}개 기준`,
+    });
+    toast(
+      "발주가 등록되었습니다",
+      `${item.name} ${item.model} · ${formatNumber(qty)}개`,
+    );
+  };
 
   return (
     <div className="space-y-5">
@@ -247,9 +287,18 @@ export default function InventoryPage() {
                         </td>
                         <td className="px-4 py-3 text-center">
                           {item.needsOrder ? (
-                            <Badge tone="danger" className="animate-pulse-soft">
-                              발주 필요
-                            </Badge>
+                            orderedItemIds.has(item.id) ? (
+                              <Badge tone="info">발주 등록됨</Badge>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="primary"
+                                onClick={() => placeOrder(item)}
+                              >
+                                <ShoppingCart size={12} />
+                                발주
+                              </Button>
+                            )
                           ) : (
                             <span className="text-2xs text-inkmuted">—</span>
                           )}
@@ -264,6 +313,65 @@ export default function InventoryPage() {
               총 {filtered.length}개 품목 · 예측 수요는 최근 6개월 출고 데이터를 기반으로
               산출됩니다.
             </p>
+          </CardContent>
+        </Card>
+      </Reveal>
+
+      {/* 발주 현황 — 사용자가 등록한 발주가 실제로 저장된다 */}
+      <Reveal delay={0.16}>
+        <Card>
+          <CardHeader>
+            <CardTitle>발주 현황</CardTitle>
+            <Badge tone={orders.length ? "info" : "outline"}>
+              {orders.length ? `${orders.length}건 진행 중` : "등록된 발주 없음"}
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            {orders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-line py-10 text-center">
+                <ClipboardList size={20} className="mb-2 text-inkmuted opacity-50" />
+                <p className="text-xs font-semibold text-pine-900">
+                  아직 등록된 발주가 없습니다
+                </p>
+                <p className="mt-1 max-w-xs px-6 text-2xs leading-relaxed text-inkmuted">
+                  위 표에서 &lsquo;발주&rsquo; 버튼을 누르면 권장 수량으로 발주가
+                  등록되고, 이 기기에 저장됩니다.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {orders.map((o) => (
+                  <div
+                    key={o.id}
+                    className="flex flex-wrap items-center gap-3 rounded-xl border border-line/70 bg-ivory-100/60 p-3.5 transition-colors hover:border-pine-100 hover:bg-pine-50/40"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-pine-50 text-pine-700">
+                      <ShoppingCart size={15} strokeWidth={1.9} />
+                    </span>
+                    <div className="min-w-[9rem] flex-1">
+                      <p className="clamp-1 text-xs font-bold text-pine-900">
+                        {o.itemName} ({o.model})
+                      </p>
+                      <p className="clamp-1 text-2xs text-inkmuted">
+                        {formatNumber(o.qty)}개 · {formatManwon(o.amountManwon)} ·{" "}
+                        {formatDate(o.createdAt)}
+                      </p>
+                    </div>
+                    <Badge tone={orderStatusTone[o.status]}>{o.status}</Badge>
+                    {o.status !== "입고 완료" ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => advanceOrder(o.id)}
+                      >
+                        {o.status === "발주 대기" ? "발주 확정" : "입고 처리"}
+                        <ArrowRight size={12} />
+                      </Button>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </Reveal>

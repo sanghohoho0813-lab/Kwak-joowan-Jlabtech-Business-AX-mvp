@@ -14,8 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Reveal } from "@/components/ui/motion";
+import { useStore } from "@/lib/store-context";
+import { useToast } from "@/components/ui/toast";
 import { repo } from "@/data/repository";
-import { cn, formatManwon } from "@/lib/utils";
+import { cn, formatManwon, formatDate } from "@/lib/utils";
 import type { RecommendedProduct, QuoteLine } from "@/data/types";
 
 const { industryOptions, purposeOptions, environmentOptions, budgetOptions } =
@@ -61,6 +63,8 @@ export default function RecommendPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<RecommendedProduct[] | null>(null);
   const [quote, setQuote] = useState<QuoteLine[] | null>(null);
+  const { quotes, saveQuote } = useStore();
+  const toast = useToast();
 
   const run = () => {
     setLoading(true);
@@ -78,6 +82,18 @@ export default function RecommendPage() {
   const reset = () => {
     setResults(null);
     setQuote(null);
+  };
+
+  const persistQuote = () => {
+    if (!results || !quote) return;
+    const total = quote[quote.length - 1].amountManwon;
+    saveQuote({
+      customerLabel: `${industry} · ${purpose}`,
+      origin: "AI 추천",
+      productSummary: results.map((p) => p.model).join(", "),
+      totalManwon: total,
+    });
+    toast("견적이 저장되었습니다", `${results.length}개 품목 · ${formatManwon(total)}`);
   };
 
   return (
@@ -281,9 +297,14 @@ export default function RecommendPage() {
                           );
                         })}
                       </ul>
-                      <Button variant="secondary" size="sm" className="mt-3 w-full">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="mt-3 w-full"
+                        onClick={persistQuote}
+                      >
                         <FileText size={14} />
-                        견적서 초안 만들기 (데모)
+                        이 견적 저장하기
                       </Button>
                     </CardContent>
                   </Card>
@@ -315,6 +336,42 @@ export default function RecommendPage() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* 저장된 견적 이력 */}
+      {quotes.length > 0 ? (
+        <Reveal delay={0.1}>
+          <Card>
+            <CardHeader>
+              <CardTitle>저장된 견적 이력</CardTitle>
+              <Badge tone="info">{quotes.length}건</Badge>
+            </CardHeader>
+            <CardContent className="space-y-2.5">
+              {quotes.map((q) => (
+                <div
+                  key={q.id}
+                  className="flex flex-wrap items-center gap-3 rounded-xl border border-line/70 bg-ivory-100/60 p-3.5 transition-colors hover:border-pine-100 hover:bg-pine-50/40"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sand-100 text-sand-600">
+                    <FileText size={15} strokeWidth={1.9} />
+                  </span>
+                  <div className="min-w-[10rem] flex-1">
+                    <p className="clamp-1 text-xs font-bold text-pine-900">
+                      {q.customerLabel}
+                    </p>
+                    <p className="clamp-1 text-2xs text-inkmuted">
+                      {q.productSummary} · {formatDate(q.createdAt)}
+                    </p>
+                  </div>
+                  <Badge tone="outline">{q.origin}</Badge>
+                  <p className="num shrink-0 text-sm font-bold text-pine-800">
+                    {formatManwon(q.totalManwon)}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </Reveal>
+      ) : null}
     </div>
   );
 }

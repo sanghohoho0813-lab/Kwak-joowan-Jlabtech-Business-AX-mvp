@@ -8,7 +8,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Boxes, Sparkles, RefreshCcw, ArrowRight, X } from "lucide-react";
+import { Boxes, Sparkles, RefreshCcw, ShieldCheck, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ONBOARDING_KEY } from "@/lib/settings-context";
 
@@ -27,6 +27,11 @@ const steps = [
     icon: RefreshCcw,
     title: "재구매 예측",
     body: "기존 고객의 구매 주기를 분석해, 이번 주에 연락해야 할 고객을 알려드립니다.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "수익·성과 관리",
+    body: "마진 가드, 설치장비 관리, 산업계측 설계, 리포트 센터까지 왼쪽 메뉴에서 이어집니다.",
   },
 ];
 
@@ -82,7 +87,7 @@ export function OnboardingModal() {
               </p>
               <h2 className="mt-1 text-lg font-bold">처음 오셨네요, 환영합니다</h2>
               <p className="mt-1 text-xs text-white/60">
-                핵심 기능 3가지만 알면 바로 쓸 수 있습니다.
+                핵심 기능 몇 가지만 알면 바로 쓸 수 있습니다.
               </p>
             </div>
 

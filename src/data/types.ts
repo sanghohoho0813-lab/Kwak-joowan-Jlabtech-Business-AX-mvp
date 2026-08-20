@@ -104,3 +104,163 @@ export interface DashboardKpis {
   repurchaseAlerts: number;
   repurchaseAlertsUrgent: number;
 }
+
+/* ------------------------------------------------------------------ *
+ * 2단계 고도화 — 마진 가드
+ * ------------------------------------------------------------------ */
+
+export type MarginStatus = "안전" | "주의" | "위험";
+
+export interface MarginItem {
+  itemId: string;
+  name: string;
+  model: string;
+  category: InventoryCategory;
+  costManwon: number; // 매입 원가
+  listPriceManwon: number; // 정가
+  avgSellingManwon: number; // 최근 실판매 평균가
+  floorMarginPct: number; // 마진 하한선
+  soldQty90: number; // 최근 90일 판매 수량
+}
+
+/* ------------------------------------------------------------------ *
+ * 2단계 고도화 — 설치장비 관리
+ * ------------------------------------------------------------------ */
+
+export type EquipmentStatus = "정상 가동" | "교정 필요" | "점검 요청" | "보증 만료";
+
+export interface InstalledEquipment {
+  id: string;
+  customerId: string;
+  customerName: string;
+  site: string; // 설치 현장
+  itemName: string;
+  model: string;
+  serial: string;
+  installedDate: string; // ISO
+  lastCalibrationDate: string; // ISO
+  nextCalibrationDate: string; // ISO
+  warrantyEndDate: string; // ISO
+  status: EquipmentStatus;
+  consumable?: string; // 정기 교체 소모품
+}
+
+/* ------------------------------------------------------------------ *
+ * 2단계 고도화 — 산업계측 설계
+ * ------------------------------------------------------------------ */
+
+export interface DesignInput {
+  industry: string;
+  target: string; // 측정 대상
+  pointCount: number; // 계측 포인트 수
+  collection: string; // 데이터 수집 방식
+  environment: string;
+}
+
+export interface BomLine {
+  name: string;
+  model: string;
+  qty: number;
+  unitPriceManwon: number;
+  role: string; // 구성상의 역할
+}
+
+export interface DesignResult {
+  title: string;
+  summary: string;
+  layers: { name: string; description: string }[]; // 계측 구성 계층
+  bom: BomLine[];
+  installWeeks: number;
+  notes: string[];
+}
+
+/* ------------------------------------------------------------------ *
+ * 2단계 고도화 — 리포트 센터
+ * ------------------------------------------------------------------ */
+
+export type ReportKind =
+  | "월간 운영 리포트"
+  | "재고 회전 리포트"
+  | "고객 재구매 리포트"
+  | "마진 분석 리포트";
+
+export interface ReportMetric {
+  label: string;
+  value: string;
+  deltaLabel?: string;
+  positive?: boolean;
+}
+
+export interface ReportDefinition {
+  id: string;
+  kind: ReportKind;
+  description: string;
+  period: string;
+  metrics: ReportMetric[];
+  highlights: string[];
+}
+
+/* ------------------------------------------------------------------ *
+ * 2단계 고도화 — 정책자금 성과 분석
+ * ------------------------------------------------------------------ */
+
+export interface BeforeAfterMetric {
+  label: string;
+  before: string;
+  after: string;
+  changeLabel: string;
+  note: string;
+}
+
+export type ReadinessState = "충족" | "진행 중" | "예정";
+
+export interface ReadinessItem {
+  requirement: string;
+  state: ReadinessState;
+  evidence: string;
+}
+
+export interface FundProgram {
+  name: string;
+  agency: string;
+  fitPct: number;
+  scaleLabel: string;
+  reason: string;
+}
+
+/* ------------------------------------------------------------------ *
+ * 상태 저장 레이어 (localStorage → 이후 Supabase 테이블)
+ * ------------------------------------------------------------------ */
+
+export type OrderStatus = "발주 대기" | "발주 완료" | "입고 완료";
+
+export interface PurchaseOrder {
+  id: string;
+  itemId: string;
+  itemName: string;
+  model: string;
+  qty: number;
+  amountManwon: number;
+  status: OrderStatus;
+  createdAt: string; // ISO
+  memo?: string;
+}
+
+export interface SavedQuote {
+  id: string;
+  customerLabel: string;
+  origin: "AI 추천" | "산업계측 설계";
+  productSummary: string;
+  totalManwon: number;
+  createdAt: string; // ISO
+}
+
+export type ActivityKind = "고객 연락" | "발주" | "견적" | "교정 예약";
+
+export interface ActivityLog {
+  id: string;
+  kind: ActivityKind;
+  title: string;
+  detail: string;
+  createdAt: string; // ISO
+}

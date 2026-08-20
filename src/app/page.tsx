@@ -15,6 +15,10 @@ import {
   ShoppingCart,
   Repeat,
   Scale,
+  Wrench,
+  ShieldAlert,
+  PhoneCall,
+  Activity,
 } from "lucide-react";
 import { Card, HoverCard, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge, statusTone } from "@/components/ui/badge";
@@ -22,8 +26,9 @@ import { Stagger, StaggerItem, Reveal } from "@/components/ui/motion";
 import { DemandTrendChart } from "@/components/charts/demand-trend-chart";
 import { CompositionDonut } from "@/components/charts/composition-donut";
 import { MiniSparkline } from "@/components/charts/mini-sparkline";
+import { useStore } from "@/lib/store-context";
 import { repo } from "@/data/repository";
-import { formatEok, formatNumber } from "@/lib/utils";
+import { formatEok, formatNumber, formatDate } from "@/lib/utils";
 import type { InsightLevel } from "@/data/types";
 
 const kpis = repo.getDashboardKpis();
@@ -32,6 +37,25 @@ const composition = repo.getComposition();
 const inventory = repo.getInventory();
 const insights = repo.getInsights();
 const aiSummary = repo.getAiSummary();
+const equipment = repo.getInstalledEquipment();
+const customers = repo.getCustomers();
+const marginRows = repo.getMarginItems();
+
+/** 오늘 처리해야 할 일 — 각 모듈의 신호를 한 곳으로 모은다 */
+const todoSource = {
+  orders: inventory.filter((i) => i.needsOrder).length,
+  calibration: equipment.filter((e) => {
+    const d = Math.round(
+      (new Date(e.nextCalibrationDate).getTime() - new Date("2026-08-20").getTime()) /
+        86400000,
+    );
+    return d >= 0 && d <= 30;
+  }).length,
+  contacts: customers.filter((c) => c.priority === "즉시 연락").length,
+  marginRisk: marginRows.filter(
+    (m) => repo.marginPct(m.avgSellingManwon, m.costManwon) < m.floorMarginPct,
+  ).length,
+};
 
 function Delta({ value }: { value: number }) {
   const up = value >= 0;
@@ -60,8 +84,44 @@ const aiIcon: Record<string, typeof ShoppingCart> = {
   "재고 최적화": Scale,
 };
 
+const todoCards = [
+  {
+    href: "/inventory",
+    icon: ShoppingCart,
+    label: "발주 필요",
+    count: todoSource.orders,
+    unit: "개 품목",
+    tone: "bg-red-50 text-red-600",
+  },
+  {
+    href: "/repurchase",
+    icon: PhoneCall,
+    label: "즉시 연락",
+    count: todoSource.contacts,
+    unit: "개 고객사",
+    tone: "bg-sand-100 text-sand-600",
+  },
+  {
+    href: "/installed",
+    icon: Wrench,
+    label: "교정 예정",
+    count: todoSource.calibration,
+    unit: "대",
+    tone: "bg-sage-100 text-sage-600",
+  },
+  {
+    href: "/margin",
+    icon: ShieldAlert,
+    label: "마진 위험",
+    count: todoSource.marginRisk,
+    unit: "개 품목",
+    tone: "bg-pine-50 text-pine-700",
+  },
+];
+
 export default function DashboardPage() {
   const topItems = inventory.slice(0, 5);
+  const { activities, orders, quotes } = useStore();
 
   return (
     <div className="space-y-5">
@@ -72,6 +132,51 @@ export default function DashboardPage() {
         <p className="clamp-2 mt-1.5 text-sm text-inkmuted">
           JLAB TECH AX 플랫폼의 핵심 지표와 인사이트를 한눈에 확인하세요.
         </p>
+      </Reveal>
+
+      {/* 오늘의 실행 과제 — 각 모듈의 신호를 모아 다음 행동을 제시 */}
+      <Reveal delay={0.04}>
+        <Card className="border-pine-100 bg-pine-50/40">
+          <CardContent className="p-4 md:p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="clamp-1 text-sm font-bold text-pine-900">오늘의 실행 과제</p>
+              <span className="shrink-0 whitespace-nowrap text-2xs text-inkmuted">
+                모듈별 신호 집계
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+              {todoCards.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <Link
+                    key={t.label}
+                    href={t.href}
+                    className="group flex h-20 items-center gap-3 rounded-xl border border-line bg-ivory-50 px-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-pine-100 hover:shadow-card"
+                  >
+                    <span
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${t.tone}`}
+                    >
+                      <Icon size={16} strokeWidth={1.9} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="clamp-1 text-2xs text-inkmuted">{t.label}</p>
+                      <p className="num clamp-1 text-base font-bold text-pine-900">
+                        {t.count}
+                        <span className="ml-0.5 text-2xs font-medium text-inkmuted">
+                          {t.unit}
+                        </span>
+                      </p>
+                    </div>
+                    <ChevronRight
+                      size={14}
+                      className="ml-auto shrink-0 text-inkmuted transition-transform group-hover:translate-x-0.5 group-hover:text-pine-700"
+                    />
+                  </Link>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </Reveal>
 
       {/* KPI 카드 */}
@@ -339,6 +444,49 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </Reveal>
+
+      {/* 최근 활동 — 플랫폼에 기록된 실제 행동 이력 */}
+      {activities.length > 0 ? (
+        <Reveal delay={0.14}>
+          <Card>
+            <CardHeader>
+              <CardTitle>최근 활동 이력</CardTitle>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <Badge tone="outline">발주 {orders.length}</Badge>
+                <Badge tone="outline">견적 {quotes.length}</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {activities.slice(0, 6).map((a) => (
+                <div
+                  key={a.id}
+                  className="flex items-center gap-3 rounded-xl border border-line/70 bg-ivory-100/60 p-3 transition-colors hover:border-pine-100 hover:bg-pine-50/40"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-pine-50 text-pine-700">
+                    <Activity size={14} strokeWidth={1.9} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="clamp-1 text-xs font-bold text-pine-900">{a.title}</p>
+                    <p className="clamp-1 text-2xs text-inkmuted">
+                      {a.detail.includes("|") ? a.detail.split("|")[1] : a.detail}
+                    </p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <Badge tone="neutral">{a.kind}</Badge>
+                    <p className="num mt-1 whitespace-nowrap text-[0.5625rem] text-inkmuted">
+                      {formatDate(a.createdAt)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <p className="pt-1 text-2xs text-inkmuted">
+                발주·견적·고객 접촉 기록이 이 기기에 저장됩니다. 실제 운영 데이터가
+                연동되면 회사 전체가 공유하는 이력으로 확장됩니다.
+              </p>
+            </CardContent>
+          </Card>
+        </Reveal>
+      ) : null}
     </div>
   );
 }

@@ -10,7 +10,13 @@ import {
   Settings,
   ArrowRight,
   Lightbulb,
+  ShieldCheck,
+  Wrench,
+  DraftingCompass,
+  FileBarChart,
+  Landmark,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -65,6 +71,40 @@ const steps = [
     href: "/settings",
     body: "글자가 작게 느껴지면 설정에서 글자 크기를 '크게'로 바꿔 보세요. 새로고침해도 설정이 유지됩니다.",
     tip: "튜토리얼을 다시 보고 싶을 때도 설정에서 초기화할 수 있습니다.",
+  },
+];
+
+/** 2단계에서 추가된 확장 모듈 */
+const advancedModules = [
+  {
+    icon: ShieldCheck,
+    title: "마진 가드",
+    href: "/margin",
+    body: "할인을 얼마까지 줘도 되는지 알려줍니다. 견적 내기 전에 시뮬레이터로 마진율을 미리 확인하세요.",
+  },
+  {
+    icon: Wrench,
+    title: "설치장비 관리",
+    href: "/installed",
+    body: "고객 현장에 설치된 장비의 교정 시기와 보증 상태를 봅니다. 방문할 곳을 미리 알 수 있습니다.",
+  },
+  {
+    icon: DraftingCompass,
+    title: "산업계측 설계",
+    href: "/design",
+    body: "현장 조건만 넣으면 필요한 장비 목록과 구축 비용을 설계해 줍니다. 그대로 견적으로 저장됩니다.",
+  },
+  {
+    icon: FileBarChart,
+    title: "리포트 센터",
+    href: "/reports",
+    body: "월간 운영·재고 회전·마진 분석 리포트를 자동으로 만듭니다. 인쇄해서 그대로 보고에 쓸 수 있습니다.",
+  },
+  {
+    icon: Landmark,
+    title: "정책자금 성과 분석",
+    href: "/policy",
+    body: "도입 전후로 무엇이 달라졌는지, 어떤 지원사업에 맞는지 정리해 둔 곳입니다.",
   },
 ];
 
@@ -125,7 +165,49 @@ export default function TutorialPage() {
         })}
       </Stagger>
 
-      <Reveal delay={0.1}>
+      {/* 확장 모듈 안내 */}
+      <Reveal delay={0.08}>
+        <Card>
+          <CardContent className="p-5 md:p-6">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <h2 className="text-sm font-bold text-pine-900">
+                더 깊이 쓰고 싶다면 — 확장 모듈
+              </h2>
+              <Badge tone="gold">2단계 고도화</Badge>
+            </div>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {advancedModules.map((m) => {
+                const Icon = m.icon;
+                return (
+                  <Link
+                    key={m.title}
+                    href={m.href}
+                    className="group flex min-h-[6.5rem] flex-col gap-2 rounded-xl border border-line bg-ivory-100/60 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-pine-100 hover:bg-pine-50/50 hover:shadow-card"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex min-w-0 items-center gap-2 text-xs font-bold text-pine-900">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-pine-50 text-pine-700 transition-colors group-hover:bg-pine-700 group-hover:text-white">
+                          <Icon size={14} strokeWidth={1.9} />
+                        </span>
+                        <span className="clamp-1">{m.title}</span>
+                      </span>
+                      <ArrowRight
+                        size={14}
+                        className="shrink-0 text-inkmuted transition-transform group-hover:translate-x-0.5 group-hover:text-pine-700"
+                      />
+                    </div>
+                    <p className="clamp-2 text-2xs leading-relaxed text-inkbody">
+                      {m.body}
+                    </p>
+                  </Link>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </Reveal>
+
+      <Reveal delay={0.12}>
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center gap-3 p-6 text-center sm:flex-row sm:justify-between sm:text-left">
             <div className="min-w-0">

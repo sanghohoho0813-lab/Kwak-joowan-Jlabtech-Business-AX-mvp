@@ -10,8 +10,11 @@ import {
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, HoverCard } from "@/components/ui/card";
 import { Badge, statusTone } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem, Reveal } from "@/components/ui/motion";
+import { useStore } from "@/lib/store-context";
+import { useToast } from "@/components/ui/toast";
 import { repo } from "@/data/repository";
 import { cn, formatDate, formatManwon, dday } from "@/lib/utils";
 import type { RepurchaseLikelihood } from "@/data/types";
@@ -21,6 +24,23 @@ const likelihoods: ("전체" | RepurchaseLikelihood)[] = ["전체", "높음", "�
 
 export default function RepurchasePage() {
   const [filter, setFilter] = useState<(typeof likelihoods)[number]>("전체");
+  const { activities, logActivity } = useStore();
+  const toast = useToast();
+
+  const contactedIds = new Set(
+    activities
+      .filter((a) => a.kind === "고객 연락")
+      .map((a) => a.detail.split("|")[0]),
+  );
+
+  const recordContact = (id: string, company: string, action: string) => {
+    logActivity({
+      kind: "고객 연락",
+      title: `${company} 접촉 기록`,
+      detail: `${id}|${action}`,
+    });
+    toast("연락 기록이 저장되었습니다", `${company} · ${action}`);
+  };
 
   const sorted = useMemo(
     () =>
@@ -140,12 +160,19 @@ export default function RepurchasePage() {
                     </p>
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-2 border-t border-line/60 pt-2.5">
-                    <p className="clamp-1 text-2xs text-inkmuted">
+                    <p className="clamp-1 min-w-0 flex-1 text-2xs text-inkmuted">
                       관심 품목: {c.interestItems.join(", ")}
                     </p>
-                    <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-2xs font-semibold text-pine-700 transition-transform group-hover:translate-x-0.5">
-                      연락하기 <ArrowRight size={12} />
-                    </span>
+                    {contactedIds.has(c.id) ? (
+                      <Badge tone="success">연락 완료</Badge>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => recordContact(c.id, c.company, c.nextAction)}
+                      >
+                        연락 기록 <ArrowRight size={12} />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}

@@ -1,17 +1,17 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { Bell, Menu, X, CalendarDays } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSettings } from "@/lib/settings-context";
 import { pageTitles } from "./nav-config";
 import { SidebarContent } from "./sidebar";
+import { useDrawer } from "./drawer-context";
 
 export function Topbar() {
   const pathname = usePathname();
   const { notifications } = useSettings();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { open, setOpen } = useDrawer();
   const title = pageTitles[pathname] ?? "JLAB TECH AX";
 
   return (
@@ -20,11 +20,11 @@ export function Topbar() {
         {/* 모바일 메뉴 버튼 */}
         <button
           type="button"
-          onClick={() => setDrawerOpen(true)}
+          onClick={() => setOpen(true)}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-ivory-50 text-pine-800 transition-colors hover:bg-pine-50 lg:hidden"
           aria-label="메뉴 열기"
         >
-          <Menu className="h-4.5 w-4.5" size={18} />
+          <Menu size={18} />
         </button>
 
         <div className="min-w-0 flex-1">
@@ -59,7 +59,7 @@ export function Topbar() {
 
       {/* 모바일 드로어 */}
       <AnimatePresence>
-        {drawerOpen ? (
+        {open ? (
           <>
             <motion.div
               key="backdrop"
@@ -67,7 +67,7 @@ export function Topbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setDrawerOpen(false)}
+              onClick={() => setOpen(false)}
             />
             <motion.aside
               key="drawer"
@@ -79,13 +79,13 @@ export function Topbar() {
             >
               <button
                 type="button"
-                onClick={() => setDrawerOpen(false)}
-                className="absolute right-3 top-5 flex h-8 w-8 items-center justify-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white"
+                onClick={() => setOpen(false)}
+                className="absolute right-3 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white"
                 aria-label="메뉴 닫기"
               >
                 <X size={16} />
               </button>
-              <SidebarContent onNavigate={() => setDrawerOpen(false)} />
+              <SidebarContent onNavigate={() => setOpen(false)} />
             </motion.aside>
           </>
         ) : null}

@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { mainNav, infoNav, upcomingNav, type NavItem } from "./nav-config";
+import {
+  operationNav,
+  assetNav,
+  analysisNav,
+  infoNav,
+  upcomingNav,
+  type NavItem,
+} from "./nav-config";
 import { Ruler } from "lucide-react";
 
 function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) {
@@ -14,13 +21,13 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
   if (item.disabled) {
     return (
       <div
-        className="flex h-10 cursor-not-allowed items-center gap-3 rounded-xl px-3 text-sm text-white/35"
+        className="flex h-9 cursor-not-allowed items-center gap-3 rounded-xl px-3 text-sm text-white/30"
         aria-disabled
-        title="고도화 예정 기능입니다"
+        title="다음 단계에서 확장 예정인 기능입니다"
       >
         <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
         <span className="clamp-1 flex-1">{item.label}</span>
-        <span className="inline-flex h-5 shrink-0 items-center rounded-full border border-sand-500/40 px-1.5 text-[0.625rem] font-medium leading-none text-sand-400">
+        <span className="inline-flex h-5 shrink-0 items-center rounded-full border border-sand-500/30 px-1.5 text-[0.625rem] font-medium leading-none text-sand-400/70">
           예정
         </span>
       </div>
@@ -32,7 +39,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
       href={item.href}
       onClick={onNavigate}
       className={cn(
-        "group flex h-10 items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
+        "group flex h-9 items-center gap-3 rounded-xl px-3 text-sm transition-all duration-200",
         active
           ? "bg-white/12 font-semibold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
           : "text-white/65 hover:bg-white/8 hover:pl-3.5 hover:text-white",
@@ -55,7 +62,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
 
 function SectionLabel({ children }: { children: string }) {
   return (
-    <p className="px-3 pb-2 pt-5 text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-white/35">
+    <p className="px-3 pb-1.5 pt-4 text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-white/35">
       {children}
     </p>
   );
@@ -68,7 +75,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <Link
         href="/"
         onClick={onNavigate}
-        className="flex items-center gap-3 px-4 pb-5 pt-6"
+        className="flex items-center gap-3 px-4 pb-4 pt-6"
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
           <Ruler className="h-5 w-5 text-sand-400" strokeWidth={1.75} />
@@ -83,18 +90,29 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* 내비게이션 */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-4">
-        {mainNav.map((item) => (
+        <SectionLabel>운영</SectionLabel>
+        {operationNav.map((item) => (
           <NavLink key={item.label} item={item} onNavigate={onNavigate} />
         ))}
 
-        <SectionLabel>고도화 예정</SectionLabel>
-        {upcomingNav.map((item) => (
-          <NavLink key={item.label} item={item} />
+        <SectionLabel>수익·자산 관리</SectionLabel>
+        {assetNav.map((item) => (
+          <NavLink key={item.label} item={item} onNavigate={onNavigate} />
+        ))}
+
+        <SectionLabel>분석·성과</SectionLabel>
+        {analysisNav.map((item) => (
+          <NavLink key={item.label} item={item} onNavigate={onNavigate} />
         ))}
 
         <SectionLabel>안내</SectionLabel>
         {infoNav.map((item) => (
           <NavLink key={item.label} item={item} onNavigate={onNavigate} />
+        ))}
+
+        <SectionLabel>확장 예정</SectionLabel>
+        {upcomingNav.map((item) => (
+          <NavLink key={item.label} item={item} />
         ))}
       </nav>
 

@@ -19,7 +19,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem, Reveal } from "@/components/ui/motion";
 import { ONBOARDING_KEY } from "@/lib/settings-context";
 
@@ -118,44 +117,50 @@ export default function TutorialPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        title="튜토리얼"
-        description="처음 오셨다면 이 순서대로 한 바퀴만 돌아보세요. 5분이면 전체 흐름을 이해할 수 있습니다."
-      />
+      {/* 튜토리얼은 읽는 화면이므로 본문 글자를 크게 잡는다 */}
+      <Reveal className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight text-pine-900 md:text-4xl">
+          사용 방법
+        </h1>
+        <p className="mt-2.5 max-w-3xl text-lg leading-relaxed text-inkmuted">
+          처음 오셨다면 이 순서대로 한 바퀴만 돌아보세요. 5분이면 전체 흐름을 이해할 수
+          있습니다.
+        </p>
+      </Reveal>
 
-      <Stagger className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <Stagger className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         {steps.map((item) => {
           const Icon = item.icon;
           return (
             <StaggerItem key={item.step}>
               <Link href={item.href} className="block h-full">
                 <Card className="group h-full transition-all hover:-translate-y-0.5 hover:border-pine-100 hover:shadow-card-hover">
-                  <CardContent className="flex h-full flex-col p-5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-pine-50 text-pine-700 transition-colors group-hover:bg-pine-700 group-hover:text-white">
-                          <Icon size={18} strokeWidth={1.75} />
+                  <CardContent className="flex h-full flex-col p-6">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-4">
+                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-pine-50 text-pine-700 transition-colors group-hover:bg-pine-700 group-hover:text-white">
+                          <Icon size={26} strokeWidth={1.75} />
                         </span>
                         <div className="min-w-0">
-                          <p className="num text-2xs font-bold tracking-wider text-sand-600">
+                          <p className="num text-sm font-bold tracking-wider text-sand-600">
                             {item.step}
                           </p>
-                          <h3 className="clamp-1 text-sm font-bold text-pine-900">
+                          <h3 className="clamp-2 text-[1.75rem] font-bold leading-tight text-pine-900">
                             {item.title}
                           </h3>
                         </div>
                       </div>
                       <ArrowRight
-                        size={15}
+                        size={22}
                         className="shrink-0 text-inkmuted transition-transform group-hover:translate-x-1 group-hover:text-pine-700"
                       />
                     </div>
-                    <p className="mt-3 flex-1 text-xs leading-relaxed text-inkbody">
+                    <p className="mt-4 flex-1 text-2xl leading-relaxed text-inkbody">
                       {item.body}
                     </p>
-                    <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-ivory-100 p-2.5 text-2xs leading-relaxed text-inkmuted">
-                      <Lightbulb size={13} className="mt-px shrink-0 text-sand-500" />
-                      <span className="clamp-2">{item.tip}</span>
+                    <p className="mt-4 flex items-start gap-2.5 rounded-xl bg-ivory-100 p-4 text-lg leading-relaxed text-inkmuted">
+                      <Lightbulb size={22} className="mt-1 shrink-0 text-sand-500" />
+                      <span>{item.tip}</span>
                     </p>
                   </CardContent>
                 </Card>
@@ -168,37 +173,35 @@ export default function TutorialPage() {
       {/* 확장 모듈 안내 */}
       <Reveal delay={0.08}>
         <Card>
-          <CardContent className="p-5 md:p-6">
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              <h2 className="text-sm font-bold text-pine-900">
+          <CardContent className="p-6">
+            <div className="mb-5 flex flex-wrap items-center gap-3">
+              <h2 className="text-2xl font-bold text-pine-900">
                 더 깊이 쓰고 싶다면 — 확장 모듈
               </h2>
               <Badge tone="gold">2단계 고도화</Badge>
             </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               {advancedModules.map((m) => {
                 const Icon = m.icon;
                 return (
                   <Link
                     key={m.title}
                     href={m.href}
-                    className="group flex min-h-[6.5rem] flex-col gap-2 rounded-xl border border-line bg-ivory-100/60 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-pine-100 hover:bg-pine-50/50 hover:shadow-card"
+                    className="group flex flex-col gap-3 rounded-xl border border-line bg-ivory-100/60 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-pine-100 hover:bg-pine-50/50 hover:shadow-card"
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="inline-flex min-w-0 items-center gap-2 text-xs font-bold text-pine-900">
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-pine-50 text-pine-700 transition-colors group-hover:bg-pine-700 group-hover:text-white">
-                          <Icon size={14} strokeWidth={1.9} />
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="inline-flex min-w-0 items-center gap-3 text-xl font-bold text-pine-900">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-pine-50 text-pine-700 transition-colors group-hover:bg-pine-700 group-hover:text-white">
+                          <Icon size={21} strokeWidth={1.9} />
                         </span>
                         <span className="clamp-1">{m.title}</span>
                       </span>
                       <ArrowRight
-                        size={14}
+                        size={20}
                         className="shrink-0 text-inkmuted transition-transform group-hover:translate-x-0.5 group-hover:text-pine-700"
                       />
                     </div>
-                    <p className="clamp-2 text-2xs leading-relaxed text-inkbody">
-                      {m.body}
-                    </p>
+                    <p className="text-lg leading-relaxed text-inkbody">{m.body}</p>
                   </Link>
                 );
               })}
@@ -209,16 +212,16 @@ export default function TutorialPage() {
 
       <Reveal delay={0.12}>
         <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center gap-3 p-6 text-center sm:flex-row sm:justify-between sm:text-left">
+          <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:justify-between sm:text-left">
             <div className="min-w-0">
-              <p className="text-sm font-bold text-pine-900">
+              <p className="text-xl font-bold text-pine-900">
                 처음 봤던 환영 안내를 다시 보고 싶으신가요?
               </p>
-              <p className="mt-1 text-xs text-inkmuted">
+              <p className="mt-1.5 text-lg text-inkmuted">
                 온보딩 안내를 초기화하면 대시보드에서 다시 보여드립니다.
               </p>
             </div>
-            <Button variant="secondary" size="sm" onClick={replayOnboarding}>
+            <Button variant="secondary" size="lg" className="shrink-0" onClick={replayOnboarding}>
               온보딩 다시 보기
             </Button>
           </CardContent>

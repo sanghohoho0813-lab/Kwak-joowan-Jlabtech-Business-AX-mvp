@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Menu, X, CalendarDays } from "lucide-react";
+import { Bell, Menu, X, CalendarDays, BookOpen, Compass } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSettings } from "@/lib/settings-context";
 import { pageTitles } from "./nav-config";
@@ -36,8 +37,28 @@ export function Topbar() {
           </p>
         </div>
 
+        {/* 사용 방법 */}
+        <Link
+          href="/tutorial"
+          className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-line bg-ivory-50 px-2.5 text-xs font-semibold text-inkbody transition-all hover:border-pine-100 hover:bg-pine-50 hover:text-pine-700 hover:shadow-sm sm:px-3"
+          aria-label="사용 방법"
+        >
+          <BookOpen size={15} strokeWidth={1.9} className="shrink-0" />
+          <span className="hidden whitespace-nowrap sm:inline">사용 방법</span>
+        </Link>
+
+        {/* 기획의도 — 은은한 광택으로 시선을 유도 */}
+        <Link
+          href="/intent"
+          className="shimmer relative flex h-9 shrink-0 items-center gap-1.5 overflow-hidden rounded-xl bg-pine-800 px-2.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-pine-700 hover:shadow-md sm:px-3"
+          aria-label="기획의도"
+        >
+          <Compass size={15} strokeWidth={1.9} className="shrink-0 text-sand-400" />
+          <span className="hidden whitespace-nowrap sm:inline">기획의도</span>
+        </Link>
+
         {/* 기준일 */}
-        <div className="hidden h-9 shrink-0 items-center gap-2 rounded-xl border border-line bg-ivory-50 px-3 text-xs font-medium text-inkbody sm:flex">
+        <div className="hidden h-9 shrink-0 items-center gap-2 rounded-xl border border-line bg-ivory-50 px-3 text-xs font-medium text-inkbody lg:flex">
           <CalendarDays className="h-3.5 w-3.5 text-pine-700" />
           <span className="num whitespace-nowrap">2026.08.20 (목)</span>
         </div>

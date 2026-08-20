@@ -25,7 +25,7 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
         aria-disabled
         title="다음 단계에서 확장 예정인 기능입니다"
       >
-        <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+        <Icon className="h-4 w-4 shrink-0 opacity-40" strokeWidth={1.75} style={{ color: item.tint }} />
         <span className="clamp-1 flex-1">{item.label}</span>
         <span className="inline-flex h-5 shrink-0 items-center rounded-full border border-sand-500/30 px-1.5 text-[0.625rem] font-medium leading-none text-sand-400/70">
           예정
@@ -47,14 +47,18 @@ function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void 
     >
       <Icon
         className={cn(
-          "h-4 w-4 shrink-0 transition-colors",
-          active ? "text-sand-400" : "text-white/50 group-hover:text-sand-400",
+          "h-4 w-4 shrink-0 transition-opacity duration-200",
+          active ? "opacity-100" : "opacity-70 group-hover:opacity-100",
         )}
         strokeWidth={1.75}
+        style={{ color: item.tint }}
       />
       <span className="clamp-1">{item.label}</span>
       {active ? (
-        <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-sand-400" />
+        <span
+          className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full"
+          style={{ backgroundColor: item.tint }}
+        />
       ) : null}
     </Link>
   );
@@ -119,13 +123,13 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* 하단 서명 */}
       <div className="border-t border-white/10 px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sand-500/20 text-xs font-bold text-sand-400">
-            J
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sand-500/20 text-sm font-bold text-sand-400">
+            박
           </div>
           <div className="min-w-0">
-            <p className="clamp-1 text-sm font-semibold text-white">대표자님</p>
-            <p className="clamp-1 text-[0.625rem] text-white/40">
-              미래에이아이랩 &amp; 곽주완
+            <p className="clamp-1 text-base font-semibold text-white">박지훈 대표님</p>
+            <p className="clamp-1 text-[0.625rem] leading-relaxed text-white/40">
+              Planned &amp; Built by 미래에이아이랩 &amp; 곽주완
             </p>
           </div>
         </div>

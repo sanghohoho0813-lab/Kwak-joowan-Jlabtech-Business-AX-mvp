@@ -490,7 +490,7 @@ const policyDetail: PolicyBlock[] = [
       { label: "7~10단계", detail: "다음 과제 — 성과 측정과 정책 연계" },
     ],
     ours:
-      "지금 멈추면 4단계에서 끝납니다. 실제로 쓰기 시작해야 5단계로 넘어가고, 그때부터 정책기관에 보여줄 것이 생깁니다.",
+      "4단계까지는 시스템을 만드는 일이고, 5단계부터는 실제로 쓰면서 기록이 쌓이는 구간입니다. 정책기관에 보여줄 자료도 이 구간에서 만들어집니다.",
   },
   {
     short: "주의사항",
@@ -1389,58 +1389,79 @@ export default function IntentPage() {
         </StaggerItem>
       </Stagger>
 
-      {/* 마무리 — 도입 결정을 위한 정리 */}
+      {/* 마무리 — 이 프로그램에서 시작되는 다섯 갈래 */}
       <Reveal delay={0.1}>
         <Card className="overflow-hidden border-0 bg-pine-900 text-white">
           <CardContent className="relative p-7 md:p-9">
             <span className="inline-flex items-center gap-2 rounded-full border border-sand-500/30 bg-sand-500/10 px-3 py-1.5 text-[0.75em] font-semibold text-sand-400">
-              <Layers size={13} /> 지금 결정해야 할 것
+              <Layers size={13} /> 이 프로그램에서 시작되는 것들
             </span>
             <h2 className="mt-3.5 max-w-3xl text-[1.25em] font-bold leading-snug md:text-[1.5em]">
-              이 화면들은 완성품이 아니라, 제이랩테크에 맞게 다듬기 위한 출발점입니다.
+              하나의 시스템에서 다섯 갈래가 함께 열립니다.
             </h2>
-            <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="rounded-xl border border-white/12 bg-white/5 p-5">
-                <p className="text-[1em] font-bold text-white">
-                  실제로 쓰기 시작하면 생기는 것
-                </p>
-                <ul className="mt-2.5 space-y-1.5">
-                  {[
-                    "우리 회사 품목과 거래처로 채워진 진짜 데이터",
-                    "직원이 매일 여는 화면, 그리고 남는 사용 기록",
-                    "견적 시간·발주 누락·재구매율의 Before & After",
-                    "교정·소모품에서 나오는 추가 매출 라인",
-                  ].map((t) => (
-                    <li key={t} className="flex items-start gap-2 text-[0.875em] leading-relaxed text-white/70">
-                      <Check size={15} className="mt-0.5 shrink-0 text-sand-400" />
-                      <span>{t}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="rounded-xl border border-white/12 bg-white/5 p-5">
-                <p className="text-[1em] font-bold text-white">그 기록이 향하는 곳</p>
-                <ul className="mt-2.5 space-y-1.5">
-                  {[
-                    "정책금융이 보는 전략·조직·기술·성과 네 관점의 증거",
-                    "사업전환·고도화 계획을 뒷받침하는 실물 자료",
-                    "R&D·바우처·실증사업 신청 시 설명 가능한 현장 사례",
-                    "다음 단계 투자·확장을 판단할 회사 자체 데이터",
-                  ].map((t) => (
-                    <li key={t} className="flex items-start gap-2 text-[0.875em] leading-relaxed text-white/70">
-                      <ArrowRight size={15} className="mt-0.5 shrink-0 text-sand-400" />
-                      <span>{t}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <p className="mt-5 max-w-3xl text-[1em] leading-relaxed text-white/70">
-              시스템을 도입한다는 것은 프로그램을 하나 사는 일이 아닙니다. 회사가 판단하는
-              방식을 데이터 위에 올려놓고, 그 과정을 기록으로 남기기 시작한다는 뜻입니다.
-              그 기록은 시간이 지날수록 쌓이기만 하고 줄지 않습니다. 지금 시작하면 1년 뒤에
-              1년치가 남고, 나중에 시작하면 그만큼 늦게 시작됩니다.
+            <p className="mt-3 max-w-3xl text-[1.05em] leading-relaxed text-white/70 md:text-[1.18em]">
+              재고를 정리하려고 만든 프로그램 하나가, 실제로는 경쟁력·자금·비용·매출·
+              사업모델까지 함께 건드립니다. 이미 여러 업종의 기업들이 같은 이유로 AX
+              도입을 시작하고 있습니다.
             </p>
+
+            <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {[
+                {
+                  icon: Cpu,
+                  title: "AI 시대의 경쟁력",
+                  body: "같은 장비는 어디서나 살 수 있습니다. 차이를 만드는 것은 고객의 설비와 사용 주기를 아는 데이터이고, 그건 오래 거래한 회사만 가질 수 있습니다.",
+                },
+                {
+                  icon: Landmark,
+                  title: "정책자금·정부지원 대응력",
+                  body: "정책기관이 보는 전략·조직·기술·성과 네 관점에 각각 대응하는 기록이 남습니다. 계획서의 문장이 아니라 열어볼 수 있는 화면으로 설명할 수 있습니다.",
+                },
+                {
+                  icon: Clock,
+                  title: "낭비되는 시간과 비용 절감",
+                  body: "재고 파악, 견적 작성, 발주 판단에 쓰던 시간이 줄어듭니다. 과잉 재고에 묶여 있던 자금도 함께 풀립니다.",
+                },
+                {
+                  icon: TrendingUp,
+                  title: "매출이 나오는 곳에 집중",
+                  body: "어느 고객이, 어느 품목에서, 언제 다시 살지를 데이터가 알려줍니다. 감으로 도는 영업이 근거를 가진 영업으로 바뀝니다.",
+                },
+                {
+                  icon: Rocket,
+                  title: "다음 사업모델의 발판",
+                  body: "설치장비와 교정 데이터가 쌓이면 유지관리 서비스를 상품화할 수 있습니다. 장비를 파는 회사에서 운영을 돕는 회사로 넓어지는 출발점입니다.",
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "흔들리지 않는 운영 체계",
+                  body: "담당자가 바뀌어도, 회사가 커져도 판단 기준이 그대로 남습니다. 개인의 기억이 아니라 회사의 데이터가 일하기 때문입니다.",
+                },
+              ].map((c) => {
+                const CIcon = c.icon;
+                return (
+                  <div
+                    key={c.title}
+                    className="rounded-xl border border-white/12 bg-white/5 p-5 transition-colors duration-200 hover:border-sand-500/30 hover:bg-white/[0.08]"
+                  >
+                    <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-sand-500/15 text-sand-400">
+                      <CIcon size={19} strokeWidth={1.9} />
+                    </span>
+                    <p className="text-[1.05em] font-bold text-white">{c.title}</p>
+                    <p className="mt-1.5 text-[0.92em] leading-relaxed text-white/65">
+                      {c.body}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p className="mt-6 max-w-3xl text-[1.05em] leading-relaxed text-white/70">
+              이 화면들은 완성품이 아니라 제이랩테크에 맞게 다듬기 위한 출발점입니다.
+              실제 업무에서 써 보시고 &lsquo;이건 필요하다 / 이건 다르게&rsquo;를 알려
+              주시면, 그 피드백이 다음 버전의 설계도가 됩니다.
+            </p>
+
             <div className="mt-6 flex flex-wrap gap-2.5">
               <Link href="/tutorial">
                 <Button variant="gold" size="lg">

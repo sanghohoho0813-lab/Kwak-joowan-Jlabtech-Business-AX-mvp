@@ -320,8 +320,8 @@ export default function TutorialPage() {
         </div>
       </Reveal>
 
-      {/* 본문 카드 */}
-      <div className="min-h-[24rem]">
+      {/* 본문 카드 — 전환 시 x축 슬라이드가 화면 밖으로 나가지 않도록 가로만 클립 */}
+      <div className="min-h-[24rem] overflow-x-clip">
         <AnimatePresence mode="wait">
           <motion.div
             key={index}

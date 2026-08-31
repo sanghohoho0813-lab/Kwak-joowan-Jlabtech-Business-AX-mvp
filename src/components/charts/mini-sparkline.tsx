@@ -8,9 +8,9 @@ interface Props {
   height?: number;
 }
 
-export function MiniSparkline({ data, color = "#145C44", height = 36 }: Props) {
+export function MiniSparkline({ data, color = "var(--chart-1)", height = 36 }: Props) {
   const points = data.map((v, i) => ({ i, v }));
-  const gid = `spark-${color.replace("#", "")}`;
+  const gid = `spark-${color.replace(/[^a-zA-Z0-9]/g, "")}`;
 
   return (
     <div style={{ height }} className="w-full">

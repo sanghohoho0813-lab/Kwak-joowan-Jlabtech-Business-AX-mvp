@@ -29,6 +29,9 @@ import {
   Check,
   X,
   Layers,
+  Users,
+  Workflow as WorkflowIcon,
+  TrendingUp as GrowthIcon,
   BookMarked,
   Building2,
   Ruler,
@@ -38,6 +41,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Stagger, StaggerItem, Reveal } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
+import { ClosedLoopDiagram } from "@/components/intent/closed-loop";
+import { PhotoPlaceholder } from "@/components/intent/photo-placeholder";
 
 /* ------------------------------------------------------------------ *
  * 섹션 공통 래퍼
@@ -1058,6 +1063,30 @@ export default function IntentPage() {
           </Section>
         </StaggerItem>
 
+        {/* 04-B 사진 자리 */}
+        <StaggerItem>
+          <Section no="04+" icon={WorkflowIcon} title="현장은 이렇게 바뀝니다">
+            <P>
+              아래 세 장면은 실제 제이랩테크 현장 사진으로 채울 예정입니다. 지금은
+              자리만 잡아 두었습니다.
+            </P>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <PhotoPlaceholder
+                label="지금의 문제"
+                caption="수기 대장, 엑셀 재고표, 담당자별 견적 파일 — 정보가 흩어져 있는 현재 모습"
+              />
+              <PhotoPlaceholder
+                label="달라진 업무"
+                caption="한 화면에서 재고·발주·고객 요청을 확인하고 처리하는 모습"
+              />
+              <PhotoPlaceholder
+                label="확장되는 사업"
+                caption="고객 현장에서 설치 장비를 함께 관리하고 교정·유지관리로 이어지는 모습"
+              />
+            </div>
+          </Section>
+        </StaggerItem>
+
         {/* 05 설계 */}
         <StaggerItem>
           <Section no="05" icon={LayoutGrid} title="그래서 이 시스템은 이렇게 설계했습니다">
@@ -1142,6 +1171,48 @@ export default function IntentPage() {
             <Lead>
               월말에 하는 일이 「다시 입력하기」에서 「확인하고 마감하기」로 바뀝니다.
             </Lead>
+          </Section>
+        </StaggerItem>
+
+        {/* 06-B 고객 플랫폼 — 사업모델이 달라지는 지점 */}
+        <StaggerItem>
+          <Section
+            no="06+"
+            icon={Users}
+            title="여기서부터 사업 모델이 달라집니다"
+            tone="accent"
+          >
+            <P>
+              지금까지는 내부에서 일하는 방식이 바뀌는 이야기였습니다. 여기서부터는
+              고객과의 관계가 바뀝니다.
+            </P>
+            <P>
+              기존에는 장비를 납품하면 거래가 끝났습니다. 앞으로는 고객이 제이랩테크
+              플랫폼에서 자기 장비의 교정 시점과 보증 상태를 직접 확인하고, 교정·소모품·
+              추가 계측을 화면에서 바로 요청합니다.
+            </P>
+            <P>
+              그 요청은 내부 Business AX로 이어지고, 직원이 처리한 결과는 다시 고객
+              화면에 반영됩니다. 이 연결이 단순 전산화와 갈리는 지점입니다.
+            </P>
+            <ClosedLoopDiagram />
+            <Lead>
+              장비를 파는 회사에서, 고객의 장비 운영을 함께 관리하는 회사로 넓어집니다.
+            </Lead>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/customer">
+                <Button variant="secondary" size="md">
+                  <Users size={15} />
+                  고객 플랫폼 보기
+                </Button>
+              </Link>
+              <Link href="/requests">
+                <Button variant="outline" size="md">
+                  고객 요청 화면 보기
+                  <ArrowRight size={14} />
+                </Button>
+              </Link>
+            </div>
           </Section>
         </StaggerItem>
 
@@ -1337,20 +1408,20 @@ export default function IntentPage() {
               {[
                 {
                   n: "1단계 — 효율화형 AX",
-                  s: "진행 완료",
-                  d: "재고·견적·재구매 관리를 하나로 잇고, 마진과 설치장비까지 관리 범위를 넓혔습니다.",
+                  s: "운영 중",
+                  d: "내부 운영을 하나로 잇고 기존 사업 안에서 매출을 올립니다. 재고·발주·견적·재구매·마진·교정이 여기에 해당하며, 지금 작동하고 있습니다.",
                   tone: "done" as const,
                 },
                 {
                   n: "2단계 — 사업모델 전환형 AX",
-                  s: "다음 단계",
-                  d: "실제 판매·재고 데이터를 연결하고, 고객사에 장비 상태·교정 이력 리포트를 제공해 유지관리 서비스를 상품화합니다.",
+                  s: "시작 단계",
+                  d: "계측기 판매에서 고객 운영지원으로 넓힙니다. 고객 플랫폼, 고객 장비 관리, 교정·소모품 요청, 추가 계측 상담, 계측 설계가 여기에 들어갑니다. 구조는 열렸고, 실제 판매·재고 데이터 연동이 남았습니다.",
                   tone: "next" as const,
                 },
                 {
                   n: "3단계 — 산업전환형 AX",
-                  s: "검토",
-                  d: "업종별 계측 설계 노하우를 표준 설계 엔진으로 정리해, 동종 업계와 고객사 현장에도 제공할 수 있는지 검토합니다.",
+                  s: "중장기 검토",
+                  d: "장기적으로 계측 운영 데이터 플랫폼을 검토합니다. 원격 계측, 데이터 리포트, 이상징후 감지, 예지보전, 반복형 관리 서비스가 후보입니다. 아직 구현된 기능이 아니며, 실증 이후 확장 여부를 판단합니다.",
                   tone: "later" as const,
                 },
               ].map((p) => (

@@ -19,8 +19,8 @@ export function CompositionDonut({ data, centerLabel, centerValue }: Props) {
               formatter={(value: number, name: string) => [`${value}%`, name]}
               contentStyle={{
                 borderRadius: 12,
-                border: "1px solid #E6E1D3",
-                background: "#FDFCF8",
+                border: "1px solid var(--line)",
+                background: "var(--ivory-50)",
                 fontSize: 12,
               }}
             />

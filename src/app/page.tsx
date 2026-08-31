@@ -4,31 +4,31 @@ import Link from "next/link";
 import {
   Package,
   TrendingUp,
-  Coins,
-  BellRing,
-  ArrowUpRight,
-  ArrowDownRight,
+  ShoppingCart,
+  RefreshCcw,
   ChevronRight,
   AlertTriangle,
   Info,
   CheckCircle2,
-  ShoppingCart,
   Repeat,
   Scale,
   Wrench,
   ShieldAlert,
   PhoneCall,
   Activity,
+  Inbox,
 } from "lucide-react";
 import { Card, HoverCard, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge, statusTone } from "@/components/ui/badge";
+import { DataChip } from "@/components/ui/status-chip";
 import { Stagger, StaggerItem, Reveal } from "@/components/ui/motion";
 import { DemandTrendChart } from "@/components/charts/demand-trend-chart";
 import { CompositionDonut } from "@/components/charts/composition-donut";
 import { MiniSparkline } from "@/components/charts/mini-sparkline";
 import { useStore } from "@/lib/store-context";
+import { useSettings } from "@/lib/settings-context";
 import { repo } from "@/data/repository";
-import { formatEok, formatNumber, formatDate } from "@/lib/utils";
+import { formatKrwCompact, formatNumber, formatDate, daysLeft } from "@/lib/utils";
 import type { InsightLevel } from "@/data/types";
 
 const kpis = repo.getDashboardKpis();
@@ -39,38 +39,6 @@ const insights = repo.getInsights();
 const aiSummary = repo.getAiSummary();
 const equipment = repo.getInstalledEquipment();
 const customers = repo.getCustomers();
-const marginRows = repo.getMarginItems();
-
-/** 오늘 처리해야 할 일 — 각 모듈의 신호를 한 곳으로 모은다 */
-const todoSource = {
-  orders: inventory.filter((i) => i.needsOrder).length,
-  calibration: equipment.filter((e) => {
-    const d = Math.round(
-      (new Date(e.nextCalibrationDate).getTime() - new Date("2026-08-20").getTime()) /
-        86400000,
-    );
-    return d >= 0 && d <= 30;
-  }).length,
-  contacts: customers.filter((c) => c.priority === "즉시 연락").length,
-  marginRisk: marginRows.filter(
-    (m) => repo.marginPct(m.avgSellingManwon, m.costManwon) < m.floorMarginPct,
-  ).length,
-};
-
-function Delta({ value }: { value: number }) {
-  const up = value >= 0;
-  const Icon = up ? ArrowUpRight : ArrowDownRight;
-  return (
-    <span
-      className={`num inline-flex items-center gap-0.5 text-2xs font-semibold ${
-        up ? "text-pine-600" : "text-red-600"
-      }`}
-    >
-      <Icon size={12} />
-      {Math.abs(value).toFixed(1)}%
-    </span>
-  );
-}
 
 const insightIcon: Record<InsightLevel, { icon: typeof Info; cls: string }> = {
   warning: { icon: AlertTriangle, cls: "bg-sand-100 text-sand-600" },
@@ -84,53 +52,125 @@ const aiIcon: Record<string, typeof ShoppingCart> = {
   "재고 최적화": Scale,
 };
 
-const todoCards = [
-  {
-    href: "/inventory",
-    icon: ShoppingCart,
-    label: "발주 필요",
-    count: todoSource.orders,
-    unit: "개 품목",
-    tone: "bg-red-50 text-red-600",
-  },
-  {
-    href: "/repurchase",
-    icon: PhoneCall,
-    label: "즉시 연락",
-    count: todoSource.contacts,
-    unit: "개 고객사",
-    tone: "bg-sand-100 text-sand-600",
-  },
-  {
-    href: "/installed",
-    icon: Wrench,
-    label: "교정 예정",
-    count: todoSource.calibration,
-    unit: "대",
-    tone: "bg-sage-100 text-sage-600",
-  },
-  {
-    href: "/margin",
-    icon: ShieldAlert,
-    label: "마진 위험",
-    count: todoSource.marginRisk,
-    unit: "개 품목",
-    tone: "bg-pine-50 text-pine-700",
-  },
-];
+/** 역할별로 먼저 봐야 할 과제 순서를 바꾼다 (Demo Role Preview) */
+const roleOrder: Record<string, string[]> = {
+  대표: ["고객 요청", "재구매", "마진", "발주", "교정"],
+  "영업·견적": ["고객 요청", "재구매", "발주", "마진", "교정"],
+  "재고·운영": ["발주", "교정", "고객 요청", "마진", "재구매"],
+};
 
 export default function DashboardPage() {
   const topItems = inventory.slice(0, 5);
-  const { activities, orders, quotes } = useStore();
+  const { activities, orders, quotes, requests } = useStore();
+  const { role } = useSettings();
+
+  const openRequests = requests.filter((r) => r.status !== "완료");
+  const newRequests = requests.filter((r) => r.status === "접수");
+
+  const calibrationDue = equipment.filter((e) => {
+    const d = daysLeft(e.nextCalibrationDate);
+    return d >= 0 && d <= 30;
+  }).length;
+
+  const allTodos = [
+    {
+      key: "고객 요청",
+      href: "/requests",
+      icon: Inbox,
+      label: "신규 고객 요청",
+      count: newRequests.length,
+      unit: "건",
+      tone: "bg-pine-50 text-pine-700",
+    },
+    {
+      key: "발주",
+      href: "/inventory",
+      icon: ShoppingCart,
+      label: "발주 필요",
+      count: kpis.reorderItemCount,
+      unit: "개 품목",
+      tone: "bg-red-50 text-red-600",
+    },
+    {
+      key: "재구매",
+      href: "/repurchase",
+      icon: PhoneCall,
+      label: "재구매 대상",
+      count: customers.filter((c) => c.priority === "즉시 연락" || c.priority === "이번 주")
+        .length,
+      unit: "개 고객사",
+      tone: "bg-sand-100 text-sand-600",
+    },
+    {
+      key: "교정",
+      href: "/installed",
+      icon: Wrench,
+      label: "교정 예정",
+      count: calibrationDue,
+      unit: "대",
+      tone: "bg-sage-100 text-sage-600",
+    },
+    {
+      key: "마진",
+      href: "/margin",
+      icon: ShieldAlert,
+      label: "마진 위험",
+      count: kpis.marginRiskCount,
+      unit: "개 품목",
+      tone: "bg-ivory-200 text-inkbody",
+    },
+  ];
+  const order = roleOrder[role] ?? roleOrder["대표"];
+  const todos = [...allTodos].sort(
+    (a, b) => order.indexOf(a.key) - order.indexOf(b.key),
+  );
+
+  const kpiCards = [
+    {
+      icon: Package,
+      label: "총 재고 가치",
+      value: formatKrwCompact(kpis.totalStockValueManwon),
+      note: "10개 품목 합계",
+      spark: [20800, 21200, 21600, 21900, 22200, 22530],
+      sparkColor: "var(--chart-1)",
+    },
+    {
+      icon: TrendingUp,
+      label: "30일 예상 출고",
+      value: formatKrwCompact(kpis.forecastDemand30Manwon),
+      note: "예측값 · 실적 아님",
+      spark: [3410, 4050, 3870, 4180, 4020, 4310],
+      sparkColor: "var(--chart-3)",
+    },
+    {
+      icon: ShoppingCart,
+      label: "발주 판단 필요",
+      value: `${kpis.reorderItemCount}개 품목`,
+      note: "예측 수요가 발주점 초과",
+      spark: [2, 3, 3, 4, 4, 4],
+      sparkColor: "var(--chart-1)",
+    },
+    {
+      icon: RefreshCcw,
+      label: "매출 기회",
+      value: `${openRequests.length + kpis.repurchaseCustomerCount}건`,
+      note: `고객 요청 ${openRequests.length}건 · 재구매 ${kpis.repurchaseCustomerCount}건`,
+      spark: [4, 5, 6, 6, 7, 8],
+      sparkColor: "var(--chart-3)",
+    },
+  ];
 
   return (
     <div className="space-y-5">
       <Reveal>
-        <h1 className="text-xl font-bold tracking-tight text-pine-900 md:text-2xl">
-          대시보드
-        </h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-xl font-bold tracking-tight text-pine-900 md:text-2xl">
+            대시보드
+          </h1>
+          <DataChip />
+        </div>
         <p className="clamp-2 mt-1.5 text-sm text-inkmuted">
-          JLAB TECH AX 플랫폼의 핵심 지표와 인사이트를 한눈에 확인하세요.
+          오늘 판단해야 할 일과 회사 운영 상태를 한 화면에서 확인하세요.
         </p>
       </Reveal>
 
@@ -138,20 +178,20 @@ export default function DashboardPage() {
       <Reveal delay={0.04}>
         <Card className="border-pine-100 bg-pine-50/40">
           <CardContent className="p-4 md:p-5">
-            <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <p className="clamp-1 text-sm font-bold text-pine-900">오늘의 실행 과제</p>
               <span className="shrink-0 whitespace-nowrap text-2xs text-inkmuted">
-                모듈별 신호 집계
+                {role} 기준 · 모듈별 신호 집계
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-              {todoCards.map((t) => {
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-5">
+              {todos.map((t) => {
                 const Icon = t.icon;
                 return (
                   <Link
-                    key={t.label}
+                    key={t.key}
                     href={t.href}
-                    className="group flex h-20 items-center gap-3 rounded-xl border border-line bg-ivory-50 px-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-pine-100 hover:shadow-card"
+                    className="group flex h-20 items-center gap-3 rounded-xl border border-line bg-ivory-50 px-3.5 transition-all duration-base hover:-translate-y-0.5 hover:border-pine-100 hover:shadow-card"
                   >
                     <span
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${t.tone}`}
@@ -169,7 +209,7 @@ export default function DashboardPage() {
                     </div>
                     <ChevronRight
                       size={14}
-                      className="ml-auto shrink-0 text-inkmuted transition-transform group-hover:translate-x-0.5 group-hover:text-pine-700"
+                      className="ml-auto shrink-0 text-inkmuted transition-transform duration-base group-hover:translate-x-0.5 group-hover:text-pine-700"
                     />
                   </Link>
                 );
@@ -181,45 +221,7 @@ export default function DashboardPage() {
 
       {/* KPI 카드 */}
       <Stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            icon: Package,
-            label: "총 재고 가치",
-            value: `₩ ${formatEok(kpis.totalStockValueEok)}`,
-            delta: kpis.totalStockDeltaPct,
-            spark: [40, 42, 41, 44, 46, 48.7],
-            sparkColor: "#145C44",
-          },
-          {
-            icon: TrendingUp,
-            label: "예측 수요 (30일)",
-            value: `₩ ${formatEok(kpis.forecastDemand30Eok)}`,
-            delta: kpis.forecastDemandDeltaPct,
-            spark: [48, 50, 53, 55, 58, 62.3],
-            sparkColor: "#145C44",
-          },
-          {
-            icon: Coins,
-            label: "예상 매출 기회",
-            value: `₩ ${formatEok(kpis.revenueOpportunityEok)}`,
-            delta: kpis.revenueOpportunityDeltaPct,
-            spark: [26, 28, 27, 30, 33, 35.6],
-            sparkColor: "#C6A76A",
-          },
-          {
-            icon: BellRing,
-            label: "재구매 알림",
-            value: `${kpis.repurchaseAlerts}건`,
-            deltaNode: (
-              <span className="num inline-flex items-center gap-0.5 text-2xs font-semibold text-red-600">
-                <ArrowUpRight size={12} />
-                긴급 {kpis.repurchaseAlertsUrgent}건
-              </span>
-            ),
-            spark: [6, 7, 9, 8, 10, 12],
-            sparkColor: "#A8853F",
-          },
-        ].map((kpi) => {
+        {kpiCards.map((kpi) => {
           const Icon = kpi.icon;
           return (
             <StaggerItem key={kpi.label}>
@@ -230,7 +232,7 @@ export default function DashboardPage() {
                       <p className="clamp-1 text-xs font-medium text-inkmuted">
                         {kpi.label}
                       </p>
-                      <p className="num mt-1 truncate text-2xl font-bold tracking-tight text-pine-900">
+                      <p className="num clamp-1 mt-1 text-xl font-bold tracking-tight text-pine-900">
                         {kpi.value}
                       </p>
                     </div>
@@ -239,14 +241,9 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <div className="flex items-end justify-between gap-3">
-                    <div className="shrink-0">
-                      <span className="mr-1 text-2xs text-inkmuted">전월 대비</span>
-                      {"deltaNode" in kpi && kpi.deltaNode
-                        ? kpi.deltaNode
-                        : typeof kpi.delta === "number" && <Delta value={kpi.delta} />}
-                    </div>
-                    <div className="w-24 min-w-0">
-                      <MiniSparkline data={kpi.spark} color={kpi.sparkColor} height={32} />
+                    <p className="clamp-2 min-w-0 text-2xs text-inkmuted">{kpi.note}</p>
+                    <div className="w-20 shrink-0">
+                      <MiniSparkline data={kpi.spark} color={kpi.sparkColor} height={30} />
                     </div>
                   </div>
                 </CardContent>
@@ -256,19 +253,19 @@ export default function DashboardPage() {
         })}
       </Stagger>
 
-      {/* 트렌드 + 구성 비중 + 인사이트 */}
+      {/* 트렌드 + 구성 비중 */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Reveal delay={0.1} className="xl:col-span-2">
           <Card className="h-full">
             <CardHeader>
-              <CardTitle>수요 예측 트렌드</CardTitle>
+              <CardTitle>월 출고 금액 추이</CardTitle>
               <div className="flex shrink-0 items-center gap-3 text-2xs text-inkmuted">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="h-0.5 w-4 rounded bg-pine-700" /> 실제 수요
+                  <span className="h-0.5 w-4 rounded bg-pine-700" /> 실제
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <span className="h-0.5 w-4 rounded border-t-2 border-dashed border-sand-500" />
-                  예측 수요
+                  예측
                 </span>
               </div>
             </CardHeader>
@@ -278,7 +275,7 @@ export default function DashboardPage() {
           </Card>
         </Reveal>
 
-        <Reveal delay={0.18}>
+        <Reveal delay={0.14}>
           <Card className="h-full">
             <CardHeader>
               <CardTitle>재고 구성 비중</CardTitle>
@@ -287,7 +284,7 @@ export default function DashboardPage() {
               <CompositionDonut
                 data={composition}
                 centerLabel="총 재고 가치"
-                centerValue={`₩ ${formatEok(kpis.totalStockValueEok)}`}
+                centerValue={formatKrwCompact(kpis.totalStockValueManwon)}
               />
             </CardContent>
           </Card>
@@ -302,7 +299,7 @@ export default function DashboardPage() {
               <CardTitle>주요 재고 현황</CardTitle>
               <Link
                 href="/inventory"
-                className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-xs font-medium text-pine-700 transition-colors hover:text-pine-600"
+                className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-xs font-medium text-pine-700 transition-colors duration-fast hover:text-pine-600"
               >
                 전체 보기 <ChevronRight size={13} />
               </Link>
@@ -314,7 +311,7 @@ export default function DashboardPage() {
                     <tr className="border-b border-line text-2xs text-inkmuted">
                       <th className="pb-2.5 pr-3 font-medium">제품명</th>
                       <th className="pb-2.5 pr-3 font-medium">카테고리</th>
-                      <th className="pb-2.5 pr-3 text-right font-medium">재고 수량</th>
+                      <th className="pb-2.5 pr-3 text-right font-medium">재고</th>
                       <th className="pb-2.5 pr-3 text-right font-medium">재고 가치</th>
                       <th className="pb-2.5 pr-3 text-right font-medium">회전율</th>
                       <th className="pb-2.5 text-right font-medium">상태</th>
@@ -324,7 +321,7 @@ export default function DashboardPage() {
                     {topItems.map((item) => (
                       <tr
                         key={item.id}
-                        className="border-b border-line/60 transition-colors last:border-0 hover:bg-pine-50/50"
+                        className="border-b border-line/60 transition-colors duration-fast last:border-0 hover:bg-pine-50/50"
                       >
                         <td className="max-w-[11rem] py-3 pr-3">
                           <p className="clamp-1 font-semibold text-pine-900">
@@ -338,7 +335,7 @@ export default function DashboardPage() {
                           {formatNumber(item.stockQty)}
                         </td>
                         <td className="num whitespace-nowrap py-3 pr-3 text-right">
-                          ₩ {item.stockValueEok.toFixed(1)}억
+                          {formatKrwCompact(item.stockValueManwon)}
                         </td>
                         <td className="num whitespace-nowrap py-3 pr-3 text-right">
                           {item.turnoverRate.toFixed(1)}회
@@ -355,16 +352,11 @@ export default function DashboardPage() {
           </Card>
         </Reveal>
 
-        <Reveal delay={0.18}>
+        <Reveal delay={0.14}>
           <Card className="h-full">
             <CardHeader>
               <CardTitle>알림 &amp; 인사이트</CardTitle>
-              <Link
-                href="/inventory"
-                className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-xs font-medium text-pine-700 transition-colors hover:text-pine-600"
-              >
-                전체 보기 <ChevronRight size={13} />
-              </Link>
+              <DataChip />
             </CardHeader>
             <CardContent className="space-y-2.5">
               {insights.map((insight) => {
@@ -372,7 +364,7 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={insight.id}
-                    className="flex gap-3 rounded-xl border border-line/70 bg-ivory-100/60 p-3 transition-colors hover:border-pine-100 hover:bg-pine-50/40"
+                    className="flex gap-3 rounded-xl border border-line/70 bg-ivory-100/60 p-3 transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50/40"
                   >
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${cls}`}
@@ -388,7 +380,7 @@ export default function DashboardPage() {
                           {insight.timeAgo}
                         </span>
                       </div>
-                      <p className="clamp-2 mt-0.5 text-2xs leading-relaxed text-inkmuted">
+                      <p className="clamp-3 mt-0.5 text-2xs leading-relaxed text-inkmuted">
                         {insight.description}
                       </p>
                     </div>
@@ -407,7 +399,7 @@ export default function DashboardPage() {
             <CardTitle>AI 추천</CardTitle>
             <Link
               href="/recommend"
-              className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-xs font-medium text-pine-700 transition-colors hover:text-pine-600"
+              className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap text-xs font-medium text-pine-700 transition-colors duration-fast hover:text-pine-600"
             >
               전체 보기 <ChevronRight size={13} />
             </Link>
@@ -420,7 +412,7 @@ export default function DashboardPage() {
                   <Link
                     key={item.id}
                     href="/recommend"
-                    className="group flex min-h-[6.5rem] flex-col gap-2.5 rounded-xl border border-line bg-ivory-100/60 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-pine-100 hover:bg-pine-50/50 hover:shadow-card"
+                    className="group flex min-h-[6.5rem] flex-col gap-2.5 rounded-xl border border-line bg-ivory-100/60 p-4 transition-all duration-base hover:-translate-y-0.5 hover:border-pine-100 hover:bg-pine-50/50 hover:shadow-card"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-2 text-xs font-bold text-pine-800">
@@ -431,10 +423,10 @@ export default function DashboardPage() {
                       </span>
                       <ChevronRight
                         size={14}
-                        className="shrink-0 text-inkmuted transition-transform group-hover:translate-x-0.5 group-hover:text-pine-700"
+                        className="shrink-0 text-inkmuted transition-transform duration-base group-hover:translate-x-0.5 group-hover:text-pine-700"
                       />
                     </div>
-                    <p className="clamp-2 text-xs leading-relaxed text-inkbody">
+                    <p className="clamp-3 text-xs leading-relaxed text-inkbody">
                       {item.text}
                     </p>
                   </Link>
@@ -454,13 +446,14 @@ export default function DashboardPage() {
               <div className="flex shrink-0 items-center gap-1.5">
                 <Badge tone="outline">발주 {orders.length}</Badge>
                 <Badge tone="outline">견적 {quotes.length}</Badge>
+                <Badge tone="outline">요청 {requests.length}</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
               {activities.slice(0, 6).map((a) => (
                 <div
                   key={a.id}
-                  className="flex items-center gap-3 rounded-xl border border-line/70 bg-ivory-100/60 p-3 transition-colors hover:border-pine-100 hover:bg-pine-50/40"
+                  className="flex items-center gap-3 rounded-xl border border-line/70 bg-ivory-100/60 p-3 transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50/40"
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-pine-50 text-pine-700">
                     <Activity size={14} strokeWidth={1.9} />
@@ -479,10 +472,13 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
-              <p className="pt-1 text-2xs text-inkmuted">
-                발주·견적·고객 접촉 기록이 이 기기에 저장됩니다. 실제 운영 데이터가
-                연동되면 회사 전체가 공유하는 이력으로 확장됩니다.
-              </p>
+              <Link
+                href="/evidence"
+                className="inline-flex items-center gap-1 pt-1 text-2xs font-semibold text-pine-700 underline-offset-4 transition-colors duration-fast hover:text-pine-600 hover:underline"
+              >
+                AX 실증성과에서 전체 기록 보기
+                <ChevronRight size={12} />
+              </Link>
             </CardContent>
           </Card>
         </Reveal>

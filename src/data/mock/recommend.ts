@@ -29,10 +29,10 @@ export const environmentOptions = [
 ];
 
 export const budgetOptions = [
-  "500만원 이하",
-  "500만~2,000만원",
-  "2,000만~5,000만원",
-  "5,000만원 이상",
+  "300만원 이하",
+  "300만~1,000만원",
+  "1,000만~3,000만원",
+  "3,000만원 이상",
 ];
 
 interface Rule {
@@ -45,7 +45,7 @@ const P = {
     itemId: "wm-700",
     name: "다항목 수질 측정기",
     model: "WM-700",
-    priceManwon: 486,
+    priceManwon: 320,
     matchScore: score,
     reasons,
     accessories: [
@@ -57,11 +57,11 @@ const P = {
     itemId: "an-1000",
     name: "수질 분석기",
     model: "AN-1000",
-    priceManwon: 1024,
+    priceManwon: 680,
     matchScore: score,
     reasons,
     accessories: [
-      { name: "시약 세트 (분기분)", priceManwon: 48 },
+      { name: "시약 세트 (분기분)", priceManwon: 32 },
       { name: "교정 키트 CAL-KIT-A", priceManwon: 6 },
     ],
   }),
@@ -69,35 +69,35 @@ const P = {
     itemId: "vs-300",
     name: "진동 센서",
     model: "VS-300",
-    priceManwon: 99,
+    priceManwon: 42,
     matchScore: score,
     reasons,
     accessories: [
       { name: "설치 브래킷 세트", priceManwon: 4 },
-      { name: "데이터로거 DL-500", priceManwon: 80 },
+      { name: "데이터로거 DL-500", priceManwon: 55 },
     ],
   }),
   ts200: (score: number, reasons: string[]): RecommendedProduct => ({
     itemId: "ts-200",
     name: "온도 센서",
     model: "TS-200",
-    priceManwon: 97,
+    priceManwon: 28,
     matchScore: score,
     reasons,
     accessories: [
       { name: "고온용 실드 케이블", priceManwon: 3 },
-      { name: "데이터로거 DL-500", priceManwon: 80 },
+      { name: "데이터로거 DL-500", priceManwon: 55 },
     ],
   }),
   gm400: (score: number, reasons: string[]): RecommendedProduct => ({
     itemId: "gm-400",
     name: "가스 측정기",
     model: "GM-400",
-    priceManwon: 375,
+    priceManwon: 245,
     matchScore: score,
     reasons,
     accessories: [
-      { name: "센서 카트리지 (연 1회 교체)", priceManwon: 32 },
+      { name: "센서 카트리지 (연 1회 교체)", priceManwon: 22 },
       { name: "휴대용 보호 케이스", priceManwon: 8 },
     ],
   }),
@@ -105,7 +105,7 @@ const P = {
     itemId: "dl-500",
     name: "데이터로거",
     model: "DL-500",
-    priceManwon: 80,
+    priceManwon: 55,
     matchScore: score,
     reasons,
     accessories: [
@@ -117,11 +117,11 @@ const P = {
     itemId: "th-800",
     name: "열화상 측정기",
     model: "TH-800",
-    priceManwon: 880,
+    priceManwon: 580,
     matchScore: score,
     reasons,
     accessories: [
-      { name: "교정 서비스 (연 1회)", priceManwon: 25 },
+      { name: "교정 서비스 (연 1회)", priceManwon: 18 },
       { name: "전용 삼각대", priceManwon: 9 },
     ],
   }),
@@ -140,7 +140,7 @@ export function recommendProducts(input: RecommendInput): RecommendedProduct[] {
         isOutdoor ? "IP67 방수 등급으로 옥외·현장 계측에 적합합니다." : "실내 상시 계측 시 자동 기록 기능을 활용할 수 있습니다.",
       ]),
     );
-    if (input.budget.includes("5,000만원 이상") || input.budget.includes("2,000만~5,000만원")) {
+    if (input.budget.includes("3,000만원 이상") || input.budget.includes("1,000만~3,000만원")) {
       results.push(
         P.an1000(88, [
           "정밀 분석이 필요한 경우 실험실급 정확도를 제공합니다.",

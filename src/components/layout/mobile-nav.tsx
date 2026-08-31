@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
+  Inbox,
   Boxes,
   Sparkles,
-  RefreshCcw,
   LayoutGrid,
   type LucideIcon,
 } from "lucide-react";
@@ -15,9 +15,9 @@ import { useDrawer } from "./drawer-context";
 
 const tabs: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/", label: "홈", icon: LayoutDashboard },
+  { href: "/requests", label: "요청", icon: Inbox },
   { href: "/inventory", label: "재고", icon: Boxes },
   { href: "/recommend", label: "AI 추천", icon: Sparkles },
-  { href: "/repurchase", label: "재구매", icon: RefreshCcw },
 ];
 
 export function MobileNav() {
@@ -35,7 +35,7 @@ export function MobileNav() {
               key={tab.href}
               href={tab.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-colors",
+                "flex flex-col items-center justify-center gap-1 transition-colors duration-fast",
                 active ? "text-pine-700" : "text-inkmuted hover:text-pine-700",
               )}
             >

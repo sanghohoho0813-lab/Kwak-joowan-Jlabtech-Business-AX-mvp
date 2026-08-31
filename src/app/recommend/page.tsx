@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Reveal } from "@/components/ui/motion";
+import { AiPreviewChip } from "@/components/ui/status-chip";
 import { useStore } from "@/lib/store-context";
 import { useToast } from "@/components/ui/toast";
 import { repo } from "@/data/repository";
@@ -101,8 +102,16 @@ export default function RecommendPage() {
       <PageHeader
         title="AI 추천·견적"
         description="고객 상황을 입력하면 적합한 계측 장비와 함께 제안할 소모품, 예상 견적 흐름을 제안합니다."
-        badge="규칙 기반 데모"
       />
+      <Reveal className="-mt-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <AiPreviewChip />
+          <p className="text-2xs text-inkmuted">
+            현재는 규칙 기반 추천입니다. 실제 상품 DB와 판매 이력, LLM API를 연결하면
+            그대로 대체됩니다.
+          </p>
+        </div>
+      </Reveal>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
         {/* 입력 패널 */}

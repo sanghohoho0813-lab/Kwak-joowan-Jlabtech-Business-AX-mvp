@@ -16,7 +16,7 @@ import { Stagger, StaggerItem, Reveal } from "@/components/ui/motion";
 import { useStore } from "@/lib/store-context";
 import { useToast } from "@/components/ui/toast";
 import { repo } from "@/data/repository";
-import { cn, formatDate, formatManwon, dday } from "@/lib/utils";
+import { cn, formatDate, dday } from "@/lib/utils";
 import type { RepurchaseLikelihood } from "@/data/types";
 
 const customers = repo.getCustomers();
@@ -59,9 +59,7 @@ export default function RepurchasePage() {
 
   const priorityCustomers = sorted.filter((c) => c.priority === "즉시 연락");
   const thisWeek = sorted.filter((c) => c.priority === "이번 주");
-  const totalOpportunity = priorityCustomers
-    .concat(thisWeek)
-    .reduce((sum, c) => sum + Math.round(c.annualPurchaseManwon / 4), 0);
+  const opportunityCount = priorityCustomers.length + thisWeek.length;
 
   return (
     <div className="space-y-5">
@@ -111,11 +109,11 @@ export default function RepurchasePage() {
                 <Target size={19} strokeWidth={1.75} />
               </span>
               <div className="min-w-0">
-                <p className="clamp-1 text-xs text-inkmuted">예상 재구매 기회</p>
+                <p className="clamp-1 text-xs text-inkmuted">이번 달 접촉 기회</p>
                 <p className="num text-xl font-bold text-pine-900">
-                  약 {formatManwon(totalOpportunity)}
+                  {opportunityCount}건
                 </p>
-                <p className="clamp-1 text-2xs text-inkmuted">우선 관리 고객 기준 추정치</p>
+                <p className="clamp-1 text-2xs text-inkmuted">즉시 연락 + 이번 주 대상</p>
               </div>
             </CardContent>
           </HoverCard>
@@ -127,7 +125,7 @@ export default function RepurchasePage() {
         <Card>
           <CardHeader>
             <CardTitle>우선 관리 고객</CardTitle>
-            <Badge tone="danger" className="animate-pulse-soft">
+            <Badge tone="danger">
               {priorityCustomers.length}건 긴급
             </Badge>
           </CardHeader>
@@ -136,7 +134,7 @@ export default function RepurchasePage() {
               {priorityCustomers.map((c) => (
                 <div
                   key={c.id}
-                  className="group flex min-h-[8.5rem] flex-col justify-between rounded-xl border border-line bg-ivory-100/60 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-pine-100 hover:bg-pine-50/40 hover:shadow-card"
+                  className="group flex min-h-[8.5rem] flex-col justify-between rounded-xl border border-line bg-ivory-100/60 p-4 transition-all duration-base hover:-translate-y-0.5 hover:border-pine-100 hover:bg-pine-50/40 hover:shadow-card"
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">

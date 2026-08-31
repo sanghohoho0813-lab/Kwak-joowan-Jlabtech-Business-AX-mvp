@@ -23,10 +23,15 @@ import {
 import type {
   ActivityKind,
   ActivityLog,
+  CustomerRequest,
   OrderStatus,
   PurchaseOrder,
+  RequestStatus,
+  RequestType,
   SavedQuote,
 } from "@/data/types";
+import { REQUEST_STATUS_FLOW } from "@/data/types";
+import { seedRequests } from "@/data/mock/customer-portal";
 
 export const STORE_KEY = "jlab-ax-store-v1";
 
@@ -34,9 +39,16 @@ interface StoreData {
   orders: PurchaseOrder[];
   quotes: SavedQuote[];
   activities: ActivityLog[];
+  /** 고객 플랫폼에서 접수된 요청. 시드 2건으로 시작한다. */
+  requests: CustomerRequest[];
 }
 
-const emptyStore: StoreData = { orders: [], quotes: [], activities: [] };
+const emptyStore: StoreData = {
+  orders: [],
+  quotes: [],
+  activities: [],
+  requests: seedRequests,
+};
 
 interface StoreContextValue extends StoreData {
   ready: boolean;
@@ -54,12 +66,28 @@ interface StoreContextValue extends StoreData {
     origin: SavedQuote["origin"];
     productSummary: string;
     totalManwon: number;
-  }) => void;
+  }) => SavedQuote;
   logActivity: (input: {
     kind: ActivityKind;
     title: string;
     detail: string;
   }) => void;
+  /** 고객 플랫폼 → Business AX : 요청 생성 */
+  createRequest: (input: {
+    customerId: string;
+    customerName: string;
+    requestType: RequestType;
+    equipmentId?: string;
+    equipmentName?: string;
+    title: string;
+    detail: string;
+  }) => CustomerRequest;
+  /** Business AX → 고객 플랫폼 : 처리 단계 전진 */
+  advanceRequest: (id: string, response?: string) => void;
+  /** 특정 단계로 직접 이동 (담당자가 상태를 고를 때) */
+  setRequestStatus: (id: string, status: RequestStatus, response?: string) => void;
+  /** 요청에서 만들어진 견적을 연결 */
+  linkQuoteToRequest: (requestId: string, quoteId: string) => void;
   clearAll: () => void;
 }
 
@@ -182,6 +210,125 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...prev.activities,
         ].slice(0, 50),
       }));
+      return quote;
+    },
+    [persist],
+  );
+
+  /* -------- 고객 플랫폼 ↔ Business AX Closed Loop -------- */
+
+  const createRequest = useCallback<StoreContextValue["createRequest"]>(
+    ({ customerId, customerName, requestType, equipmentId, equipmentName, title, detail }) => {
+      const now = new Date().toISOString();
+      const request: CustomerRequest = {
+        id: makeId("req"),
+        customerId,
+        customerName,
+        requestType,
+        equipmentId,
+        equipmentName,
+        title,
+        detail,
+        status: "접수",
+        createdAt: now,
+        updatedAt: now,
+      };
+      persist((prev) => ({
+        ...prev,
+        requests: [request, ...prev.requests],
+        activities: [
+          {
+            id: makeId("act"),
+            kind: "고객 요청" as ActivityKind,
+            title: `${customerName} · ${requestType} 접수`,
+            detail: `${request.id}|${title}`,
+            createdAt: now,
+          },
+          ...prev.activities,
+        ].slice(0, 50),
+      }));
+      return request;
+    },
+    [persist],
+  );
+
+  const setRequestStatus = useCallback<StoreContextValue["setRequestStatus"]>(
+    (id, status, response) => {
+      persist((prev) => {
+        const target = prev.requests.find((r) => r.id === id);
+        return {
+          ...prev,
+          requests: prev.requests.map((r) =>
+            r.id === id
+              ? {
+                  ...r,
+                  status,
+                  response: response ?? r.response,
+                  updatedAt: new Date().toISOString(),
+                }
+              : r,
+          ),
+          activities: target
+            ? [
+                {
+                  id: makeId("act"),
+                  kind: "요청 처리" as ActivityKind,
+                  title: `${target.customerName} · ${target.requestType} → ${status}`,
+                  detail: `${target.id}|${target.title}`,
+                  createdAt: new Date().toISOString(),
+                },
+                ...prev.activities,
+              ].slice(0, 50)
+            : prev.activities,
+        };
+      });
+    },
+    [persist],
+  );
+
+  const advanceRequest = useCallback<StoreContextValue["advanceRequest"]>(
+    (id, response) => {
+      setData((prev) => {
+        const target = prev.requests.find((r) => r.id === id);
+        if (!target) return prev;
+        const idx = REQUEST_STATUS_FLOW.indexOf(target.status);
+        const next = REQUEST_STATUS_FLOW[Math.min(idx + 1, REQUEST_STATUS_FLOW.length - 1)];
+        const now = new Date().toISOString();
+        const updated: StoreData = {
+          ...prev,
+          requests: prev.requests.map((r) =>
+            r.id === id
+              ? { ...r, status: next, response: response ?? r.response, updatedAt: now }
+              : r,
+          ),
+          activities: [
+            {
+              id: makeId("act"),
+              kind: "요청 처리" as ActivityKind,
+              title: `${target.customerName} · ${target.requestType} → ${next}`,
+              detail: `${target.id}|${target.title}`,
+              createdAt: now,
+            },
+            ...prev.activities,
+          ].slice(0, 50),
+        };
+        try {
+          localStorage.setItem(STORE_KEY, JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+    },
+    [],
+  );
+
+  const linkQuoteToRequest = useCallback<StoreContextValue["linkQuoteToRequest"]>(
+    (requestId, quoteId) => {
+      persist((prev) => ({
+        ...prev,
+        requests: prev.requests.map((r) =>
+          r.id === requestId ? { ...r, quoteId, updatedAt: new Date().toISOString() } : r,
+        ),
+      }));
     },
     [persist],
   );
@@ -201,9 +348,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       advanceOrder,
       saveQuote,
       logActivity,
+      createRequest,
+      advanceRequest,
+      setRequestStatus,
+      linkQuoteToRequest,
       clearAll,
     }),
-    [data, ready, createOrder, advanceOrder, saveQuote, logActivity, clearAll],
+    [
+      data,
+      ready,
+      createOrder,
+      advanceOrder,
+      saveQuote,
+      logActivity,
+      createRequest,
+      advanceRequest,
+      setRequestStatus,
+      linkQuoteToRequest,
+      clearAll,
+    ],
   );
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

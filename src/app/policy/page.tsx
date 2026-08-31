@@ -16,9 +16,19 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem, Reveal } from "@/components/ui/motion";
 import { repo } from "@/data/repository";
 import { cn } from "@/lib/utils";
-import type { ReadinessState } from "@/data/types";
+import type { ReadinessState, FundReviewState } from "@/data/types";
 
 const { beforeAfter, readiness, fundPrograms, evidenceSummary } = repo.getPolicyAnalysis();
+
+const fundStateMeta: Record<
+  FundReviewState,
+  { tone: "success" | "warning" | "neutral" | "outline" }
+> = {
+  "우선 검토": { tone: "success" },
+  "조건 확인 필요": { tone: "warning" },
+  "중장기 검토": { tone: "neutral" },
+  "현재 대상 아님": { tone: "outline" },
+};
 
 const stateMeta: Record<
   ReadinessState,
@@ -57,7 +67,10 @@ export default function PolicyPage() {
                 { label: "요건 충족", value: `${met} / ${readiness.length}` },
                 { label: "검토 가능 사업", value: `${fundPrograms.length}건` },
                 { label: "개선 지표", value: `${beforeAfter.length}개` },
-                { label: "최고 적합도", value: `${Math.max(...fundPrograms.map((f) => f.fitPct))}%` },
+                {
+                  label: "우선 검토",
+                  value: `${fundPrograms.filter((f) => f.state === "우선 검토").length}건`,
+                },
               ].map((s) => (
                 <div key={s.label} className="min-w-0">
                   <p className="clamp-1 text-2xs text-white/50">{s.label}</p>
@@ -72,41 +85,63 @@ export default function PolicyPage() {
         </Card>
       </Reveal>
 
-      {/* 도입 전후 비교 */}
+      {/* 도입 전 / 목표 / 실측 */}
       <Reveal delay={0.08}>
         <Card>
-          <CardHeader>
-            <CardTitle>AX 도입 전후 비교</CardTitle>
-            <Badge tone="outline">일부 추정치 포함</Badge>
+          <CardHeader className="flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+            <CardTitle>AX 도입 효과 측정 항목</CardTitle>
+            <div className="flex shrink-0 flex-wrap gap-1.5">
+              <Badge tone="neutral">도입 전</Badge>
+              <Badge tone="info">목표</Badge>
+              <Badge tone="success">실측</Badge>
+            </div>
           </CardHeader>
           <CardContent className="space-y-2.5">
+            <p className="rounded-xl bg-ivory-200/60 p-3.5 text-2xs leading-relaxed text-inkmuted">
+              아직 운영 기간이 쌓이지 않아 실측값이 없는 항목은 &lsquo;측정 준비 중&rsquo;으로
+              둡니다. 임의의 개선율을 성과처럼 표시하지 않는 것이 심사에서 더 유리합니다.
+            </p>
             {beforeAfter.map((m) => (
               <div
                 key={m.label}
-                className="rounded-xl border border-line/70 bg-ivory-100/60 p-4 transition-colors hover:border-pine-100 hover:bg-pine-50/40"
+                className="rounded-xl border border-line/70 bg-ivory-100/60 p-4 transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50/40"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="clamp-1 text-xs font-bold text-pine-900">{m.label}</p>
-                  <Badge tone="success">{m.changeLabel}</Badge>
-                </div>
-                <div className="mt-2.5 flex flex-wrap items-center gap-2 sm:flex-nowrap">
-                  <div className="min-w-0 flex-1 rounded-lg border border-line bg-ivory-50 px-3 py-2">
+                <p className="clamp-1 text-xs font-bold text-pine-900">{m.label}</p>
+                <div className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <div className="min-w-0 rounded-lg border border-line bg-ivory-50 px-3 py-2">
                     <p className="text-[0.5625rem] font-semibold uppercase tracking-wider text-inkmuted">
                       도입 전
                     </p>
-                    <p className="clamp-1 text-xs text-inkbody">{m.before}</p>
+                    <p className="clamp-2 mt-0.5 text-xs text-inkbody">{m.before}</p>
                   </div>
-                  <ArrowRight size={14} className="shrink-0 text-sand-500" />
-                  <div className="min-w-0 flex-1 rounded-lg border border-pine-100 bg-pine-50/70 px-3 py-2">
-                    <p className="text-[0.5625rem] font-semibold uppercase tracking-wider text-pine-600">
-                      도입 후
+                  <div className="min-w-0 rounded-lg border border-sage-200 bg-sage-100/60 px-3 py-2">
+                    <p className="text-[0.5625rem] font-semibold uppercase tracking-wider text-sage-600">
+                      목표
                     </p>
-                    <p className="clamp-1 text-xs font-semibold text-pine-900">{m.after}</p>
+                    <p className="clamp-2 mt-0.5 text-xs font-medium text-inkbody">{m.target}</p>
+                  </div>
+                  <div
+                    className={cn(
+                      "min-w-0 rounded-lg border px-3 py-2",
+                      m.measured
+                        ? "border-pine-100 bg-pine-50/70"
+                        : "border-dashed border-line bg-ivory-50",
+                    )}
+                  >
+                    <p className="text-[0.5625rem] font-semibold uppercase tracking-wider text-pine-600">
+                      실측
+                    </p>
+                    <p
+                      className={cn(
+                        "clamp-2 mt-0.5 text-xs",
+                        m.measured ? "font-semibold text-pine-900" : "text-inkmuted",
+                      )}
+                    >
+                      {m.measured ?? "측정 준비 중"}
+                    </p>
                   </div>
                 </div>
-                <p className="clamp-2 mt-2 text-2xs leading-relaxed text-inkmuted">
-                  {m.note}
-                </p>
+                <p className="clamp-3 mt-2 text-2xs leading-relaxed text-inkmuted">{m.note}</p>
               </div>
             ))}
           </CardContent>
@@ -166,39 +201,43 @@ export default function PolicyPage() {
               <Landmark size={15} className="shrink-0 text-inkmuted" />
             </CardHeader>
             <CardContent className="space-y-2.5">
-              {fundPrograms.map((f) => (
-                <div
-                  key={f.name}
-                  className="rounded-xl border border-line/70 bg-ivory-100/60 p-4 transition-all hover:-translate-y-0.5 hover:border-pine-100 hover:shadow-card"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="clamp-1 text-xs font-bold text-pine-900">{f.name}</p>
-                      <p className="clamp-1 text-2xs text-inkmuted">{f.agency}</p>
+              {fundPrograms.map((f) => {
+                const meta = fundStateMeta[f.state];
+                return (
+                  <div
+                    key={f.name}
+                    className="rounded-xl border border-line/70 bg-ivory-100/60 p-4 transition-all duration-base hover:-translate-y-0.5 hover:border-pine-100 hover:shadow-card"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="clamp-2 text-xs font-bold leading-snug text-pine-900">
+                          {f.name}
+                        </p>
+                        <p className="clamp-1 text-2xs text-inkmuted">{f.agency}</p>
+                      </div>
+                      <Badge tone={meta.tone}>{f.state}</Badge>
                     </div>
-                    <div className="shrink-0 text-right">
-                      <p className="num text-sm font-bold text-pine-800">{f.fitPct}%</p>
-                      <p className="text-[0.5625rem] text-inkmuted">적합도</p>
+                    <p className="clamp-3 mt-2 text-2xs leading-relaxed text-inkbody">
+                      {f.reason}
+                    </p>
+                    <div className="mt-2.5 space-y-1 border-t border-line/60 pt-2.5">
+                      <p className="clamp-2 text-2xs text-inkmuted">
+                        <span className="font-semibold text-sand-600">근거 · </span>
+                        {f.basis}
+                      </p>
+                      <p className="clamp-1 text-2xs text-inkmuted">
+                        <span className="font-semibold text-sand-600">지원 형태 · </span>
+                        {f.scaleLabel}
+                      </p>
                     </div>
                   </div>
-                  {/* 적합도 바 */}
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ivory-300">
-                    <div
-                      className="h-full rounded-full bg-pine-600 transition-all duration-500"
-                      style={{ width: `${f.fitPct}%` }}
-                    />
-                  </div>
-                  <p className="clamp-2 mt-2 text-2xs leading-relaxed text-inkbody">
-                    {f.reason}
-                  </p>
-                  <p className="clamp-1 mt-1.5 text-2xs font-semibold text-sand-600">
-                    지원 규모: {f.scaleLabel}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
               <p className="pt-1 text-2xs leading-relaxed text-inkmuted">
-                적합도는 플랫폼이 보유한 운영 데이터와 일반적인 사업 요건을 대조한
-                참고 지표입니다. 실제 신청 요건과 일정은 각 기관 공고를 확인해야 합니다.
+                위 상태는 선정 확률이 아니라, 현재 플랫폼이 보유한 데이터로 &lsquo;지금
+                어느 단계에서 검토할 수 있는지&rsquo;를 표시한 것입니다. 실제 신청 요건과
+                일정은 각 기관 공고를 확인해야 하며, 이 시스템이 있다고 해서 선정이
+                보장되지는 않습니다.
               </p>
             </CardContent>
           </Card>

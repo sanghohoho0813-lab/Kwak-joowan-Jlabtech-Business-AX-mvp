@@ -11,7 +11,7 @@ import {
   upcomingNav,
   type NavItem,
 } from "./nav-config";
-import { Ruler } from "lucide-react";
+import { Ruler, Users, ArrowUpRight } from "lucide-react";
 
 function NavLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -133,11 +133,33 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <NavLink key={item.label} item={item} onNavigate={onNavigate} />
         ))}
 
-        <SectionLabel>확장 예정</SectionLabel>
+        <SectionLabel>3단계 검토</SectionLabel>
         {upcomingNav.map((item) => (
           <NavLink key={item.label} item={item} />
         ))}
       </nav>
+
+      {/* 고객 플랫폼 전환 — 시연용 Surface Switcher */}
+      <div className="px-3 pb-2">
+        <Link
+          href="/customer"
+          onClick={onNavigate}
+          className="flex items-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.07] px-3 py-2.5 transition-colors duration-fast hover:bg-white/12"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sand-500/20 text-sand-400">
+            <Users size={16} strokeWidth={1.9} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold text-white">
+              고객 플랫폼 보기
+            </span>
+            <span className="block truncate text-[0.625rem] text-white/45">
+              고객이 보는 화면
+            </span>
+          </span>
+          <ArrowUpRight size={14} className="shrink-0 text-white/40" />
+        </Link>
+      </div>
 
       {/* 하단 서명 */}
       <div className="border-t border-white/10 px-4 py-4">

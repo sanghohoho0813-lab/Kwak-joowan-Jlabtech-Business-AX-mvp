@@ -21,7 +21,7 @@ export interface InventoryItem {
   category: InventoryCategory;
   stockQty: number;
   unitPriceManwon: number;
-  stockValueEok: number;
+  stockValueManwon: number;
   turnoverRate: number; // 연 재고 회전율
   status: InventoryStatus;
   forecastDemand30: number; // 30일 예측 수요 (수량)
@@ -31,9 +31,9 @@ export interface InventoryItem {
 }
 
 export interface DemandTrendPoint {
-  date: string; // MM.DD
-  actual: number | null; // 실제 수요 (억)
-  forecast: number | null; // 예측 수요 (억)
+  date: string; // 표시 라벨
+  actual: number | null; // 실제 출고 금액 (만원)
+  forecast: number | null; // 예측 출고 금액 (만원)
 }
 
 export interface CompositionSlice {
@@ -95,14 +95,18 @@ export interface QuoteLine {
 }
 
 export interface DashboardKpis {
-  totalStockValueEok: number;
-  totalStockDeltaPct: number;
-  forecastDemand30Eok: number;
-  forecastDemandDeltaPct: number;
-  revenueOpportunityEok: number;
-  revenueOpportunityDeltaPct: number;
-  repurchaseAlerts: number;
-  repurchaseAlertsUrgent: number;
+  /** 총 재고 가치 (만원) */
+  totalStockValueManwon: number;
+  /** 30일 예상 출고 금액 (만원) — 예측값이며 실적이 아니다 */
+  forecastDemand30Manwon: number;
+  /** 발주 판단이 필요한 품목 수 */
+  reorderItemCount: number;
+  /** 재구매 시점이 도래한 고객사 수 */
+  repurchaseCustomerCount: number;
+  /** 30일 내 교정 예정 장비 수 */
+  calibrationDueCount: number;
+  /** 마진 하한선 아래로 판매 중인 품목 수 */
+  marginRiskCount: number;
 }
 
 /* ------------------------------------------------------------------ *
@@ -204,11 +208,15 @@ export interface ReportDefinition {
  * 2단계 고도화 — 정책자금 성과 분석
  * ------------------------------------------------------------------ */
 
+/** 도입 전 / 목표 / 실측 3단 구조 — 실측이 없으면 measured 를 비운다 */
 export interface BeforeAfterMetric {
   label: string;
+  /** 도입 전 상태 (대부분 "측정 전") */
   before: string;
-  after: string;
-  changeLabel: string;
+  /** 운영 목표 (실적이 아니라 목표임을 명시) */
+  target: string;
+  /** 실제 측정값. 아직 없으면 undefined → "측정 준비 중" 으로 표시 */
+  measured?: string;
   note: string;
 }
 
@@ -220,12 +228,21 @@ export interface ReadinessItem {
   evidence: string;
 }
 
+/** 선정 확률이 아니라 "지금 검토할 단계"를 나타내는 상태값 */
+export type FundReviewState =
+  | "우선 검토"
+  | "조건 확인 필요"
+  | "중장기 검토"
+  | "현재 대상 아님";
+
 export interface FundProgram {
   name: string;
   agency: string;
-  fitPct: number;
+  state: FundReviewState;
   scaleLabel: string;
   reason: string;
+  /** 이 후보를 뒷받침하는 플랫폼 내 근거 */
+  basis: string;
 }
 
 /* ------------------------------------------------------------------ *
@@ -255,7 +272,13 @@ export interface SavedQuote {
   createdAt: string; // ISO
 }
 
-export type ActivityKind = "고객 연락" | "발주" | "견적" | "교정 예약";
+export type ActivityKind =
+  | "고객 연락"
+  | "발주"
+  | "견적"
+  | "교정 예약"
+  | "고객 요청"
+  | "요청 처리";
 
 export interface ActivityLog {
   id: string;
@@ -264,3 +287,63 @@ export interface ActivityLog {
   detail: string;
   createdAt: string; // ISO
 }
+
+/* ------------------------------------------------------------------ *
+ * 3단계 고도화 — 고객 플랫폼 (Customer Platform)
+ *
+ * 고객이 보낸 요청이 Business AX 로 넘어오고, 내부 처리 결과가 다시
+ * 고객 화면에 반영되는 Closed Loop 의 중심 타입.
+ * Supabase 전환 시 customer_requests 테이블과 1:1 대응한다.
+ * ------------------------------------------------------------------ */
+
+export type RequestType =
+  | "교정 요청"
+  | "소모품 요청"
+  | "재구매 요청"
+  | "추가 계측 상담"
+  | "장비 문의";
+
+/** 접수 → 완료 까지의 처리 단계 (순서 있음) */
+export const REQUEST_STATUS_FLOW = [
+  "접수",
+  "검토 중",
+  "일정·견적 제안",
+  "처리 중",
+  "완료",
+] as const;
+
+export type RequestStatus = (typeof REQUEST_STATUS_FLOW)[number];
+
+export interface CustomerRequest {
+  id: string;
+  customerId: string;
+  customerName: string;
+  requestType: RequestType;
+  equipmentId?: string;
+  equipmentName?: string;
+  title: string;
+  detail: string;
+  status: RequestStatus;
+  createdAt: string; // ISO
+  updatedAt: string; // ISO
+  /** 제이랩테크가 남긴 답변 또는 다음 단계 안내 */
+  response?: string;
+  /** 견적으로 이어진 경우 SavedQuote.id */
+  quoteId?: string;
+}
+
+/** 고객 플랫폼에 로그인했다고 가정하는 데모 고객사 */
+export interface CustomerAccount {
+  id: string;
+  company: string;
+  contactName: string;
+  segment: string;
+  region: string;
+}
+
+/* ------------------------------------------------------------------ *
+ * 데이터·AI 상태 표기 — 화면에서 무엇이 데모이고 무엇이 실제인지 구분
+ * ------------------------------------------------------------------ */
+
+/** DEMO: 시연용 가상 데이터 / TARGET: 목표치 / ACTUAL: 실제 기록 */
+export type DataKind = "DEMO" | "TARGET" | "ACTUAL";

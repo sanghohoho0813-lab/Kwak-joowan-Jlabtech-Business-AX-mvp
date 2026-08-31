@@ -4,8 +4,239 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==================================================================
+   THEME TOKENS
+   Tailwind 색상 이름(pine / ivory / sand / sage / line / ink)은 그대로 두고
+   그 값만 CSS 변수로 바꾼다. 덕분에 컴포넌트 코드를 건드리지 않고
+   테마 전체를 교체할 수 있다. 기본은 Forest Sand (아이보리 & 딥그린).
+   ================================================================== */
+
+:root,
+[data-theme="forest-sand"] {
+  --pine-950: #08251c;
+  --pine-900: #0d3b2e;
+  --pine-800: #11493a;
+  --pine-700: #145c44;
+  --pine-600: #1b7256;
+  --pine-500: #2a8a6b;
+  --pine-100: #dce9e2;
+  --pine-50: #eef5f1;
+
+  /* ivory-50 = 업무 카드의 순백 Surface, ivory-300 = 페이지 Canvas */
+  --ivory-50: #ffffff;
+  --ivory-100: #f8f5ec;
+  --ivory-200: #f1ede0;
+  --ivory-300: #edeae0;
+  --ivory-400: #e3dfcf;
+
+  --sand-600: #a8853f;
+  --sand-500: #c6a76a;
+  --sand-400: #d4bc8b;
+  --sand-100: #f3ebda;
+
+  --sage-600: #7c8e7b;
+  --sage-500: #a9b7a8;
+  --sage-200: #d6ded5;
+  --sage-100: #e8ede7;
+
+  --line: #e6e1d3;
+  --ink-body: #33403a;
+  --ink-muted: #6b7a72;
+
+  --chart-1: #145c44;
+  --chart-2: #0d3b2e;
+  --chart-3: #c6a76a;
+  --chart-4: #a9b7a8;
+  --chart-grid: #eae6d8;
+}
+
+[data-theme="executive-navy"] {
+  --pine-950: #0a1a2f;
+  --pine-900: #12283f;
+  --pine-800: #17334f;
+  --pine-700: #1d4265;
+  --pine-600: #26557e;
+  --pine-500: #326b9b;
+  --pine-100: #d9e3ee;
+  --pine-50: #edf2f8;
+
+  --ivory-50: #ffffff;
+  --ivory-100: #f7f5f0;
+  --ivory-200: #f0ede5;
+  --ivory-300: #ebe8df;
+  --ivory-400: #dfdace;
+
+  --sand-600: #9c7c3a;
+  --sand-500: #bc9a5c;
+  --sand-400: #cdb183;
+  --sand-100: #f1e9d8;
+
+  --sage-600: #78838f;
+  --sage-500: #a6afba;
+  --sage-200: #d5dae0;
+  --sage-100: #e8ebef;
+
+  --line: #e3dfd6;
+  --ink-body: #2e3742;
+  --ink-muted: #66707d;
+
+  --chart-1: #1d4265;
+  --chart-2: #12283f;
+  --chart-3: #bc9a5c;
+  --chart-4: #a6afba;
+  --chart-grid: #e8e4dc;
+}
+
+[data-theme="teal-champagne"] {
+  --pine-950: #05231f;
+  --pine-900: #0a3833;
+  --pine-800: #0d4740;
+  --pine-700: #105a52;
+  --pine-600: #157068;
+  --pine-500: #1d8880;
+  --pine-100: #d6e8e5;
+  --pine-50: #eaf4f2;
+
+  --ivory-50: #ffffff;
+  --ivory-100: #f9f6ef;
+  --ivory-200: #f2eee3;
+  --ivory-300: #ede9de;
+  --ivory-400: #e2dccc;
+
+  --sand-600: #a8823f;
+  --sand-500: #c9a96d;
+  --sand-400: #dbc194;
+  --sand-100: #f5eddc;
+
+  --sage-600: #7b8c88;
+  --sage-500: #a8b5b2;
+  --sage-200: #d5dddb;
+  --sage-100: #e7edec;
+
+  --line: #e5e0d2;
+  --ink-body: #2f3e3b;
+  --ink-muted: #667874;
+
+  --chart-1: #105a52;
+  --chart-2: #0a3833;
+  --chart-3: #c9a96d;
+  --chart-4: #a8b5b2;
+  --chart-grid: #e9e4d8;
+}
+
+[data-theme="burgundy-gold"] {
+  --pine-950: #2a0e14;
+  --pine-900: #431722;
+  --pine-800: #541d2b;
+  --pine-700: #6b2537;
+  --pine-600: #833046;
+  --pine-500: #9e3d57;
+  --pine-100: #eedce1;
+  --pine-50: #f7edf0;
+
+  --ivory-50: #ffffff;
+  --ivory-100: #faf6f0;
+  --ivory-200: #f4eee5;
+  --ivory-300: #efe9e0;
+  --ivory-400: #e5ddd0;
+
+  --sand-600: #a5822c;
+  --sand-500: #c6a24a;
+  --sand-400: #d8ba75;
+  --sand-100: #f5ecd5;
+
+  --sage-600: #8a7c7f;
+  --sage-500: #b4a8ab;
+  --sage-200: #dcd4d6;
+  --sage-100: #ede8e9;
+
+  --line: #e8e0d6;
+  --ink-body: #3a2e31;
+  --ink-muted: #7a6a6e;
+
+  --chart-1: #6b2537;
+  --chart-2: #431722;
+  --chart-3: #c6a24a;
+  --chart-4: #b4a8ab;
+  --chart-grid: #ece4da;
+}
+
+[data-theme="graphite-copper"] {
+  --pine-950: #14171a;
+  --pine-900: #22272c;
+  --pine-800: #2b3138;
+  --pine-700: #373f47;
+  --pine-600: #454f59;
+  --pine-500: #56626e;
+  --pine-100: #dfe2e5;
+  --pine-50: #f0f2f3;
+
+  --ivory-50: #ffffff;
+  --ivory-100: #f8f6f3;
+  --ivory-200: #f1eeea;
+  --ivory-300: #ece9e4;
+  --ivory-400: #e1ddd6;
+
+  --sand-600: #9e5f35;
+  --sand-500: #be7c4e;
+  --sand-400: #d19a72;
+  --sand-100: #f5e5d8;
+
+  --sage-600: #7c8288;
+  --sage-500: #a8adb3;
+  --sage-200: #d6d9dc;
+  --sage-100: #e9ebed;
+
+  --line: #e4dfd8;
+  --ink-body: #2f343a;
+  --ink-muted: #6c737a;
+
+  --chart-1: #373f47;
+  --chart-2: #22272c;
+  --chart-3: #be7c4e;
+  --chart-4: #a8adb3;
+  --chart-grid: #e8e4dd;
+}
+
+[data-theme="indigo-lavender"] {
+  --pine-950: #14152b;
+  --pine-900: #212244;
+  --pine-800: #2a2b55;
+  --pine-700: #36376c;
+  --pine-600: #444585;
+  --pine-500: #5657a0;
+  --pine-100: #dfdfee;
+  --pine-50: #efeff8;
+
+  --ivory-50: #ffffff;
+  --ivory-100: #f8f7f2;
+  --ivory-200: #f2f0e9;
+  --ivory-300: #edebe4;
+  --ivory-400: #e2dfd5;
+
+  --sand-600: #7d5da0;
+  --sand-500: #9d80bd;
+  --sand-400: #bba7d3;
+  --sand-100: #eee6f5;
+
+  --sage-600: #7e8090;
+  --sage-500: #abadba;
+  --sage-200: #d8d9e0;
+  --sage-100: #eaebef;
+
+  --line: #e4e1d9;
+  --ink-body: #33333f;
+  --ink-muted: #6c6c7c;
+
+  --chart-1: #36376c;
+  --chart-2: #212244;
+  --chart-3: #9d80bd;
+  --chart-4: #abadba;
+  --chart-grid: #e8e5dd;
+}
+
 /* ---- Font-size scale (설정 페이지의 글자 크기 조정과 연동) ----
-   모바일·태블릿 기준값. PC(lg 이상)에서는 아래에서 5% 더 키운다. */
+   모바일·태블릿 기준값. PC(lg 이상)에서는 아래에서 한 단계 더 키운다. */
 html {
   font-size: 18.48px;
 }
@@ -16,7 +247,6 @@ html[data-fontsize="large"] {
   font-size: 20.79px;
 }
 
-/* PC 전용 — 세 단계 모두 한 단계 더 확대 */
 @media (min-width: 1024px) {
   html {
     font-size: 19.4px;
@@ -55,33 +285,19 @@ body {
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  .clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   .num {
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
   }
 }
 
-/* ---- Scrollbar (데스크톱, 얇고 차분하게) ---- */
-@media (pointer: fine) {
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #cfc9b8;
-    border-radius: 8px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #b8b19c;
-  }
-}
-
-/* ---- 기획의도 페이지 전용 글자 확대 ----
-   페이지 내부의 글자 크기는 모두 em 기반이므로, 여기서 기준값만 올리면
-   전체가 비례해서 커진다. 모바일 +7%, PC +10%. */
+/* ---- 기획의도 페이지 전용 글자 확대 ---- */
 .intent-scale {
   font-size: 1.07rem;
 }
@@ -91,7 +307,13 @@ body {
   }
 }
 
-/* ---- 기획의도 버튼 — 아주 은은한 광택 스윕 ---- */
+/* ==================================================================
+   MOTION
+   Business AX는 장식성 애니메이션보다 빠른 반응성을 우선한다.
+   설정의 "모션 줄이기" 또는 OS 설정이 켜지면 전부 정지한다.
+   ================================================================== */
+
+/* 기획의도 버튼 — 진입 직후 3회만 광택이 지나간다 */
 @keyframes shimmer-sweep {
   0% {
     transform: translateX(-120%);
@@ -110,26 +332,88 @@ body {
   background: linear-gradient(
     100deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.5) 50%,
     transparent 100%
   );
-  animation: shimmer-sweep 4.5s ease-in-out infinite;
+  animation: shimmer-sweep 4.5s ease-in-out 3;
   pointer-events: none;
 }
 
+/* 알림 배지 — 반복 펄스 대신 진입 시 1회만 시선을 끈다 */
+@keyframes attention-once {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.6;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.attention-once {
+  animation: attention-once 0.5s ease-out 1;
+}
+
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .shimmer::after {
-    animation: none;
-    opacity: 0;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- Scrollbar (데스크톱, 얇고 차분하게) ---- */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--ivory-400);
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--sage-500);
   }
 }
 
 /* Recharts 기본 폰트 정리 */
 .recharts-text {
   font-size: 0.6875rem;
-  fill: #6b7a72;
+  fill: var(--ink-muted);
 }
 .recharts-cartesian-axis-line,
 .recharts-cartesian-axis-tick-line {
-  stroke: #e6e1d3;
+  stroke: var(--line);
+}
+
+/* 인쇄 시 내비게이션 제거 */
+@media print {
+  aside,
+  header,
+  nav {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
 }

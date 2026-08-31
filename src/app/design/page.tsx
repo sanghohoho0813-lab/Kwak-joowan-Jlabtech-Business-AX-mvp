@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Reveal } from "@/components/ui/motion";
+import { AiPreviewChip } from "@/components/ui/status-chip";
 import { useStore } from "@/lib/store-context";
 import { useToast } from "@/components/ui/toast";
 import { repo } from "@/data/repository";
@@ -106,8 +107,15 @@ export default function DesignPage() {
       <PageHeader
         title="산업계측 설계"
         description="현장 조건을 입력하면 계측 포인트 구성과 필요 장비 목록, 예상 구축 비용까지 설계안을 산출합니다."
-        badge="2단계 고도화"
       />
+      <Reveal className="-mt-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <AiPreviewChip label="AX DESIGN PREVIEW" />
+          <p className="text-2xs text-inkmuted">
+            설계 표준을 코드화한 규칙 기반 엔진입니다. 실제 설계 DB 연결 시 대체됩니다.
+          </p>
+        </div>
+      </Reveal>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
         {/* 입력 */}

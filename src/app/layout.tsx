@@ -14,11 +14,14 @@ export const viewport: Viewport = {
   themeColor: "#0D3B2E",
 };
 
-/** 글자 크기 설정을 첫 페인트 전에 적용해 깜빡임(FOUC)을 막는다 */
+/** 글자 크기·테마·모션을 첫 페인트 전에 적용해 깜빡임(FOUC)을 막는다 */
 const fontSizeInit = `
 try {
   var s = JSON.parse(localStorage.getItem("jlab-ax-settings-v1") || "{}");
-  if (s.fontSize) document.documentElement.setAttribute("data-fontsize", s.fontSize);
+  var el = document.documentElement;
+  el.setAttribute("data-fontsize", s.fontSize || "default");
+  el.setAttribute("data-theme", s.theme || "forest-sand");
+  el.setAttribute("data-motion", s.motion || "default");
 } catch (e) {}
 `;
 

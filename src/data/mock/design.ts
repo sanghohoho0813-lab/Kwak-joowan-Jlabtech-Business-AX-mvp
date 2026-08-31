@@ -33,25 +33,25 @@ const SENSOR_BY_TARGET: Record<string, { name: string; model: string; unit: numb
   "수질 (pH·탁도·용존산소)": {
     name: "다항목 수질 측정기",
     model: "WM-700",
-    unit: 486,
+    unit: 320,
     role: "계측 포인트별 다항목 측정",
   },
   "설비 진동·상태": {
     name: "진동 센서",
     model: "VS-300",
-    unit: 99,
+    unit: 42,
     role: "회전 설비 이상 징후 감지",
   },
   "온도·항온 환경": {
     name: "온도 센서",
     model: "TS-200",
-    unit: 97,
+    unit: 28,
     role: "구역별 온도 상시 측정",
   },
   "가스·대기질": {
     name: "가스 측정기",
     model: "GM-400",
-    unit: 375,
+    unit: 245,
     role: "복합 가스 4종 동시 감지",
   },
 };
@@ -102,7 +102,7 @@ export function designMeasurement(input: DesignInput): DesignResult {
       name: "데이터로거",
       model: "DL-500",
       qty: loggerQty,
-      unitPriceManwon: 80,
+      unitPriceManwon: 55,
       role: `계측 포인트 ${points}개 수집 (1대당 4포인트)`,
     },
     {

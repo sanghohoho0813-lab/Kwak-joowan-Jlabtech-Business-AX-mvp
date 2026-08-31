@@ -55,7 +55,8 @@ function TopbarInner() {
           title="고객이 보는 화면 — 시연용 전환"
         >
           <Users size={15} strokeWidth={1.9} />
-          <span className="hidden whitespace-nowrap lg:inline">고객 플랫폼</span>
+          {/* lg(1024)에서는 사이드바가 폭을 가져가 라벨까지 넣으면 탑바가 밀린다 */}
+          <span className="hidden whitespace-nowrap min-[1180px]:inline">고객 플랫폼</span>
         </Link>
 
         {/* 모바일 미리보기 */}
@@ -68,7 +69,7 @@ function TopbarInner() {
           aria-label="사용 방법"
         >
           <BookOpen size={15} strokeWidth={1.9} />
-          <span className="hidden whitespace-nowrap xl:inline">사용 방법</span>
+          <span className="hidden whitespace-nowrap min-[1620px]:inline">사용 방법</span>
         </Link>
 
         {/* 기획의도 */}
@@ -78,7 +79,7 @@ function TopbarInner() {
           aria-label="기획의도"
         >
           <Compass size={15} strokeWidth={1.9} className="shrink-0 text-sand-400" />
-          <span className="hidden whitespace-nowrap xl:inline">기획의도</span>
+          <span className="hidden whitespace-nowrap min-[1500px]:inline">기획의도</span>
         </Link>
 
         {/* 현재 날짜·시각 */}

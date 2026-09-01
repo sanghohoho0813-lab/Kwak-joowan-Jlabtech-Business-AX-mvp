@@ -103,8 +103,8 @@ export function RequestDialog({
         >
           <div className="sticky top-0 flex items-center justify-between gap-3 border-b border-line bg-ivory-50 px-5 py-4">
             <div className="min-w-0">
-              <p className="text-base font-bold text-pine-900">요청 보내기</p>
-              <p className="clamp-1 text-2xs text-inkmuted">
+              <p className="text-lg font-bold text-pine-900 md:text-xl">요청 보내기</p>
+              <p className="clamp-1 text-sm text-inkmuted">
                 {demoCustomer.company} · 담당자 {demoCustomer.contactName}님
               </p>
             </div>
@@ -121,7 +121,7 @@ export function RequestDialog({
           <div className="space-y-5 px-5 py-5">
             {/* 요청 유형 */}
             <div>
-              <p className="mb-2 text-sm font-semibold text-pine-900">무엇을 도와드릴까요?</p>
+              <p className="mb-3 text-base font-bold text-pine-900 md:text-lg">무엇을 도와드릴까요?</p>
               <div className="grid grid-cols-1 gap-2">
                 {REQUEST_TYPES.map((r) => {
                   const Icon = r.icon;
@@ -132,7 +132,7 @@ export function RequestDialog({
                       type="button"
                       onClick={() => setType(r.type)}
                       className={cn(
-                        "flex items-center gap-3 rounded-xl border p-3 text-left transition-colors duration-fast",
+                        "flex items-center gap-3.5 rounded-2xl border p-4 text-left transition-colors duration-fast",
                         active
                           ? "border-pine-700 bg-pine-50"
                           : "border-line bg-ivory-100/60 hover:border-pine-100",
@@ -140,22 +140,22 @@ export function RequestDialog({
                     >
                       <span
                         className={cn(
-                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+                          "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
                           active ? "bg-pine-700 text-white" : "bg-ivory-200 text-inkmuted",
                         )}
                       >
-                        <Icon size={17} strokeWidth={1.9} />
+                        <Icon size={21} strokeWidth={1.9} />
                       </span>
                       <span className="min-w-0">
                         <span
                           className={cn(
-                            "block text-sm font-bold",
+                            "block text-base font-bold md:text-lg",
                             active ? "text-pine-900" : "text-inkbody",
                           )}
                         >
                           {r.type}
                         </span>
-                        <span className="clamp-1 block text-2xs text-inkmuted">{r.hint}</span>
+                        <span className="clamp-2 block text-sm leading-snug text-inkmuted">{r.hint}</span>
                       </span>
                     </button>
                   );
@@ -166,13 +166,13 @@ export function RequestDialog({
             {/* 대상 장비 */}
             {equipmentOptions.length > 0 ? (
               <div>
-                <p className="mb-2 text-sm font-semibold text-pine-900">
-                  대상 장비 <span className="text-2xs font-normal text-inkmuted">(선택)</span>
+                <p className="mb-3 text-base font-bold text-pine-900 md:text-lg">
+                  대상 장비 <span className="text-sm font-normal text-inkmuted">(선택)</span>
                 </p>
                 <select
                   value={equipId}
                   onChange={(e) => setEquipId(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-line bg-ivory-100 px-3 text-sm text-inkbody focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
+                  className="h-14 w-full rounded-2xl border border-line bg-ivory-100 px-4 text-base text-inkbody focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
                 >
                   <option value="">장비를 선택하지 않음</option>
                   {equipmentOptions.map((e) => (
@@ -186,25 +186,25 @@ export function RequestDialog({
 
             {/* 상세 */}
             <div>
-              <p className="mb-2 text-sm font-semibold text-pine-900">
-                내용 <span className="text-2xs font-normal text-inkmuted">(선택)</span>
+              <p className="mb-3 text-base font-bold text-pine-900 md:text-lg">
+                내용 <span className="text-sm font-normal text-inkmuted">(선택)</span>
               </p>
               <textarea
                 value={detail}
                 onChange={(e) => setDetail(e.target.value)}
                 rows={3}
                 placeholder="희망 일정이나 수량 등 알려주실 내용이 있으면 적어 주세요."
-                className="w-full resize-none rounded-xl border border-line bg-ivory-100 p-3 text-sm leading-relaxed text-inkbody placeholder:text-inkmuted/70 focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
+                className="w-full resize-none rounded-2xl border border-line bg-ivory-100 p-4 text-base leading-relaxed text-inkbody placeholder:text-inkmuted/70 focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
               />
             </div>
           </div>
 
           <div className="sticky bottom-0 flex gap-2 border-t border-line bg-ivory-50 px-5 py-4">
-            <Button variant="outline" size="lg" className="flex-1" onClick={onClose}>
+            <Button variant="outline" size="xl" className="flex-1" onClick={onClose}>
               취소
             </Button>
-            <Button size="lg" className="flex-[2]" onClick={submit}>
-              <Send size={15} />
+            <Button size="xl" className="flex-[2]" onClick={submit}>
+              <Send size={18} />
               요청 보내기
             </Button>
           </div>

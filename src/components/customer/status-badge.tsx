@@ -9,6 +9,16 @@ const tone: Record<RequestStatus, "info" | "warning" | "gold" | "success" | "neu
   완료: "success",
 };
 
-export function RequestStatusBadge({ status }: { status: RequestStatus }) {
-  return <Badge tone={tone[status]}>{status}</Badge>;
+export function RequestStatusBadge({
+  status,
+  size = "sm",
+}: {
+  status: RequestStatus;
+  size?: "sm" | "md";
+}) {
+  return (
+    <Badge tone={tone[status]} size={size}>
+      {status}
+    </Badge>
+  );
 }

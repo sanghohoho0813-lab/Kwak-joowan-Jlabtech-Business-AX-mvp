@@ -26,6 +26,7 @@ import { demoCustomer } from "@/data/mock/customer-portal";
 import { repo } from "@/data/repository";
 import { useStore } from "@/lib/store-context";
 import { SurfaceSwitcher } from "@/components/layout/surface-switcher";
+import { DataChip } from "@/components/ui/status-chip";
 
 export const customerNav = [
   { href: "/customer", label: "홈", icon: Home, hint: "현황과 다가오는 일정" },
@@ -76,12 +77,11 @@ export function CustomerDrawer({
         ...(attention
           ? [{ id: "sec-attention", label: "확인이 필요한 답변", note: `${attention}건` }]
           : []),
-        { id: "sec-summary", label: "현황 요약" },
+        { id: "sec-summary", label: "한눈에 보기" },
         { id: "sec-schedule", label: "다가오는 일정" },
-        { id: "sec-quick", label: "빠른 요청" },
-        { id: "sec-recent", label: "최근 요청" },
-        { id: "sec-equipment", label: "관리 중 장비" },
-        { id: "sec-services", label: "준비 중인 서비스" },
+        { id: "sec-quick", label: "무엇을 도와드릴까요?" },
+        { id: "sec-recent", label: "보내신 요청" },
+        { id: "sec-services", label: "준비하고 있는 서비스" },
       ];
     }
     if (pathname === "/customer/equipment") {
@@ -146,7 +146,7 @@ export function CustomerDrawer({
           />
           <motion.aside
             key="drawer"
-            className="fixed inset-y-0 right-0 z-50 flex w-[19rem] max-w-[86vw] flex-col bg-ivory-50 shadow-card-hover"
+            className="fixed inset-y-0 right-0 z-50 flex w-[21rem] max-w-[88vw] flex-col bg-ivory-50 shadow-card-hover"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -159,10 +159,13 @@ export function CustomerDrawer({
                 {demoCustomer.company.slice(0, 1)}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="clamp-1 text-sm font-bold">{demoCustomer.company}</p>
-                <p className="clamp-1 text-2xs text-white/70">
+                <p className="clamp-1 text-base font-bold">{demoCustomer.company}</p>
+                <p className="clamp-1 text-sm text-white/70">
                   {demoCustomer.contactName} 담당자님 · {demoCustomer.contractType}
                 </p>
+                <span className="mt-2 inline-block">
+                  <DataChip />
+                </span>
               </div>
               <button
                 type="button"
@@ -176,7 +179,7 @@ export function CustomerDrawer({
 
             <div className="flex-1 overflow-y-auto px-4 py-4">
               {/* 메뉴 */}
-              <p className="px-1 text-2xs font-bold uppercase tracking-wider text-inkmuted">
+              <p className="px-1 text-sm font-bold uppercase tracking-wider text-inkmuted">
                 메뉴
               </p>
               <nav className="mt-2 space-y-1">
@@ -192,7 +195,7 @@ export function CustomerDrawer({
                       href={n.href}
                       onClick={onClose}
                       className={cn(
-                        "flex items-center gap-2.5 rounded-xl px-3 py-2.5 transition-colors duration-fast",
+                        "flex items-center gap-3 rounded-xl px-3 py-3 transition-colors duration-fast",
                         active
                           ? "bg-pine-50 text-pine-900"
                           : "text-inkbody hover:bg-ivory-200/70",
@@ -200,25 +203,25 @@ export function CustomerDrawer({
                     >
                       <span
                         className={cn(
-                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
                           active ? "bg-pine-700 text-white" : "bg-ivory-200 text-inkmuted",
                         )}
                       >
-                        <Icon size={15} strokeWidth={1.9} />
+                        <Icon size={18} strokeWidth={1.9} />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span
                           className={cn(
-                            "block truncate text-sm",
+                            "block truncate text-base",
                             active ? "font-bold" : "font-semibold",
                           )}
                         >
                           {n.label}
                         </span>
-                        <span className="clamp-1 block text-2xs text-inkmuted">{n.hint}</span>
+                        <span className="clamp-1 block text-sm text-inkmuted">{n.hint}</span>
                       </span>
                       {counts[n.href] ? (
-                        <span className="num shrink-0 whitespace-nowrap rounded-full bg-ivory-200 px-2 py-0.5 text-[0.5625rem] font-semibold text-inkmuted">
+                        <span className="num shrink-0 whitespace-nowrap rounded-full bg-ivory-200 px-2.5 py-1 text-xs font-bold text-inkmuted">
                           {counts[n.href]}
                         </span>
                       ) : null}
@@ -230,8 +233,8 @@ export function CustomerDrawer({
               {/* 이 페이지 목차 */}
               {sections.length > 0 ? (
                 <>
-                  <p className="mt-5 flex items-center gap-1.5 px-1 text-2xs font-bold uppercase tracking-wider text-inkmuted">
-                    <ListTree size={12} className="shrink-0 text-clay-600" />
+                  <p className="mt-6 flex items-center gap-2 px-1 text-sm font-bold uppercase tracking-wider text-inkmuted">
+                    <ListTree size={15} className="shrink-0 text-clay-600" />
                     이 페이지 목차
                   </p>
                   <ul className="mt-2 space-y-0.5 border-l border-line pl-3">
@@ -240,18 +243,18 @@ export function CustomerDrawer({
                         <button
                           type="button"
                           onClick={() => goTo(s.id)}
-                          className="group flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors duration-fast hover:bg-clay-100/60"
+                          className="group flex w-full items-center gap-2 rounded-lg px-2.5 py-2.5 text-left transition-colors duration-fast hover:bg-clay-100/60"
                         >
-                          <span className="clamp-1 min-w-0 flex-1 text-xs font-medium text-inkbody group-hover:text-clay-600">
+                          <span className="clamp-1 min-w-0 flex-1 text-base font-semibold text-inkbody group-hover:text-clay-600">
                             {s.label}
                           </span>
                           {s.note ? (
-                            <span className="num shrink-0 whitespace-nowrap text-[0.5625rem] text-inkmuted">
+                            <span className="num shrink-0 whitespace-nowrap text-sm text-inkmuted">
                               {s.note}
                             </span>
                           ) : null}
                           <ChevronRight
-                            size={12}
+                            size={15}
                             className="shrink-0 text-inkmuted/60 transition-transform duration-fast group-hover:translate-x-0.5 group-hover:text-clay-600"
                           />
                         </button>
@@ -264,11 +267,11 @@ export function CustomerDrawer({
 
             {/* 화면 전환 */}
             <div className="border-t border-line bg-ivory-100/70 p-4">
-              <p className="mb-2 px-1 text-2xs font-bold uppercase tracking-wider text-inkmuted">
+              <p className="mb-2 px-1 text-sm font-bold uppercase tracking-wider text-inkmuted">
                 화면 전환
               </p>
               <SurfaceSwitcher current="customer" expanded />
-              <p className="mt-2 px-1 text-[0.5625rem] leading-relaxed text-inkmuted">
+              <p className="mt-2.5 px-1 text-xs leading-relaxed text-inkmuted">
                 시연용 전환입니다. 실제 운영 시 고객은 고객 화면만 사용합니다.
               </p>
             </div>

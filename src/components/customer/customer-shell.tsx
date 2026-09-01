@@ -27,7 +27,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn, formatDate } from "@/lib/utils";
 import { demoCustomer } from "@/data/mock/customer-portal";
 import { useStore } from "@/lib/store-context";
-import { DataChip } from "@/components/ui/status-chip";
 import { SurfaceSwitcher } from "@/components/layout/surface-switcher";
 import { CustomerDrawer, customerNav as nav } from "@/components/customer/customer-drawer";
 
@@ -82,7 +81,7 @@ function AccountMenu() {
         aria-expanded={open}
       >
         <AccountAvatar className="h-6 w-6 text-2xs" />
-        <span className="hidden max-w-[7rem] truncate text-xs font-semibold text-inkbody lg:block">
+        <span className="hidden max-w-[7rem] truncate text-sm font-bold text-inkbody min-[1200px]:block">
           {demoCustomer.contactName}님
         </span>
         <ChevronDown size={13} className="shrink-0 text-inkmuted" />
@@ -100,10 +99,10 @@ function AccountMenu() {
             <div className="flex items-center gap-2.5">
               <AccountAvatar className="h-10 w-10 text-base" />
               <div className="min-w-0">
-                <p className="clamp-1 text-sm font-bold text-pine-900">
+                <p className="clamp-1 text-base font-bold text-pine-900">
                   {demoCustomer.company}
                 </p>
-                <p className="clamp-1 text-2xs text-inkmuted">
+                <p className="clamp-1 text-sm text-inkmuted">
                   담당자 {demoCustomer.contactName}님
                 </p>
               </div>
@@ -114,15 +113,15 @@ function AccountMenu() {
                 return (
                   <div key={r.label} className="flex items-center gap-2">
                     <Icon size={13} className="shrink-0 text-inkmuted" />
-                    <span className="shrink-0 text-2xs text-inkmuted">{r.label}</span>
-                    <span className="clamp-1 ml-auto text-2xs font-semibold text-inkbody">
+                    <span className="shrink-0 text-sm text-inkmuted">{r.label}</span>
+                    <span className="clamp-1 ml-auto text-sm font-bold text-inkbody">
                       {r.value}
                     </span>
                   </div>
                 );
               })}
             </div>
-            <p className="mt-3 rounded-lg bg-ivory-200/70 p-2.5 text-[0.5625rem] leading-relaxed text-inkmuted">
+            <p className="mt-3 rounded-lg bg-ivory-200/70 p-3 text-xs leading-relaxed text-inkmuted">
               시연용 계정입니다. 실제 운영 시에는 로그인한 고객사 정보가 들어옵니다.
             </p>
           </motion.div>
@@ -152,11 +151,10 @@ export function CustomerShell({ children }: { children: ReactNode }) {
               <Ruler size={18} strokeWidth={1.9} />
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-sm font-bold leading-tight text-pine-900">
-                <span className="min-[1120px]:hidden">제이랩테크</span>
-                <span className="hidden min-[1120px]:inline">제이랩테크 고객 플랫폼</span>
+              <span className="block truncate text-base font-bold leading-tight text-pine-900">
+                제이랩테크
               </span>
-              <span className="block truncate text-2xs leading-tight text-inkmuted">
+              <span className="block truncate text-sm leading-tight text-inkmuted">
                 {demoCustomer.company}
               </span>
             </span>
@@ -175,13 +173,13 @@ export function CustomerShell({ children }: { children: ReactNode }) {
                   key={n.href}
                   href={n.href}
                   className={cn(
-                    "flex h-10 items-center gap-2 whitespace-nowrap rounded-xl px-3 text-sm font-semibold transition-colors duration-fast",
+                    "flex h-11 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 text-base font-bold transition-colors duration-fast",
                     active
                       ? "bg-pine-700 text-white"
                       : "text-inkmuted hover:bg-pine-50 hover:text-pine-700",
                   )}
                 >
-                  <Icon size={16} strokeWidth={1.9} />
+                  <Icon size={18} strokeWidth={1.9} />
                   <span className="hidden min-[900px]:inline">{n.label}</span>
                 </Link>
               );
@@ -189,12 +187,11 @@ export function CustomerShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-1.5 md:ml-3 md:gap-2">
-            <span className="hidden min-[1400px]:block">
-              <DataChip />
+            {/* 화면 전환 — 두 칸을 함께 보여줘 지금 위치를 알 수 있게 한다.
+                모바일에서는 자리가 없어 드로어 하단으로 넘긴다. */}
+            <span className="hidden md:block">
+              <SurfaceSwitcher current="customer" />
             </span>
-
-            {/* 화면 전환 — 두 칸을 함께 보여줘 지금 위치를 알 수 있게 한다 */}
-            <SurfaceSwitcher current="customer" />
 
             {/* 알림 — 답변이 온 요청 */}
             <Link
@@ -210,7 +207,9 @@ export function CustomerShell({ children }: { children: ReactNode }) {
               ) : null}
             </Link>
 
-            <AccountMenu />
+            <span className="hidden md:block">
+              <AccountMenu />
+            </span>
 
             {/* 전체 메뉴 + 페이지 목차 */}
             <button
@@ -225,13 +224,13 @@ export function CustomerShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl px-4 pb-24 pt-6 md:px-6 md:pb-12">
+      <main className="mx-auto w-full max-w-6xl px-4 pb-28 pt-7 md:px-6 md:pb-14">
         {children}
       </main>
 
       {/* 모바일 하단 내비 */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ivory-50/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
-        <div className="mx-auto grid h-16 max-w-md grid-cols-4">
+        <div className="mx-auto grid h-[4.5rem] max-w-md grid-cols-4">
           {nav.map((n) => {
             const active =
               n.href === "/customer" ? pathname === n.href : pathname.startsWith(n.href);
@@ -248,18 +247,18 @@ export function CustomerShell({ children }: { children: ReactNode }) {
               >
                 <span
                   className={cn(
-                    "relative flex h-7 w-11 items-center justify-center rounded-full transition-colors duration-fast",
+                    "relative flex h-8 w-12 items-center justify-center rounded-full transition-colors duration-fast",
                     active && "bg-pine-50",
                   )}
                 >
-                  <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
+                  <Icon size={21} strokeWidth={active ? 2.3 : 1.9} />
                   {badge ? (
                     <span className="absolute right-1.5 top-0 h-1.5 w-1.5 rounded-full bg-clay-500" />
                   ) : null}
                 </span>
                 <span
                   className={cn(
-                    "whitespace-nowrap text-2xs leading-none",
+                    "whitespace-nowrap text-sm leading-none",
                     active ? "font-bold" : "font-medium",
                   )}
                 >

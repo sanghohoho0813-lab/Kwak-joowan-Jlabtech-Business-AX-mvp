@@ -24,15 +24,23 @@ const tones: Record<BadgeTone, string> = {
   outline: "bg-transparent text-inkmuted border-line",
 };
 
+/** 고객 화면은 정보 밀도를 낮추므로 한 단계 큰 배지를 쓴다 */
+const sizes = {
+  sm: "h-6 px-2.5 text-2xs",
+  md: "h-8 px-3.5 text-xs",
+} as const;
+
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   tone?: BadgeTone;
+  size?: keyof typeof sizes;
 }
 
-export function Badge({ tone = "neutral", className, ...props }: BadgeProps) {
+export function Badge({ tone = "neutral", size = "sm", className, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full border px-2.5 text-2xs font-semibold leading-none",
+        "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border font-semibold leading-none",
+        sizes[size],
         tones[tone],
         className,
       )}

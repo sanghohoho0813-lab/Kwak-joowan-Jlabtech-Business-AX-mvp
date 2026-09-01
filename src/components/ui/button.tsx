@@ -23,6 +23,8 @@ const buttonVariants = cva(
         sm: "h-8 px-3 text-xs",
         md: "h-10 px-4 text-sm",
         lg: "h-11 px-5 text-sm",
+        /* 고객 화면 주요 동작 — 손가락으로 누르기 쉬운 크기 */
+        xl: "h-[3.25rem] px-6 text-base",
         icon: "h-9 w-9",
       },
     },

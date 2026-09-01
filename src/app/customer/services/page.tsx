@@ -166,10 +166,10 @@ export default function CustomerServicesPage() {
   return (
     <div className="space-y-6">
       <Reveal>
-        <h1 className="text-xl font-bold tracking-tight text-pine-900 md:text-2xl">
+        <h1 className="text-2xl font-bold leading-tight tracking-tight text-pine-900 md:text-3xl">
           서비스
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-inkmuted md:text-base">
+        <p className="mt-3 text-base leading-relaxed text-inkbody md:text-lg">
           제이랩테크가 지금 제공하는 것과, 준비하고 있는 것을 함께 정리했습니다.
           <br className="hidden sm:block" /> 각 항목을 누르면 어떻게 구현되고 무엇이
           달라지는지 확인하실 수 있습니다.
@@ -182,11 +182,11 @@ export default function CustomerServicesPage() {
           <CardContent className="p-5 md:p-6">
             <div className="flex flex-wrap items-center gap-2">
               <Sparkles size={17} className="shrink-0 text-sand-600" />
-              <p className="text-base font-bold text-pine-900">
+              <p className="text-lg font-bold text-pine-900 md:text-xl">
                 계측기를 파는 회사에서, 계측 운영을 맡는 회사로
               </p>
             </div>
-            <p className="mt-1.5 text-xs leading-relaxed text-inkmuted">
+            <p className="mt-2 text-base leading-relaxed text-inkmuted">
               아래 서비스들은 따로 떨어진 아이디어가 아니라 한 방향으로 이어집니다.
             </p>
 
@@ -200,18 +200,18 @@ export default function CustomerServicesPage() {
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="num flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-pine-900 text-2xs font-bold text-white">
+                    <span className="num flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-pine-900 text-sm font-bold text-white">
                       {i + 1}
                     </span>
-                    <span className="text-2xs font-bold uppercase tracking-wide opacity-70">
+                    <span className="text-sm font-bold uppercase tracking-wide opacity-70">
                       {g.step}
                     </span>
-                    <Badge tone="outline" className="ml-auto bg-ivory-50/60">
+                    <Badge tone="outline" size="md" className="ml-auto bg-ivory-50/60">
                       {g.label}
                     </Badge>
                   </div>
-                  <p className="text-sm font-bold leading-snug">{g.title}</p>
-                  <p className="text-2xs leading-relaxed opacity-85">{g.body}</p>
+                  <p className="text-base font-bold leading-snug md:text-lg">{g.title}</p>
+                  <p className="text-sm leading-relaxed opacity-85">{g.body}</p>
                 </div>
               ))}
             </div>
@@ -226,10 +226,10 @@ export default function CustomerServicesPage() {
             type="button"
             onClick={() => setFilter("전체")}
             className={cn(
-              "h-9 whitespace-nowrap rounded-full border px-4 text-xs font-semibold transition-colors duration-fast",
+              "h-11 whitespace-nowrap rounded-full border px-5 text-sm font-bold transition-colors duration-fast",
               filter === "전체"
-                ? "border-pine-700 bg-pine-700 text-white"
-                : "border-line bg-ivory-50 text-inkmuted hover:border-pine-100 hover:text-pine-700",
+                ? "border-pine-700 bg-pine-700 text-white shadow-sm"
+                : "border-line bg-ivory-50 text-inkbody hover:border-pine-200 hover:bg-pine-50",
             )}
           >
             전체 <span className="num ml-1.5 opacity-70">{catalog.length}</span>
@@ -240,10 +240,10 @@ export default function CustomerServicesPage() {
               type="button"
               onClick={() => setFilter(c.stage)}
               className={cn(
-                "h-9 whitespace-nowrap rounded-full border px-4 text-xs font-semibold transition-colors duration-fast",
+                "h-11 whitespace-nowrap rounded-full border px-5 text-sm font-bold transition-colors duration-fast",
                 filter === c.stage
-                  ? "border-pine-700 bg-pine-700 text-white"
-                  : "border-line bg-ivory-50 text-inkmuted hover:border-pine-100 hover:text-pine-700",
+                  ? "border-pine-700 bg-pine-700 text-white shadow-sm"
+                  : "border-line bg-ivory-50 text-inkbody hover:border-pine-200 hover:bg-pine-50",
               )}
             >
               {c.stage} <span className="num ml-1.5 opacity-70">{c.n}</span>
@@ -263,10 +263,10 @@ export default function CustomerServicesPage() {
             return (
               <section key={st} id={gs.anchor} className="scroll-mt-20">
                 <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <span className={cn("h-5 w-1 shrink-0 rounded-full", gs.rail)} />
-                  <h2 className="text-base font-bold text-pine-900">{st}</h2>
-                  <Badge tone={gs.tone}>{group.length}종</Badge>
-                  <p className="min-w-0 flex-1 text-2xs text-inkmuted">{gs.note}</p>
+                  <span className={cn("h-7 w-1.5 shrink-0 rounded-full", gs.rail)} />
+                  <h2 className="text-xl font-bold text-pine-900 md:text-2xl">{st}</h2>
+                  <Badge tone={gs.tone} size="md">{group.length}종</Badge>
+                  <p className="w-full text-base text-inkmuted sm:w-auto sm:flex-1">{gs.note}</p>
                 </div>
                 <Stagger className="space-y-3">
                   {group.map((s) => {
@@ -287,27 +287,27 @@ export default function CustomerServicesPage() {
                   >
                     <span
                       className={cn(
-                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+                        "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl",
                         ss.icon,
                       )}
                     >
-                      <Icon size={19} strokeWidth={1.9} />
+                      <Icon size={24} strokeWidth={1.9} />
                     </span>
 
                     <span className="min-w-0 flex-1">
                       <span className="flex flex-wrap items-center gap-1.5">
-                        <span className="clamp-2 text-base font-bold leading-snug text-pine-900">
+                        <span className="clamp-2 text-lg font-bold leading-snug text-pine-900 md:text-xl">
                           {s.title}
                         </span>
-                        <Badge tone={ss.tone}>{s.stage}</Badge>
+                        <Badge tone={ss.tone} size="md">{s.stage}</Badge>
                       </span>
-                      <span className="clamp-2 mt-1 block text-xs leading-relaxed text-inkmuted">
+                      <span className="clamp-2 mt-1.5 block text-base leading-relaxed text-inkmuted">
                         {s.summary}
                       </span>
                       <span className="mt-2 flex flex-wrap items-center gap-1.5">
-                        <Badge tone={revenueTone[s.revenueType]}>{s.revenueType}</Badge>
+                        <Badge tone={revenueTone[s.revenueType]} size="md">{s.revenueType}</Badge>
                         {n !== null ? (
-                          <span className="num text-[0.5625rem] text-inkmuted">
+                          <span className="num text-sm text-inkmuted">
                             {s.scopeNote} {n}대
                           </span>
                         ) : null}
@@ -334,25 +334,25 @@ export default function CustomerServicesPage() {
                         className="overflow-hidden"
                       >
                         <div className="space-y-4 border-t border-line px-5 py-5 md:px-6">
-                          <p className="rounded-lg bg-ivory-200/60 px-3 py-2 text-2xs font-semibold text-inkbody">
+                          <p className="rounded-xl bg-ivory-200/60 px-4 py-3 text-base font-semibold text-inkbody">
                             {ss.note}
                           </p>
 
                           {/* 지금 준비된 것 */}
                           <section>
-                            <p className="flex items-center gap-1.5 text-xs font-bold text-pine-900">
-                              <Layers size={14} className="shrink-0 text-pine-600" />
+                            <p className="flex items-center gap-2 text-base font-bold text-pine-900 md:text-lg">
+                              <Layers size={17} className="shrink-0 text-pine-600" />
                               지금 준비되어 있는 것
                             </p>
                             <ul className="mt-2 space-y-1.5">
                               {s.ready.map((r) => (
                                 <li
                                   key={r}
-                                  className="flex gap-2 text-xs leading-relaxed text-inkbody"
+                                  className="flex gap-2.5 text-base leading-relaxed text-inkbody"
                                 >
                                   <CheckCircle2
-                                    size={13}
-                                    className="mt-0.5 shrink-0 text-pine-600"
+                                    size={16}
+                                    className="mt-1 shrink-0 text-pine-600"
                                   />
                                   <span className="min-w-0">{r}</span>
                                 </li>
@@ -362,17 +362,17 @@ export default function CustomerServicesPage() {
 
                           {/* 어떻게 구현되는가 */}
                           <section>
-                            <p className="flex items-center gap-1.5 text-xs font-bold text-pine-900">
-                              <Wrench size={14} className="shrink-0 text-sage-600" />
+                            <p className="flex items-center gap-2 text-base font-bold text-pine-900 md:text-lg">
+                              <Wrench size={17} className="shrink-0 text-sage-600" />
                               어떻게 구현되는가
                             </p>
                             <ol className="mt-2 space-y-2">
                               {s.how.map((h, i) => (
                                 <li key={h} className="flex gap-2.5">
-                                  <span className="num flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-pine-50 text-[0.5625rem] font-bold text-pine-700">
+                                  <span className="num flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-pine-50 text-sm font-bold text-pine-700">
                                     {i + 1}
                                   </span>
-                                  <span className="min-w-0 text-xs leading-relaxed text-inkbody">
+                                  <span className="min-w-0 text-base leading-relaxed text-inkbody">
                                     {h}
                                   </span>
                                 </li>
@@ -383,16 +383,16 @@ export default function CustomerServicesPage() {
                           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             {/* 고객이 얻는 것 */}
                             <section className="rounded-xl bg-pine-50/60 p-4">
-                              <p className="text-2xs font-bold text-pine-900">
+                              <p className="text-base font-bold text-pine-900 md:text-lg">
                                 고객이 얻는 것
                               </p>
                               <ul className="mt-2 space-y-1.5">
                                 {s.customerGain.map((c) => (
                                   <li
                                     key={c}
-                                    className="flex gap-1.5 text-2xs leading-relaxed text-inkbody"
+                                    className="flex gap-2 text-base leading-relaxed text-inkbody"
                                   >
-                                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-pine-600" />
+                                    <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-pine-600" />
                                     <span className="min-w-0">{c}</span>
                                   </li>
                                 ))}
@@ -401,11 +401,11 @@ export default function CustomerServicesPage() {
 
                             {/* 수익 구조 */}
                             <section className="rounded-xl bg-sand-100/50 p-4">
-                              <p className="flex items-center gap-1.5 text-2xs font-bold text-pine-900">
-                                <CircleDollarSign size={13} className="shrink-0 text-sand-600" />
+                              <p className="flex items-center gap-2 text-base font-bold text-pine-900 md:text-lg">
+                                <CircleDollarSign size={17} className="shrink-0 text-sand-600" />
                                 제이랩테크의 수익 구조
                               </p>
-                              <p className="mt-2 text-2xs leading-relaxed text-inkbody">
+                              <p className="mt-2 text-base leading-relaxed text-inkbody">
                                 {s.revenueModel}
                               </p>
                             </section>
@@ -414,14 +414,14 @@ export default function CustomerServicesPage() {
                           {/* 선행 조건 */}
                           <section className="flex gap-2.5 rounded-xl border border-line bg-ivory-100/70 p-4">
                             <TriangleAlert
-                              size={15}
+                              size={19}
                               className="mt-0.5 shrink-0 text-inkmuted"
                             />
                             <div className="min-w-0">
-                              <p className="text-2xs font-bold text-inkbody">
+                              <p className="text-base font-bold text-inkbody md:text-lg">
                                 시작하기 전에 정리되어야 하는 것
                               </p>
-                              <p className="mt-1 text-2xs leading-relaxed text-inkmuted">
+                              <p className="mt-1.5 text-base leading-relaxed text-inkmuted">
                                 {s.prerequisite}
                               </p>
                             </div>
@@ -430,7 +430,7 @@ export default function CustomerServicesPage() {
                           {s.stage === "이용 가능" ? (
                             <Link
                               href="/customer/equipment"
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-pine-700 transition-colors duration-fast hover:text-pine-600"
+                              className="inline-flex items-center gap-2 rounded-xl bg-pine-700 px-5 py-3 text-sm font-bold text-white transition-colors duration-fast hover:bg-pine-600"
                             >
                               내 장비에서 바로 요청하기
                               <ArrowRight size={14} />
@@ -454,18 +454,18 @@ export default function CustomerServicesPage() {
       <Reveal delay={0.12} className="scroll-mt-20" id="sec-notation">
         <Card className="border-dashed">
           <CardContent className="p-5 md:p-6">
-            <p className="text-sm font-bold text-pine-900">표기에 대해</p>
+            <p className="text-lg font-bold text-pine-900">표기에 대해</p>
             <ul className="mt-2.5 space-y-2">
               {stageOrder.map((st) => (
                 <li key={st} className="flex flex-wrap items-center gap-2">
-                  <Badge tone={stageStyle[st].tone}>{st}</Badge>
-                  <span className="min-w-0 flex-1 text-2xs leading-relaxed text-inkmuted">
+                  <Badge tone={stageStyle[st].tone} size="md">{st}</Badge>
+                  <span className="min-w-0 flex-1 text-base leading-relaxed text-inkmuted">
                     {stageStyle[st].note}
                   </span>
                 </li>
               ))}
             </ul>
-            <p className="mt-3 border-t border-line pt-3 text-2xs leading-relaxed text-inkmuted">
+            <p className="mt-4 border-t border-line pt-4 text-base leading-relaxed text-inkmuted">
               준비 중·검토 중 항목은 아직 동작하지 않는 기능입니다. 되는 것처럼 보이게 하는
               대신, 무엇이 이미 준비되어 있고 무엇이 더 필요한지를 함께 적었습니다. 예상
               매출액을 적지 않은 것도 같은 이유입니다. 근거가 생기기 전까지는 구조만

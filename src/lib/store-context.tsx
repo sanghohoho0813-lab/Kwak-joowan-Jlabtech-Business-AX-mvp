@@ -29,6 +29,8 @@ import type {
   RequestStatus,
   RequestType,
   SavedQuote,
+  ServiceInterest,
+  ServiceStage,
 } from "@/data/types";
 import { REQUEST_STATUS_FLOW } from "@/data/types";
 import { seedRequests } from "@/data/mock/customer-portal";
@@ -41,6 +43,8 @@ interface StoreData {
   activities: ActivityLog[];
   /** 고객 플랫폼에서 접수된 요청. 시드 2건으로 시작한다. */
   requests: CustomerRequest[];
+  /** 준비 중·검토 중 서비스에 고객이 남긴 관심 표시 */
+  interests: ServiceInterest[];
 }
 
 const emptyStore: StoreData = {
@@ -48,6 +52,7 @@ const emptyStore: StoreData = {
   quotes: [],
   activities: [],
   requests: seedRequests,
+  interests: [],
 };
 
 interface StoreContextValue extends StoreData {
@@ -88,6 +93,17 @@ interface StoreContextValue extends StoreData {
   setRequestStatus: (id: string, status: RequestStatus, response?: string) => void;
   /** 요청에서 만들어진 견적을 연결 */
   linkQuoteToRequest: (requestId: string, quoteId: string) => void;
+  /**
+   * 준비 중 서비스에 관심 표시를 켜고 끈다.
+   * 기능을 동작시키는 것이 아니라 "나오면 쓰겠다"는 의사만 기록한다.
+   */
+  toggleServiceInterest: (input: {
+    serviceId: string;
+    serviceTitle: string;
+    serviceStage: ServiceStage;
+    customerId: string;
+    customerName: string;
+  }) => void;
   clearAll: () => void;
 }
 
@@ -333,6 +349,49 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [persist],
   );
 
+  const toggleServiceInterest = useCallback<StoreContextValue["toggleServiceInterest"]>(
+    ({ serviceId, serviceTitle, serviceStage, customerId, customerName }) => {
+      persist((prev) => {
+        const existing = prev.interests.find(
+          (i) => i.serviceId === serviceId && i.customerId === customerId,
+        );
+        const now = new Date().toISOString();
+        if (existing) {
+          return {
+            ...prev,
+            interests: prev.interests.filter((i) => i.id !== existing.id),
+          };
+        }
+        return {
+          ...prev,
+          interests: [
+            {
+              id: makeId("int"),
+              serviceId,
+              serviceTitle,
+              serviceStage,
+              customerId,
+              customerName,
+              createdAt: now,
+            },
+            ...prev.interests,
+          ],
+          activities: [
+            {
+              id: makeId("act"),
+              kind: "서비스 관심" as ActivityKind,
+              title: `${customerName} · ${serviceTitle} 관심 표시`,
+              detail: `${serviceStage} 서비스 · 준비 우선순위 판단 근거`,
+              createdAt: now,
+            },
+            ...prev.activities,
+          ].slice(0, 50),
+        };
+      });
+    },
+    [persist],
+  );
+
   const clearAll = useCallback(() => {
     try {
       localStorage.removeItem(STORE_KEY);
@@ -352,6 +411,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       advanceRequest,
       setRequestStatus,
       linkQuoteToRequest,
+      toggleServiceInterest,
       clearAll,
     }),
     [
@@ -365,6 +425,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       advanceRequest,
       setRequestStatus,
       linkQuoteToRequest,
+      toggleServiceInterest,
       clearAll,
     ],
   );

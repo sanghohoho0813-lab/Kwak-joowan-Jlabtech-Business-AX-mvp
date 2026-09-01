@@ -282,7 +282,8 @@ export type ActivityKind =
   | "견적"
   | "교정 예약"
   | "고객 요청"
-  | "요청 처리";
+  | "요청 처리"
+  | "서비스 관심";
 
 export interface ActivityLog {
   id: string;
@@ -391,3 +392,30 @@ export interface ServiceOffering {
 
 /** DEMO: 시연용 가상 데이터 / TARGET: 목표치 / ACTUAL: 실제 기록 */
 export type DataKind = "DEMO" | "TARGET" | "ACTUAL";
+
+/* ------------------------------------------------------------------ *
+ * 서비스 관심 표시
+ *
+ * 준비 중·검토 중 서비스에 고객이 남기는 신호. 기능을 되는 척하는 것이 아니라
+ * "나오면 쓰겠다"는 의사만 실제로 기록한다. 내부에서는 이것이 무엇을 먼저
+ * 만들지 정하는 근거가 된다.
+ * ------------------------------------------------------------------ */
+
+export interface ServiceInterest {
+  id: string;
+  serviceId: string;
+  serviceTitle: string;
+  serviceStage: ServiceStage;
+  customerId: string;
+  customerName: string;
+  createdAt: string; // ISO
+}
+
+/** 플랫폼 변경 이력 — 이 화면이 계속 자란다는 것을 보여준다 */
+export interface PlatformUpdate {
+  version: string;
+  date: string; // ISO (예정 항목은 분기 표기)
+  title: string;
+  body: string;
+  state: "적용됨" | "다음 예정" | "검토 중";
+}

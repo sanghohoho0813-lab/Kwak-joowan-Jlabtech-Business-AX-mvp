@@ -81,7 +81,8 @@ export function CustomerDrawer({
         { id: "sec-schedule", label: "다가오는 일정" },
         { id: "sec-quick", label: "무엇을 도와드릴까요?" },
         { id: "sec-recent", label: "보내신 요청" },
-        { id: "sec-services", label: "준비하고 있는 서비스" },
+        { id: "sec-journey", label: "앞으로 이렇게 넓어집니다" },
+        { id: "sec-updates", label: "업데이트 소식" },
       ];
     }
     if (pathname === "/customer/equipment") {
@@ -110,6 +111,7 @@ export function CustomerDrawer({
         { id: "stage-available", label: "이용 가능", note: "3종" },
         { id: "stage-preparing", label: "준비 중", note: "4종" },
         { id: "stage-review", label: "검토 중", note: "4종" },
+        { id: "sec-updates", label: "이 플랫폼의 변화" },
         { id: "sec-notation", label: "표기에 대해" },
       ];
     }

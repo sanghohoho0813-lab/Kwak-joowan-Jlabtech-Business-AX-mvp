@@ -32,11 +32,16 @@ import {
   TriangleAlert,
   Sparkles,
   ArrowRight,
+  Bell,
+  BellRing,
+  Megaphone,
   type LucideIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
+import { useStore } from "@/lib/store-context";
+import { PlatformUpdates } from "@/components/customer/platform-updates";
 import { repo } from "@/data/repository";
 import { demoCustomer } from "@/data/mock/customer-portal";
 import { cn } from "@/lib/utils";
@@ -133,8 +138,16 @@ export default function CustomerServicesPage() {
     () => repo.getInstalledEquipment().filter((e) => e.customerId === demoCustomer.id),
     [],
   );
+  const { interests, toggleServiceInterest } = useStore();
   const [filter, setFilter] = useState<ServiceStage | "전체">("전체");
   const [openId, setOpenId] = useState<string | null>(null);
+
+  const isInterested = (id: string) =>
+    interests.some((i) => i.serviceId === id && i.customerId === demoCustomer.id);
+
+  const myInterestCount = interests.filter(
+    (i) => i.customerId === demoCustomer.id,
+  ).length;
 
   /* 목차에서 특정 단계로 들어온 경우 — 필터에 가려지지 않게 전체로 되돌린 뒤 이동한다 */
   useEffect(() => {
@@ -311,6 +324,12 @@ export default function CustomerServicesPage() {
                             {s.scopeNote} {n}대
                           </span>
                         ) : null}
+                        {isInterested(s.id) ? (
+                          <Badge tone="clay" size="md">
+                            <BellRing size={12} />
+                            관심 표시함
+                          </Badge>
+                        ) : null}
                       </span>
                     </span>
 
@@ -435,7 +454,47 @@ export default function CustomerServicesPage() {
                               내 장비에서 바로 요청하기
                               <ArrowRight size={14} />
                             </Link>
-                          ) : null}
+                          ) : (
+                            <div className="rounded-2xl border border-clay-400/50 bg-clay-100/40 p-4">
+                              <p className="text-base font-bold text-pine-900">
+                                이 서비스가 필요하신가요?
+                              </p>
+                              <p className="mt-1.5 text-base leading-relaxed text-inkmuted">
+                                관심을 남겨 주시면 무엇을 먼저 만들지 정할 때 반영합니다.
+                                아직 동작하는 기능이 아니므로 신청이 아니라 의사 표시입니다.
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  toggleServiceInterest({
+                                    serviceId: s.id,
+                                    serviceTitle: s.title,
+                                    serviceStage: s.stage,
+                                    customerId: demoCustomer.id,
+                                    customerName: demoCustomer.company,
+                                  })
+                                }
+                                className={cn(
+                                  "mt-3.5 inline-flex h-12 items-center gap-2 rounded-xl px-5 text-sm font-bold transition-colors duration-fast",
+                                  isInterested(s.id)
+                                    ? "bg-clay-500 text-white hover:bg-clay-600"
+                                    : "border border-clay-400/60 bg-ivory-50 text-clay-600 hover:bg-clay-100/70",
+                                )}
+                              >
+                                {isInterested(s.id) ? (
+                                  <>
+                                    <BellRing size={17} />
+                                    관심 표시함 — 준비되면 알려드립니다
+                                  </>
+                                ) : (
+                                  <>
+                                    <Bell size={17} />
+                                    준비되면 알려주세요
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     ) : null}
@@ -449,6 +508,20 @@ export default function CustomerServicesPage() {
             );
           })}
       </div>
+
+      {/* 변경 이력 */}
+      <Reveal delay={0.11} className="scroll-mt-24" id="sec-updates">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <Megaphone size={19} className="shrink-0 text-mist-600" />
+          <h2 className="text-xl font-bold text-pine-900 md:text-2xl">이 플랫폼의 변화</h2>
+          {myInterestCount > 0 ? (
+            <Badge tone="clay" size="md">
+              관심 표시 {myInterestCount}개
+            </Badge>
+          ) : null}
+        </div>
+        <PlatformUpdates />
+      </Reveal>
 
       {/* 표기 원칙 */}
       <Reveal delay={0.12} className="scroll-mt-20" id="sec-notation">

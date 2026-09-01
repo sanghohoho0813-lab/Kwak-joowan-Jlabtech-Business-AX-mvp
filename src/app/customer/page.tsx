@@ -11,9 +11,10 @@ import {
   ArrowRight,
   MessageCircle,
   CalendarClock,
-  LayoutGrid,
   Send,
   ListChecks,
+  Route,
+  Megaphone,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,8 @@ import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { RequestDialog, REQUEST_TYPES } from "@/components/customer/request-dialog";
 import { RequestStatusBadge } from "@/components/customer/status-badge";
 import { SectionHeader, SectionAction } from "@/components/customer/section-header";
+import { PlatformJourney } from "@/components/customer/platform-journey";
+import { PlatformUpdates } from "@/components/customer/platform-updates";
 import { useStore } from "@/lib/store-context";
 import { repo } from "@/data/repository";
 import { demoCustomer } from "@/data/mock/customer-portal";
@@ -69,7 +72,7 @@ const howItWorks = [
 ];
 
 export default function CustomerHomePage() {
-  const { requests } = useStore();
+  const { requests, interests } = useStore();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<RequestType>("교정 요청");
 
@@ -431,39 +434,35 @@ export default function CustomerHomePage() {
         )}
       </Reveal>
 
-      {/* 준비 중인 서비스 */}
-      <Reveal delay={0.14} className="scroll-mt-24" id="sec-services">
+      {/* 이 플랫폼이 가는 방향 */}
+      <Reveal delay={0.14} className="scroll-mt-24" id="sec-journey">
         <SectionHeader
-          icon={LayoutGrid}
+          icon={Route}
           tone="clay"
-          title="준비하고 있는 서비스"
-          desc="지금 되는 것과, 앞으로 준비 중인 것을 정리했습니다."
+          title="앞으로 이렇게 넓어집니다"
+          desc="지금 되는 것과 준비 중인 것을 단계로 정리했습니다."
+          action={
+            <Link href="/customer/services">
+              <SectionAction>
+                서비스 전체 보기 <ChevronRight size={15} />
+              </SectionAction>
+            </Link>
+          }
         />
-        <Link href="/customer/services" className="block">
-          <Card className="border-pine-100 bg-pine-50/50 hover:-translate-y-0.5 hover:shadow-card-hover">
-            <CardContent className="p-5 md:p-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge size="md" tone="success">
-                  이용 가능 3
-                </Badge>
-                <Badge size="md" tone="clay">
-                  준비 중 4
-                </Badge>
-                <Badge size="md" tone="mist">
-                  검토 중 4
-                </Badge>
-              </div>
-              <p className="mt-3 text-base leading-relaxed text-inkbody">
-                소모품 정기 배송, 연간 관리 계약, 성적서 디지털 발급, 계측기 단기 임대까지 —
-                지금 쌓이는 장비·요청 데이터 위에서 어떻게 이어지는지 정리했습니다.
-              </p>
-              <span className="mt-4 inline-flex items-center gap-2 rounded-xl bg-pine-700 px-5 py-3 text-sm font-bold text-white">
-                서비스 전체 보기
-                <ArrowRight size={16} />
-              </span>
-            </CardContent>
-          </Card>
-        </Link>
+        <PlatformJourney
+          interestCount={interests.filter((i) => i.customerId === demoCustomer.id).length}
+        />
+      </Reveal>
+
+      {/* 업데이트 소식 */}
+      <Reveal delay={0.16} className="scroll-mt-24" id="sec-updates">
+        <SectionHeader
+          icon={Megaphone}
+          tone="mist"
+          title="업데이트 소식"
+          desc="이 화면에 새로 생긴 것과, 다음에 열릴 것입니다."
+        />
+        <PlatformUpdates limit={3} />
       </Reveal>
 
       <RequestDialog

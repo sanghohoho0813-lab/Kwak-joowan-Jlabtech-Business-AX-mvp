@@ -23,6 +23,7 @@ import {
   Database,
   Target,
   ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +40,7 @@ interface EvidenceRow {
 }
 
 export default function EvidencePage() {
-  const { orders, quotes, activities, requests } = useStore();
+  const { orders, quotes, activities, requests, interests } = useStore();
   const [openId, setOpenId] = useState<string | null>(null);
 
   const contacts = activities.filter((a) => a.kind === "고객 연락");
@@ -105,6 +106,19 @@ export default function EvidencePage() {
         })),
       },
       {
+        id: "interests",
+        icon: Sparkles,
+        label: "확장 서비스 관심 표시",
+        count: interests.length,
+        unit: "건",
+        note: "고객이 준비 중 서비스에 남긴 수요 신호 — 무엇을 먼저 만들지의 근거",
+        rows: interests.map<EvidenceRow>((i) => ({
+          primary: `${i.customerName} · ${i.serviceTitle}`,
+          secondary: `${i.serviceStage} 서비스`,
+          meta: formatDateTime(i.createdAt),
+        })),
+      },
+      {
         id: "contacts",
         icon: PhoneCall,
         label: "고객 접촉 기록",
@@ -131,7 +145,7 @@ export default function EvidencePage() {
         })),
       },
     ],
-    [orders, quotes, requests, handledRequests, doneRequests, contacts, calibrations],
+    [orders, quotes, requests, handledRequests, doneRequests, contacts, calibrations, interests],
   );
 
   const totalActions = metrics.reduce((s, m) => s + m.count, 0);

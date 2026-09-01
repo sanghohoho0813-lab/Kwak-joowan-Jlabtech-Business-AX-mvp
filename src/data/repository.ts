@@ -32,7 +32,7 @@ import {
 } from "./mock/design";
 import { reports } from "./mock/reports";
 import { beforeAfter, readiness, fundPrograms, evidenceSummary } from "./mock/policy";
-import { serviceCatalog } from "./mock/customer-portal";
+import { serviceCatalog, platformUpdates, platformStages } from "./mock/customer-portal";
 import type {
   Customer,
   DesignInput,
@@ -42,6 +42,7 @@ import type {
   RecommendInput,
   RecommendedProduct,
   ServiceOffering,
+  PlatformUpdate,
 } from "./types";
 
 export const repo = {
@@ -93,4 +94,6 @@ export const repo = {
 
   // 고객 플랫폼 — 서비스 확장 로드맵
   getServiceCatalog: (): ServiceOffering[] => serviceCatalog,
+  getPlatformUpdates: (): PlatformUpdate[] => platformUpdates,
+  getPlatformStages: () => platformStages,
 };

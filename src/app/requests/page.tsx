@@ -11,6 +11,7 @@ import {
   Clock,
   CheckCircle2,
   FileText,
+  Sparkles,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, HoverCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +36,7 @@ const defaultResponse: Partial<Record<RequestStatus, string>> = {
 };
 
 export default function RequestsPage() {
-  const { requests, advanceRequest, quotes } = useStore();
+  const { requests, advanceRequest, quotes, interests } = useStore();
   const toast = useToast();
   const [filter, setFilter] = useState<(typeof filters)[number]>("전체");
 
@@ -69,6 +70,45 @@ export default function RequestsPage() {
         description="고객 플랫폼에서 접수된 교정·소모품·추가 계측 요청입니다. 상태를 바꾸면 고객 화면에 즉시 반영됩니다."
         badge="3단계 고도화"
       />
+
+      {/* 고객이 남긴 확장 서비스 수요 신호 */}
+      {interests.length > 0 ? (
+        <Reveal delay={0.05}>
+          <Card className="border-clay-400/50 bg-clay-100/40">
+            <CardContent className="p-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <Sparkles size={17} className="shrink-0 text-clay-600" />
+                <p className="text-sm font-bold text-pine-900">
+                  고객이 관심 표시한 준비 중 서비스
+                </p>
+                <Badge tone="clay">{interests.length}건</Badge>
+              </div>
+              <p className="mt-1 text-2xs leading-relaxed text-inkmuted">
+                고객 화면의 서비스 로드맵에서 남긴 수요 신호입니다. 무엇을 먼저 만들지
+                정할 때의 근거가 됩니다.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {Object.entries(
+                  interests.reduce<Record<string, number>>((acc, i) => {
+                    acc[i.serviceTitle] = (acc[i.serviceTitle] ?? 0) + 1;
+                    return acc;
+                  }, {}),
+                )
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([title, n]) => (
+                    <span
+                      key={title}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-clay-400/50 bg-ivory-50 px-3 py-1.5 text-2xs font-semibold text-inkbody"
+                    >
+                      {title}
+                      <span className="num font-bold text-clay-600">{n}</span>
+                    </span>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+        </Reveal>
+      ) : null}
 
       {/* 요약 + 고객 화면 링크 */}
       <Stagger className="grid grid-cols-1 gap-4 sm:grid-cols-3">

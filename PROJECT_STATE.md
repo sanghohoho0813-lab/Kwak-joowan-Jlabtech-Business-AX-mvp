@@ -51,7 +51,8 @@
 - 읽기: `data/repository.ts` → `data/mock/*`
 - 쓰기: `lib/store-context.tsx` → localStorage (`jlab-ax-store-v1`)
 - 설정: `lib/settings-context.tsx` → localStorage (`jlab-ax-settings-v1`)
-- 저장 대상: 발주(PurchaseOrder) / 견적(SavedQuote) / 활동(ActivityLog) / **고객 요청(CustomerRequest)**
+- 저장 대상: 발주(PurchaseOrder) / 견적(SavedQuote) / 활동(ActivityLog) /
+  **고객 요청(CustomerRequest)** / **서비스 관심 표시(ServiceInterest)**
 
 ## 3. 다음 단계
 
@@ -83,6 +84,7 @@
 | `purchase_orders` | `PurchaseOrder` | 쓰기 — store 교체 |
 | `saved_quotes` | `SavedQuote` | 쓰기 |
 | `customer_requests` | `CustomerRequest` | 쓰기 · 고객/내부 양쪽에서 접근 |
+| `service_interests` | `ServiceInterest` | 쓰기 · 확장 서비스 수요 신호 |
 | `activity_logs` | `ActivityLog` | 쓰기 |
 
 교체 순서: `repository.ts` 구현부 → `store-context.tsx` 구현부 → 타입은 그대로.

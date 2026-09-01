@@ -61,3 +61,10 @@ export function dday(iso: string, base = DEMO_TODAY): string {
 export function daysLeft(iso: string, base = DEMO_TODAY): number {
   return Math.round((new Date(iso).getTime() - base.getTime()) / 86400000);
 }
+
+/** N개월 뒤 날짜 (소모품 교체 주기 계산용) */
+export function addMonths(iso: string, months: number): string {
+  const d = new Date(iso);
+  d.setMonth(d.getMonth() + months);
+  return d.toISOString().slice(0, 10);
+}

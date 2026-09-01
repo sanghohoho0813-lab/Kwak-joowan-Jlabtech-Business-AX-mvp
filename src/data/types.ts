@@ -147,6 +147,10 @@ export interface InstalledEquipment {
   warrantyEndDate: string; // ISO
   status: EquipmentStatus;
   consumable?: string; // 정기 교체 소모품
+  /** 소모품 교체 주기(개월) — 정기 배송·재구매 예측의 근거가 된다 */
+  consumableCycleMonths?: number;
+  /** 마지막 소모품 교체일 — 다음 교체 시점 계산에 쓴다 */
+  lastConsumableDate?: string; // ISO
 }
 
 /* ------------------------------------------------------------------ *
@@ -339,6 +343,46 @@ export interface CustomerAccount {
   contactName: string;
   segment: string;
   region: string;
+  /** 현재 거래 형태 — 연간 계약 전환이 확장 과제 중 하나다 */
+  contractType: string;
+  /** 첫 거래 시점 */
+  since: string; // ISO
+}
+
+/* ------------------------------------------------------------------ *
+ * 서비스 확장 로드맵
+ *
+ * 고객 플랫폼에서 "지금 되는 것"과 "준비 중인 것"을 같은 구조로 보여준다.
+ * 준비 중·검토 중 항목은 동작하지 않는다. 대신 어떤 데이터가 이미 있고
+ * 무엇이 더 필요한지를 함께 적어 과장 없이 확장 가능성만 전달한다.
+ * ------------------------------------------------------------------ */
+
+/** 이용 가능: 지금 동작 / 준비 중: 데이터는 있고 기능만 남음 / 검토 중: 실증·인증 선행 */
+export type ServiceStage = "이용 가능" | "준비 중" | "검토 중";
+
+/** 매출이 어떤 형태로 생기는지 — 건별인지 반복인지가 확장의 핵심이다 */
+export type RevenueType = "건별 매출" | "반복 매출" | "자산 활용" | "유지·락인";
+
+export interface ServiceOffering {
+  id: string;
+  /** 아이콘 키 — 화면 컴포넌트에서 Lucide 아이콘으로 매핑한다 */
+  icon: string;
+  title: string;
+  summary: string;
+  stage: ServiceStage;
+  revenueType: RevenueType;
+  /** 지금 이 플랫폼에 이미 준비되어 있는 것 */
+  ready: string[];
+  /** 어떤 순서로 구현되는가 */
+  how: string[];
+  /** 고객이 얻는 것 */
+  customerGain: string[];
+  /** 제이랩테크의 수익 구조 — 금액이 아니라 구조로 적는다 */
+  revenueModel: string;
+  /** 시작하기 전에 반드시 정리되어야 하는 것 */
+  prerequisite: string;
+  /** 적용 대상 규모 — 플랫폼 데이터에서 계산되는 값의 설명 */
+  scopeNote?: string;
 }
 
 /* ------------------------------------------------------------------ *

@@ -17,7 +17,12 @@
 - 기획의도 / 사용 방법 / 설정 / 온보딩
 
 ### 2단계 — 사업모델 전환형 AX (이번에 추가)
-- **고객 플랫폼** `/customer`, `/customer/equipment`, `/customer/requests`
+- **고객 플랫폼** `/customer`, `/customer/equipment`, `/customer/requests`, `/customer/services`
+  - 계정 메뉴(회사·업종·거래 형태·첫 거래), 답변 도착 알림, 모바일 4탭
+  - 홈: 다가오는 일정(교정·소모품 주기로 자동 계산), 확인이 필요한 답변, 요약 4종
+  - 내 장비: 검색·필터 4종, 장비별 운영 이력 타임라인
+- **서비스 & 확장 로드맵** `/customer/services` — 이용 가능 3 / 준비 중 4 / 검토 중 4,
+  각 항목마다 [준비된 것 / 구현 방식 / 고객 가치 / 수익 구조 / 선행 조건]
 - **고객 요청** `/requests` — 내부 접수·처리 화면
 - **Closed Loop 2종** — 교정 요청 / 소모품·추가 계측
 - **AX 실증성과** `/evidence` — KPI → Result → Evidence 연결
@@ -38,7 +43,7 @@
 
 ## 2. 현재 상태
 
-- 총 21개 라우트, 빌드 통과
+- 총 22개 라우트, 빌드 통과
 - 읽기: `data/repository.ts` → `data/mock/*`
 - 쓰기: `lib/store-context.tsx` → localStorage (`jlab-ax-store-v1`)
 - 설정: `lib/settings-context.tsx` → localStorage (`jlab-ax-settings-v1`)
@@ -46,6 +51,8 @@
 
 ## 3. 다음 단계
 
+0. **확장 서비스 실행 판단** — `/customer/services`의 "준비 중" 4종 중
+   무엇을 먼저 열지 결정한다. 소모품 정기 배송이 가장 가깝다(주기 데이터가 이미 있음).
 1. **실데이터 연동** — 판매·재고 시스템에서 품목/거래처/설치장비 가져오기
 2. **Supabase 전환** — 아래 4개 테이블부터
 3. **실제 계정·인증** — 고객 플랫폼 로그인, 고객사별 데이터 분리

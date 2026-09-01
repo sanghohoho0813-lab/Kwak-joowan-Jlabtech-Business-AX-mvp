@@ -1212,6 +1212,12 @@ export default function IntentPage() {
                   <ArrowRight size={14} />
                 </Button>
               </Link>
+              <Link href="/customer/services">
+                <Button variant="outline" size="md">
+                  서비스 확장 로드맵 보기
+                  <ArrowRight size={14} />
+                </Button>
+              </Link>
             </div>
           </Section>
         </StaggerItem>

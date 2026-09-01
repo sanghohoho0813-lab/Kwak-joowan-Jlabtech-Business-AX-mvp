@@ -10,10 +10,10 @@ import {
   ChevronRight,
   MapPin,
   ArrowRight,
-  LineChart,
-  Radio,
-  FileClock,
-  Gauge,
+  MessageCircle,
+  CalendarClock,
+  LayoutGrid,
+  Sparkles,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,8 +23,8 @@ import { RequestStatusBadge } from "@/components/customer/status-badge";
 import { useStore } from "@/lib/store-context";
 import { repo } from "@/data/repository";
 import { demoCustomer } from "@/data/mock/customer-portal";
-import { cn, formatDate, dday, daysLeft } from "@/lib/utils";
-import type { RequestType, EquipmentStatus } from "@/data/types";
+import { cn, formatDate, dday, daysLeft, addMonths } from "@/lib/utils";
+import type { RequestType, EquipmentStatus, InstalledEquipment } from "@/data/types";
 
 const equipmentTone: Record<EquipmentStatus, "success" | "warning" | "danger" | "neutral"> = {
   "정상 가동": "success",
@@ -33,13 +33,39 @@ const equipmentTone: Record<EquipmentStatus, "success" | "warning" | "danger" | 
   "보증 만료": "neutral",
 };
 
-/** 3단계에서 검토 예정인 서비스 — 클릭 불가 */
-const futureServices = [
-  { icon: LineChart, title: "계측 데이터 리포트", body: "측정값 추이와 이상 구간을 정기 리포트로" },
-  { icon: Radio, title: "원격 계측 모니터링", body: "현장 방문 없이 장비 상태 확인" },
-  { icon: FileClock, title: "정기관리 계약", body: "교정·소모품을 연간 단위로 자동 관리" },
-  { icon: Gauge, title: "예지보전 분석", body: "고장 전에 미리 신호를 잡아내는 분석" },
-];
+interface ScheduleEvent {
+  key: string;
+  date: string;
+  kind: "정기 교정" | "소모품 교체";
+  equipment: InstalledEquipment;
+  detail: string;
+}
+
+/** 교정 예정일과 소모품 교체 예상일을 하나의 일정으로 합친다 */
+function buildSchedule(equipment: InstalledEquipment[]): ScheduleEvent[] {
+  const events: ScheduleEvent[] = [];
+  for (const e of equipment) {
+    events.push({
+      key: `${e.id}-cal`,
+      date: e.nextCalibrationDate,
+      kind: "정기 교정",
+      equipment: e,
+      detail: `${e.itemName} ${e.model}`,
+    });
+    if (e.consumableCycleMonths && e.lastConsumableDate) {
+      events.push({
+        key: `${e.id}-con`,
+        date: addMonths(e.lastConsumableDate, e.consumableCycleMonths),
+        kind: "소모품 교체",
+        equipment: e,
+        detail: e.consumable ?? "정기 교체 소모품",
+      });
+    }
+  }
+  return events
+    .filter((ev) => daysLeft(ev.date) >= -30)
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+}
 
 export default function CustomerHomePage() {
   const { requests } = useStore();
@@ -58,12 +84,15 @@ export default function CustomerHomePage() {
     [requests],
   );
 
+  const schedule = useMemo(() => buildSchedule(myEquipment), [myEquipment]);
+
   const calibrationSoon = myEquipment.filter((e) => {
     const d = daysLeft(e.nextCalibrationDate);
-    return d >= 0 && d <= 30;
+    return d >= 0 && d <= 60;
   });
   const openRequests = myRequests.filter((r) => r.status !== "완료");
-  const consumableItems = myEquipment.filter((e) => e.consumable);
+  const needsAttention = myRequests.filter((r) => r.response && r.status !== "완료");
+  const consumableItems = myEquipment.filter((e) => e.consumableCycleMonths);
 
   const openDialog = (t: RequestType) => {
     setDialogType(t);
@@ -71,19 +100,33 @@ export default function CustomerHomePage() {
   };
 
   const summary = [
-    { icon: Wrench, label: "등록 장비", value: `${myEquipment.length}대`, tone: "bg-pine-50 text-pine-700" },
+    {
+      icon: Wrench,
+      label: "관리 중 장비",
+      value: `${myEquipment.length}대`,
+      tone: "bg-pine-50 text-pine-700",
+      href: "/customer/equipment",
+    },
     {
       icon: CalendarCheck,
-      label: "30일 내 교정 예정",
+      label: "60일 내 교정 예정",
       value: `${calibrationSoon.length}대`,
       tone: "bg-sand-100 text-sand-600",
+      href: "/customer/equipment",
     },
-    { icon: Inbox, label: "처리 중 요청", value: `${openRequests.length}건`, tone: "bg-sage-100 text-sage-600" },
+    {
+      icon: Inbox,
+      label: "진행 중 요청",
+      value: `${openRequests.length}건`,
+      tone: "bg-sage-100 text-sage-600",
+      href: "/customer/requests",
+    },
     {
       icon: Package,
-      label: "소모품 확인 필요",
-      value: `${consumableItems.length}건`,
+      label: "정기 교체 소모품",
+      value: `${consumableItems.length}종`,
       tone: "bg-ivory-200 text-inkbody",
+      href: "/customer/services",
     },
   ];
 
@@ -101,35 +144,147 @@ export default function CustomerHomePage() {
         </p>
       </Reveal>
 
+      {/* 확인이 필요한 요청 — 답변이 도착한 건 */}
+      {needsAttention.length > 0 ? (
+        <Reveal delay={0.02}>
+          <Link href="/customer/requests" className="block">
+            <Card className="border-sand-400/60 bg-sand-100/40 hover:-translate-y-0.5 hover:shadow-card-hover">
+              <CardContent className="flex items-start gap-3 p-4 md:p-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sand-500 text-white">
+                  <MessageCircle size={18} strokeWidth={1.9} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-pine-900">
+                    확인이 필요한 답변 {needsAttention.length}건
+                  </p>
+                  <p className="clamp-2 mt-0.5 text-2xs leading-relaxed text-inkbody">
+                    {needsAttention[0].response}
+                  </p>
+                </div>
+                <ChevronRight size={17} className="mt-1 shrink-0 text-sand-600" />
+              </CardContent>
+            </Card>
+          </Link>
+        </Reveal>
+      ) : null}
+
       {/* 핵심 요약 */}
       <Stagger className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {summary.map((s) => {
           const Icon = s.icon;
           return (
             <StaggerItem key={s.label}>
-              <Card className="h-full">
-                <CardContent className="flex h-full flex-col justify-between gap-3 p-4">
-                  <span
-                    className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-xl",
-                      s.tone,
-                    )}
-                  >
-                    <Icon size={18} strokeWidth={1.9} />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="clamp-2 text-2xs leading-snug text-inkmuted">{s.label}</p>
-                    <p className="num mt-0.5 text-xl font-bold text-pine-900">{s.value}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <Link href={s.href} className="block h-full">
+                <Card className="h-full hover:-translate-y-0.5 hover:shadow-card-hover">
+                  <CardContent className="flex h-full flex-col justify-between gap-3 p-4">
+                    <span
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-xl",
+                        s.tone,
+                      )}
+                    >
+                      <Icon size={18} strokeWidth={1.9} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="clamp-2 text-2xs leading-snug text-inkmuted">{s.label}</p>
+                      <p className="num mt-0.5 text-xl font-bold text-pine-900">{s.value}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             </StaggerItem>
           );
         })}
       </Stagger>
 
-      {/* 빠른 요청 */}
+      {/* 다가오는 일정 */}
       <Reveal delay={0.06}>
+        <Card>
+          <CardContent className="p-5 md:p-6">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <CalendarClock size={17} className="shrink-0 text-pine-700" />
+              <p className="text-base font-bold text-pine-900">다가오는 일정</p>
+              <Badge tone="outline" className="ml-auto">
+                장비 주기 기준 자동 계산
+              </Badge>
+            </div>
+            <p className="mb-4 text-xs leading-relaxed text-inkmuted">
+              등록된 교정 주기와 소모품 교체 주기로 계산한 예정일입니다.
+            </p>
+
+            {schedule.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-line py-8 text-center text-sm text-inkmuted">
+                예정된 일정이 없습니다.
+              </p>
+            ) : (
+              <ol className="relative space-y-3 border-l border-line pl-5">
+                {schedule.slice(0, 5).map((ev) => {
+                  const left = daysLeft(ev.date);
+                  const urgent = left >= 0 && left <= 30;
+                  const past = left < 0;
+                  return (
+                    <li key={ev.key} className="relative">
+                      <span
+                        className={cn(
+                          "absolute -left-[1.6875rem] top-2 h-2.5 w-2.5 rounded-full border-2 border-ivory-50",
+                          past
+                            ? "bg-red-500"
+                            : urgent
+                              ? "bg-sand-500"
+                              : "bg-pine-600",
+                        )}
+                      />
+                      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5 rounded-xl border border-line/70 bg-ivory-100/60 p-3.5">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <Badge tone={ev.kind === "정기 교정" ? "success" : "info"}>
+                              {ev.kind}
+                            </Badge>
+                            <span className="num text-2xs font-semibold text-inkbody">
+                              {formatDate(ev.date)}
+                            </span>
+                            <span
+                              className={cn(
+                                "num text-2xs font-bold",
+                                past
+                                  ? "text-red-600"
+                                  : urgent
+                                    ? "text-sand-600"
+                                    : "text-inkmuted",
+                              )}
+                            >
+                              {dday(ev.date)}
+                            </span>
+                          </div>
+                          <p className="clamp-1 mt-1 text-xs font-semibold text-pine-900">
+                            {ev.detail}
+                          </p>
+                          <p className="clamp-1 mt-0.5 flex items-center gap-1 text-2xs text-inkmuted">
+                            <MapPin size={10} className="shrink-0" />
+                            {ev.equipment.site}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openDialog(ev.kind === "정기 교정" ? "교정 요청" : "소모품 요청")
+                          }
+                          className="h-8 shrink-0 whitespace-nowrap rounded-lg border border-line bg-ivory-50 px-3 text-2xs font-semibold text-pine-700 transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50"
+                        >
+                          요청하기
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+          </CardContent>
+        </Card>
+      </Reveal>
+
+      {/* 빠른 요청 */}
+      <Reveal delay={0.1}>
         <Card>
           <CardContent className="p-5 md:p-6">
             <p className="text-base font-bold text-pine-900">무엇을 도와드릴까요?</p>
@@ -137,7 +292,7 @@ export default function CustomerHomePage() {
               요청을 보내시면 제이랩테크 담당자가 확인하고 진행 상황을 알려드립니다.
             </p>
             <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {REQUEST_TYPES.slice(0, 4).map((r) => {
+              {REQUEST_TYPES.map((r) => {
                 const Icon = r.icon;
                 return (
                   <button
@@ -166,7 +321,7 @@ export default function CustomerHomePage() {
       </Reveal>
 
       {/* 최근 요청 */}
-      <Reveal delay={0.1}>
+      <Reveal delay={0.14}>
         <Card>
           <CardContent className="p-5 md:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
@@ -185,9 +340,10 @@ export default function CustomerHomePage() {
             ) : (
               <div className="space-y-2.5">
                 {myRequests.slice(0, 3).map((r) => (
-                  <div
+                  <Link
                     key={r.id}
-                    className="rounded-xl border border-line/70 bg-ivory-100/60 p-4 transition-colors duration-fast hover:border-pine-100"
+                    href="/customer/requests"
+                    className="block rounded-xl border border-line/70 bg-ivory-100/60 p-4 transition-colors duration-fast hover:border-pine-100"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <p className="clamp-2 min-w-0 flex-1 text-sm font-bold text-pine-900">
@@ -203,7 +359,7 @@ export default function CustomerHomePage() {
                         {r.response}
                       </p>
                     ) : null}
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -212,7 +368,7 @@ export default function CustomerHomePage() {
       </Reveal>
 
       {/* 관리 중 장비 */}
-      <Reveal delay={0.14}>
+      <Reveal delay={0.18}>
         <Card>
           <CardContent className="p-5 md:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
@@ -255,41 +411,36 @@ export default function CustomerHomePage() {
         </Card>
       </Reveal>
 
-      {/* 앞으로 제공 예정 */}
-      <Reveal delay={0.18}>
-        <Card className="border-dashed">
-          <CardContent className="p-5 md:p-6">
-            <div className="mb-1 flex flex-wrap items-center gap-2">
-              <p className="text-base font-bold text-pine-900">앞으로 준비 중인 서비스</p>
-              <Badge tone="outline">3단계 검토</Badge>
-            </div>
-            <p className="mb-4 text-xs leading-relaxed text-inkmuted">
-              장비를 등록하고 요청을 주고받는 지금 구조 위에, 아래 서비스를 단계적으로
-              검토하고 있습니다.
-            </p>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {futureServices.map((f) => {
-                const Icon = f.icon;
-                return (
-                  <div
-                    key={f.title}
-                    aria-disabled
-                    title="3단계에서 검토 예정인 서비스입니다"
-                    className="flex cursor-not-allowed items-center gap-3 rounded-xl border border-line bg-ivory-100/40 p-4 opacity-70"
-                  >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ivory-200 text-inkmuted">
-                      <Icon size={18} strokeWidth={1.8} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="clamp-1 text-sm font-semibold text-inkbody">{f.title}</p>
-                      <p className="clamp-1 text-2xs text-inkmuted">{f.body}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+      {/* 서비스 확장 안내 */}
+      <Reveal delay={0.22}>
+        <Link href="/customer/services" className="block">
+          <Card className="border-pine-100 bg-pine-50/50 hover:-translate-y-0.5 hover:shadow-card-hover">
+            <CardContent className="flex items-start gap-3.5 p-5 md:p-6">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-pine-800 text-sand-400">
+                <LayoutGrid size={19} strokeWidth={1.9} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-base font-bold text-pine-900">
+                    제이랩테크가 준비하고 있는 서비스
+                  </p>
+                  <Badge tone="warning">
+                    <Sparkles size={11} className="mr-1" />
+                    준비 중 4 · 검토 중 4
+                  </Badge>
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-inkbody">
+                  소모품 정기 배송, 연간 관리 계약, 성적서 디지털 발급, 계측기 단기 임대까지
+                  — 지금 쌓이는 장비·요청 데이터 위에서 어떻게 이어지는지 정리했습니다.
+                </p>
+                <span className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-pine-700">
+                  서비스 전체 보기
+                  <ArrowRight size={14} />
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </Reveal>
 
       <RequestDialog

@@ -40,10 +40,9 @@ export function DevicePreview({ isPreview }: { isPreview: boolean }) {
         onClick={() => setOpen(true)}
         aria-label="모바일 보기"
         title="모바일 화면 미리보기 (시연용)"
-        className="hidden h-9 shrink-0 items-center gap-1.5 rounded-xl border border-line bg-ivory-50 px-2.5 text-xs font-semibold text-inkbody transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50 hover:text-pine-700 lg:flex"
+        className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-ivory-50 text-xs font-semibold text-inkbody transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50 hover:text-pine-700 lg:flex"
       >
         <Smartphone size={15} strokeWidth={1.9} />
-        <span className="hidden whitespace-nowrap xl:inline">모바일 보기</span>
       </button>
 
       <AnimatePresence>

@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Bell, Menu, X, BookOpen, Compass, Users } from "lucide-react";
+import { Bell, Menu, X, BookOpen, Compass } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSettings } from "@/lib/settings-context";
 import { useStore } from "@/lib/store-context";
@@ -12,6 +12,7 @@ import { SidebarContent } from "./sidebar";
 import { useDrawer } from "./drawer-context";
 import { LiveClock } from "./live-clock";
 import { DevicePreview } from "./device-preview";
+import { SurfaceSwitcher } from "./surface-switcher";
 import { StatusPill } from "@/components/ui/status-chip";
 
 function TopbarInner() {
@@ -47,17 +48,8 @@ function TopbarInner() {
         {/* 데이터·AI 상태 */}
         <StatusPill />
 
-        {/* 고객 플랫폼 전환 (Demo Surface Switcher) */}
-        <Link
-          href="/customer"
-          className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-line bg-ivory-50 px-2.5 text-xs font-semibold text-inkbody transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50 hover:text-pine-700"
-          aria-label="고객 플랫폼 보기"
-          title="고객이 보는 화면 — 시연용 전환"
-        >
-          <Users size={15} strokeWidth={1.9} />
-          {/* lg(1024)에서는 사이드바가 폭을 가져가 라벨까지 넣으면 탑바가 밀린다 */}
-          <span className="hidden whitespace-nowrap min-[1180px]:inline">고객 플랫폼</span>
-        </Link>
+        {/* 화면 전환 — 관리자/고객 두 칸을 함께 보여준다 (시연용) */}
+        <SurfaceSwitcher current="admin" />
 
         {/* 모바일 미리보기 */}
         <DevicePreview isPreview={isPreview} />
@@ -65,11 +57,11 @@ function TopbarInner() {
         {/* 사용 방법 */}
         <Link
           href="/tutorial"
-          className="hidden h-9 shrink-0 items-center gap-1.5 rounded-xl border border-line bg-ivory-50 px-2.5 text-xs font-semibold text-inkbody transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50 hover:text-pine-700 sm:flex"
+          className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-ivory-50 text-xs font-semibold text-inkbody transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50 hover:text-pine-700 sm:flex"
           aria-label="사용 방법"
+          title="사용 방법"
         >
           <BookOpen size={15} strokeWidth={1.9} />
-          <span className="hidden whitespace-nowrap min-[1620px]:inline">사용 방법</span>
         </Link>
 
         {/* 기획의도 */}
@@ -79,7 +71,7 @@ function TopbarInner() {
           aria-label="기획의도"
         >
           <Compass size={15} strokeWidth={1.9} className="shrink-0 text-sand-400" />
-          <span className="hidden whitespace-nowrap min-[1500px]:inline">기획의도</span>
+          <span className="hidden whitespace-nowrap min-[1400px]:inline">기획의도</span>
         </Link>
 
         {/* 현재 날짜·시각 */}

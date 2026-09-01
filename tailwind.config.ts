@@ -38,6 +38,20 @@ const config: Config = {
           200: "var(--sage-200)",
           100: "var(--sage-100)",
         },
+        /* 보조 강조색 — 딥그린·골드와 부딪히지 않는 따뜻한 톤 */
+        clay: {
+          600: "var(--clay-600)",
+          500: "var(--clay-500)",
+          400: "var(--clay-400)",
+          100: "var(--clay-100)",
+        },
+        /* 보조 강조색 — 차가운 쪽을 하나 잡아 정보성 요소에 쓴다 */
+        mist: {
+          600: "var(--mist-600)",
+          500: "var(--mist-500)",
+          200: "var(--mist-200)",
+          100: "var(--mist-100)",
+        },
         line: "var(--line)",
         inkbody: "var(--ink-body)",
         inkmuted: "var(--ink-muted)",

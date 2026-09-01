@@ -8,6 +8,8 @@ type BadgeTone =
   | "info"
   | "neutral"
   | "gold"
+  | "clay"
+  | "mist"
   | "outline";
 
 const tones: Record<BadgeTone, string> = {
@@ -17,6 +19,8 @@ const tones: Record<BadgeTone, string> = {
   info: "bg-sage-100 text-sage-600 border-sage-200",
   neutral: "bg-ivory-200 text-inkmuted border-line",
   gold: "bg-sand-500 text-white border-sand-500",
+  clay: "bg-clay-100 text-clay-600 border-clay-400/45",
+  mist: "bg-mist-100 text-mist-600 border-mist-200",
   outline: "bg-transparent text-inkmuted border-line",
 };
 

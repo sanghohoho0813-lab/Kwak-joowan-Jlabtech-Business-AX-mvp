@@ -9,7 +9,7 @@
  * 확장 가능성을 과장 없이 읽히게 하는 것이 이 화면의 목적이다.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -58,33 +58,46 @@ const icons: Record<string, LucideIcon> = {
 
 const stageStyle: Record<
   ServiceStage,
-  { tone: "success" | "warning" | "outline"; card: string; icon: string; note: string }
+  {
+    tone: "success" | "clay" | "mist";
+    card: string;
+    icon: string;
+    note: string;
+    anchor: string;
+    rail: string;
+  }
 > = {
   "이용 가능": {
     tone: "success",
     card: "border-pine-100",
     icon: "bg-pine-50 text-pine-700",
     note: "지금 이 플랫폼에서 동작합니다.",
+    anchor: "stage-available",
+    rail: "bg-pine-600",
   },
   "준비 중": {
-    tone: "warning",
-    card: "border-sand-400/50",
-    icon: "bg-sand-100 text-sand-600",
+    tone: "clay",
+    card: "border-clay-400/50",
+    icon: "bg-clay-100 text-clay-600",
     note: "필요한 데이터는 이미 있습니다. 기능 구현만 남았습니다.",
+    anchor: "stage-preparing",
+    rail: "bg-clay-500",
   },
   "검토 중": {
-    tone: "outline",
-    card: "border-dashed border-line",
-    icon: "bg-ivory-200 text-inkmuted",
+    tone: "mist",
+    card: "border-dashed border-mist-200",
+    icon: "bg-mist-100 text-mist-600",
     note: "실증과 검증이 먼저입니다. 아직 동작하지 않습니다.",
+    anchor: "stage-review",
+    rail: "bg-mist-500",
   },
 };
 
-const revenueTone: Record<RevenueType, "info" | "gold" | "neutral"> = {
+const revenueTone: Record<RevenueType, "mist" | "gold" | "neutral" | "info"> = {
   "반복 매출": "gold",
   "건별 매출": "neutral",
-  "자산 활용": "info",
-  "유지·락인": "neutral",
+  "자산 활용": "mist",
+  "유지·락인": "info",
 };
 
 /** 매출 구조가 어떻게 바뀌는가 — 이 화면의 핵심 서사 */
@@ -93,14 +106,14 @@ const growthStory = [
     step: "지금",
     title: "팔고, 필요할 때 대응한다",
     body: "장비를 납품하고, 고객이 요청하면 교정하고 소모품을 보냅니다. 매출은 요청이 올 때만 생깁니다.",
-    tone: "bg-ivory-200/70 text-inkbody",
+    tone: "bg-mist-100 text-inkbody",
     label: "건별 매출",
   },
   {
     step: "다음",
     title: "주기를 알고 있으니 먼저 움직인다",
     body: "장비별 교정 주기와 소모품 교체 주기가 이미 플랫폼에 있습니다. 요청을 기다리지 않고 미리 나갈 수 있습니다.",
-    tone: "bg-sand-100/70 text-inkbody",
+    tone: "bg-clay-100 text-inkbody",
     label: "반복 매출",
   },
   {
@@ -122,6 +135,18 @@ export default function CustomerServicesPage() {
   );
   const [filter, setFilter] = useState<ServiceStage | "전체">("전체");
   const [openId, setOpenId] = useState<string | null>(null);
+
+  /* 목차에서 특정 단계로 들어온 경우 — 필터에 가려지지 않게 전체로 되돌린 뒤 이동한다 */
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id) return;
+    setFilter("전체");
+    const t = window.setTimeout(
+      () => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      120,
+    );
+    return () => window.clearTimeout(t);
+  }, []);
 
   /** 적용 대상 규모는 지어내지 않고 등록된 장비에서 센다 */
   const scopeCount = (s: ServiceOffering): number | null => {
@@ -152,7 +177,7 @@ export default function CustomerServicesPage() {
       </Reveal>
 
       {/* 매출 구조 전환 서사 */}
-      <Reveal delay={0.04}>
+      <Reveal delay={0.04} className="scroll-mt-20" id="sec-story">
         <Card>
           <CardContent className="p-5 md:p-6">
             <div className="flex flex-wrap items-center gap-2">
@@ -227,187 +252,206 @@ export default function CustomerServicesPage() {
         </div>
       </Reveal>
 
-      {/* 서비스 목록 */}
-      <Stagger className="space-y-3">
-        {visible.map((s) => {
-          const Icon = icons[s.icon] ?? Wrench;
-          const st = stageStyle[s.stage];
-          const open = openId === s.id;
-          const n = scopeCount(s);
+      {/* 서비스 목록 — 단계별로 묶어 목차에서 바로 짚을 수 있게 한다 */}
+      <div className="space-y-7">
+        {stageOrder
+          .filter((st) => filter === "전체" || filter === st)
+          .map((st) => {
+            const group = catalog.filter((x) => x.stage === st);
+            if (group.length === 0) return null;
+            const gs = stageStyle[st];
+            return (
+              <section key={st} id={gs.anchor} className="scroll-mt-20">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <span className={cn("h-5 w-1 shrink-0 rounded-full", gs.rail)} />
+                  <h2 className="text-base font-bold text-pine-900">{st}</h2>
+                  <Badge tone={gs.tone}>{group.length}종</Badge>
+                  <p className="min-w-0 flex-1 text-2xs text-inkmuted">{gs.note}</p>
+                </div>
+                <Stagger className="space-y-3">
+                  {group.map((s) => {
+            const Icon = icons[s.icon] ?? Wrench;
+            const ss = stageStyle[s.stage];
+            const open = openId === s.id;
+            const n = scopeCount(s);
 
-          return (
-            <StaggerItem key={s.id}>
-              <Card className={cn("overflow-hidden", st.card, open && "shadow-card-hover")}>
-                {/* 헤더 — 클릭해서 펼친다 */}
-                <button
-                  type="button"
-                  onClick={() => setOpenId(open ? null : s.id)}
-                  aria-expanded={open}
-                  className="flex w-full items-start gap-3 p-5 text-left transition-colors duration-fast hover:bg-pine-50/40 md:p-6"
-                >
-                  <span
-                    className={cn(
-                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
-                      st.icon,
-                    )}
+            return (
+              <StaggerItem key={s.id}>
+                <Card className={cn("overflow-hidden", ss.card, open && "shadow-card-hover")}>
+                  {/* 헤더 — 클릭해서 펼친다 */}
+                  <button
+                    type="button"
+                    onClick={() => setOpenId(open ? null : s.id)}
+                    aria-expanded={open}
+                    className="flex w-full items-start gap-3 p-5 text-left transition-colors duration-fast hover:bg-pine-50/40 md:p-6"
                   >
-                    <Icon size={19} strokeWidth={1.9} />
-                  </span>
-
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-center gap-1.5">
-                      <span className="clamp-2 text-base font-bold leading-snug text-pine-900">
-                        {s.title}
-                      </span>
-                      <Badge tone={st.tone}>{s.stage}</Badge>
-                    </span>
-                    <span className="clamp-2 mt-1 block text-xs leading-relaxed text-inkmuted">
-                      {s.summary}
-                    </span>
-                    <span className="mt-2 flex flex-wrap items-center gap-1.5">
-                      <Badge tone={revenueTone[s.revenueType]}>{s.revenueType}</Badge>
-                      {n !== null ? (
-                        <span className="num text-[0.5625rem] text-inkmuted">
-                          {s.scopeNote} {n}대
-                        </span>
-                      ) : null}
-                    </span>
-                  </span>
-
-                  <ChevronDown
-                    size={17}
-                    className={cn(
-                      "mt-1 shrink-0 text-inkmuted transition-transform duration-base",
-                      open && "rotate-180 text-pine-700",
-                    )}
-                  />
-                </button>
-
-                {/* 상세 */}
-                <AnimatePresence initial={false}>
-                  {open ? (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                      className="overflow-hidden"
+                    <span
+                      className={cn(
+                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+                        ss.icon,
+                      )}
                     >
-                      <div className="space-y-4 border-t border-line px-5 py-5 md:px-6">
-                        <p className="rounded-lg bg-ivory-200/60 px-3 py-2 text-2xs font-semibold text-inkbody">
-                          {st.note}
-                        </p>
+                      <Icon size={19} strokeWidth={1.9} />
+                    </span>
 
-                        {/* 지금 준비된 것 */}
-                        <section>
-                          <p className="flex items-center gap-1.5 text-xs font-bold text-pine-900">
-                            <Layers size={14} className="shrink-0 text-pine-600" />
-                            지금 준비되어 있는 것
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        <span className="clamp-2 text-base font-bold leading-snug text-pine-900">
+                          {s.title}
+                        </span>
+                        <Badge tone={ss.tone}>{s.stage}</Badge>
+                      </span>
+                      <span className="clamp-2 mt-1 block text-xs leading-relaxed text-inkmuted">
+                        {s.summary}
+                      </span>
+                      <span className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <Badge tone={revenueTone[s.revenueType]}>{s.revenueType}</Badge>
+                        {n !== null ? (
+                          <span className="num text-[0.5625rem] text-inkmuted">
+                            {s.scopeNote} {n}대
+                          </span>
+                        ) : null}
+                      </span>
+                    </span>
+
+                    <ChevronDown
+                      size={17}
+                      className={cn(
+                        "mt-1 shrink-0 text-inkmuted transition-transform duration-base",
+                        open && "rotate-180 text-pine-700",
+                      )}
+                    />
+                  </button>
+
+                  {/* 상세 */}
+                  <AnimatePresence initial={false}>
+                    {open ? (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="space-y-4 border-t border-line px-5 py-5 md:px-6">
+                          <p className="rounded-lg bg-ivory-200/60 px-3 py-2 text-2xs font-semibold text-inkbody">
+                            {ss.note}
                           </p>
-                          <ul className="mt-2 space-y-1.5">
-                            {s.ready.map((r) => (
-                              <li
-                                key={r}
-                                className="flex gap-2 text-xs leading-relaxed text-inkbody"
-                              >
-                                <CheckCircle2
-                                  size={13}
-                                  className="mt-0.5 shrink-0 text-pine-600"
-                                />
-                                <span className="min-w-0">{r}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </section>
 
-                        {/* 어떻게 구현되는가 */}
-                        <section>
-                          <p className="flex items-center gap-1.5 text-xs font-bold text-pine-900">
-                            <Wrench size={14} className="shrink-0 text-sage-600" />
-                            어떻게 구현되는가
-                          </p>
-                          <ol className="mt-2 space-y-2">
-                            {s.how.map((h, i) => (
-                              <li key={h} className="flex gap-2.5">
-                                <span className="num flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-pine-50 text-[0.5625rem] font-bold text-pine-700">
-                                  {i + 1}
-                                </span>
-                                <span className="min-w-0 text-xs leading-relaxed text-inkbody">
-                                  {h}
-                                </span>
-                              </li>
-                            ))}
-                          </ol>
-                        </section>
-
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                          {/* 고객이 얻는 것 */}
-                          <section className="rounded-xl bg-pine-50/60 p-4">
-                            <p className="text-2xs font-bold text-pine-900">
-                              고객이 얻는 것
+                          {/* 지금 준비된 것 */}
+                          <section>
+                            <p className="flex items-center gap-1.5 text-xs font-bold text-pine-900">
+                              <Layers size={14} className="shrink-0 text-pine-600" />
+                              지금 준비되어 있는 것
                             </p>
                             <ul className="mt-2 space-y-1.5">
-                              {s.customerGain.map((c) => (
+                              {s.ready.map((r) => (
                                 <li
-                                  key={c}
-                                  className="flex gap-1.5 text-2xs leading-relaxed text-inkbody"
+                                  key={r}
+                                  className="flex gap-2 text-xs leading-relaxed text-inkbody"
                                 >
-                                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-pine-600" />
-                                  <span className="min-w-0">{c}</span>
+                                  <CheckCircle2
+                                    size={13}
+                                    className="mt-0.5 shrink-0 text-pine-600"
+                                  />
+                                  <span className="min-w-0">{r}</span>
                                 </li>
                               ))}
                             </ul>
                           </section>
 
-                          {/* 수익 구조 */}
-                          <section className="rounded-xl bg-sand-100/50 p-4">
-                            <p className="flex items-center gap-1.5 text-2xs font-bold text-pine-900">
-                              <CircleDollarSign size={13} className="shrink-0 text-sand-600" />
-                              제이랩테크의 수익 구조
+                          {/* 어떻게 구현되는가 */}
+                          <section>
+                            <p className="flex items-center gap-1.5 text-xs font-bold text-pine-900">
+                              <Wrench size={14} className="shrink-0 text-sage-600" />
+                              어떻게 구현되는가
                             </p>
-                            <p className="mt-2 text-2xs leading-relaxed text-inkbody">
-                              {s.revenueModel}
-                            </p>
+                            <ol className="mt-2 space-y-2">
+                              {s.how.map((h, i) => (
+                                <li key={h} className="flex gap-2.5">
+                                  <span className="num flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-pine-50 text-[0.5625rem] font-bold text-pine-700">
+                                    {i + 1}
+                                  </span>
+                                  <span className="min-w-0 text-xs leading-relaxed text-inkbody">
+                                    {h}
+                                  </span>
+                                </li>
+                              ))}
+                            </ol>
                           </section>
-                        </div>
 
-                        {/* 선행 조건 */}
-                        <section className="flex gap-2.5 rounded-xl border border-line bg-ivory-100/70 p-4">
-                          <TriangleAlert
-                            size={15}
-                            className="mt-0.5 shrink-0 text-inkmuted"
-                          />
-                          <div className="min-w-0">
-                            <p className="text-2xs font-bold text-inkbody">
-                              시작하기 전에 정리되어야 하는 것
-                            </p>
-                            <p className="mt-1 text-2xs leading-relaxed text-inkmuted">
-                              {s.prerequisite}
-                            </p>
+                          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            {/* 고객이 얻는 것 */}
+                            <section className="rounded-xl bg-pine-50/60 p-4">
+                              <p className="text-2xs font-bold text-pine-900">
+                                고객이 얻는 것
+                              </p>
+                              <ul className="mt-2 space-y-1.5">
+                                {s.customerGain.map((c) => (
+                                  <li
+                                    key={c}
+                                    className="flex gap-1.5 text-2xs leading-relaxed text-inkbody"
+                                  >
+                                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-pine-600" />
+                                    <span className="min-w-0">{c}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </section>
+
+                            {/* 수익 구조 */}
+                            <section className="rounded-xl bg-sand-100/50 p-4">
+                              <p className="flex items-center gap-1.5 text-2xs font-bold text-pine-900">
+                                <CircleDollarSign size={13} className="shrink-0 text-sand-600" />
+                                제이랩테크의 수익 구조
+                              </p>
+                              <p className="mt-2 text-2xs leading-relaxed text-inkbody">
+                                {s.revenueModel}
+                              </p>
+                            </section>
                           </div>
-                        </section>
 
-                        {s.stage === "이용 가능" ? (
-                          <Link
-                            href="/customer/equipment"
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-pine-700 transition-colors duration-fast hover:text-pine-600"
-                          >
-                            내 장비에서 바로 요청하기
-                            <ArrowRight size={14} />
-                          </Link>
-                        ) : null}
-                      </div>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-              </Card>
-            </StaggerItem>
-          );
-        })}
-      </Stagger>
+                          {/* 선행 조건 */}
+                          <section className="flex gap-2.5 rounded-xl border border-line bg-ivory-100/70 p-4">
+                            <TriangleAlert
+                              size={15}
+                              className="mt-0.5 shrink-0 text-inkmuted"
+                            />
+                            <div className="min-w-0">
+                              <p className="text-2xs font-bold text-inkbody">
+                                시작하기 전에 정리되어야 하는 것
+                              </p>
+                              <p className="mt-1 text-2xs leading-relaxed text-inkmuted">
+                                {s.prerequisite}
+                              </p>
+                            </div>
+                          </section>
+
+                          {s.stage === "이용 가능" ? (
+                            <Link
+                              href="/customer/equipment"
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-pine-700 transition-colors duration-fast hover:text-pine-600"
+                            >
+                              내 장비에서 바로 요청하기
+                              <ArrowRight size={14} />
+                            </Link>
+                          ) : null}
+                        </div>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </Card>
+              </StaggerItem>
+            );
+          })}
+                </Stagger>
+              </section>
+            );
+          })}
+      </div>
 
       {/* 표기 원칙 */}
-      <Reveal delay={0.12}>
+      <Reveal delay={0.12} className="scroll-mt-20" id="sec-notation">
         <Card className="border-dashed">
           <CardContent className="p-5 md:p-6">
             <p className="text-sm font-bold text-pine-900">표기에 대해</p>

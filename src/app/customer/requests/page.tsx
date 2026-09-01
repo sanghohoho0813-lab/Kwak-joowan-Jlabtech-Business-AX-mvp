@@ -66,7 +66,7 @@ export default function CustomerRequestsPage() {
         </div>
       </Reveal>
 
-      <Reveal delay={0.04}>
+      <Reveal delay={0.04} className="scroll-mt-20" id="sec-filter">
         <div className="flex flex-wrap gap-1.5">
           {filters.map((f) => (
             <button
@@ -115,7 +115,7 @@ export default function CustomerRequestsPage() {
           {filtered.map((r) => {
             const stepIndex = REQUEST_STATUS_FLOW.indexOf(r.status);
             return (
-              <StaggerItem key={r.id}>
+              <StaggerItem key={r.id} id={`req-${r.id}`} className="scroll-mt-20">
                 <Card>
                   <CardContent className="p-5 md:p-6">
                     <div className="flex flex-wrap items-start justify-between gap-3">

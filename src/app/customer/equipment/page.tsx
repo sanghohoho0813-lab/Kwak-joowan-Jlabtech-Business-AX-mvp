@@ -91,7 +91,7 @@ export default function CustomerEquipmentPage() {
       </Reveal>
 
       {/* 검색·필터 */}
-      <Reveal delay={0.04}>
+      <Reveal delay={0.04} className="scroll-mt-20" id="sec-search">
         <div className="space-y-2.5">
           <div className="relative">
             <Search
@@ -149,7 +149,7 @@ export default function CustomerEquipmentPage() {
                 : null;
 
             return (
-              <StaggerItem key={e.id}>
+              <StaggerItem key={e.id} id={`eq-${e.id}`} className="scroll-mt-20">
                 <Card className={cn(isOpen && "shadow-card-hover")}>
                   <CardContent className="p-5 md:p-6">
                     {/* 헤더 */}

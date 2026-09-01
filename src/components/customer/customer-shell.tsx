@@ -14,13 +14,9 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Home,
-  Wrench,
-  Inbox,
-  LayoutGrid,
   Ruler,
-  LayoutDashboard,
   Bell,
+  Menu,
   ChevronDown,
   Building2,
   MapPin,
@@ -32,13 +28,8 @@ import { cn, formatDate } from "@/lib/utils";
 import { demoCustomer } from "@/data/mock/customer-portal";
 import { useStore } from "@/lib/store-context";
 import { DataChip } from "@/components/ui/status-chip";
-
-const nav = [
-  { href: "/customer", label: "홈", icon: Home },
-  { href: "/customer/equipment", label: "내 장비", icon: Wrench },
-  { href: "/customer/requests", label: "요청 내역", icon: Inbox },
-  { href: "/customer/services", label: "서비스", icon: LayoutGrid },
-];
+import { SurfaceSwitcher } from "@/components/layout/surface-switcher";
+import { CustomerDrawer, customerNav as nav } from "@/components/customer/customer-drawer";
 
 /** 회사명 첫 글자로 만드는 계정 아바타 */
 function AccountAvatar({ className }: { className?: string }) {
@@ -144,6 +135,7 @@ function AccountMenu() {
 export function CustomerShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { requests } = useStore();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   /* 답변이 도착했고 아직 끝나지 않은 요청 = 고객이 확인해야 할 건수 */
   const waiting = requests.filter(
@@ -154,14 +146,15 @@ export function CustomerShell({ children }: { children: ReactNode }) {
     <div className="min-h-dvh bg-ivory-300">
       {/* 상단 */}
       <header className="sticky top-0 z-30 border-b border-line bg-ivory-50/95 backdrop-blur-md">
-        <div className="mx-auto flex h-16 w-full max-w-5xl items-center gap-2 px-4 md:gap-3 md:px-6">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 md:gap-3 md:px-6">
           <Link href="/customer" className="flex min-w-0 items-center gap-2.5">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-pine-900 text-sand-400">
               <Ruler size={18} strokeWidth={1.9} />
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-bold leading-tight text-pine-900">
-                제이랩테크 고객 플랫폼
+                <span className="min-[1120px]:hidden">제이랩테크</span>
+                <span className="hidden min-[1120px]:inline">제이랩테크 고객 플랫폼</span>
               </span>
               <span className="block truncate text-2xs leading-tight text-inkmuted">
                 {demoCustomer.company}
@@ -196,9 +189,12 @@ export function CustomerShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-1.5 md:ml-3 md:gap-2">
-            <span className="hidden min-[1180px]:block">
+            <span className="hidden min-[1400px]:block">
               <DataChip />
             </span>
+
+            {/* 화면 전환 — 두 칸을 함께 보여줘 지금 위치를 알 수 있게 한다 */}
+            <SurfaceSwitcher current="customer" />
 
             {/* 알림 — 답변이 온 요청 */}
             <Link
@@ -208,7 +204,7 @@ export function CustomerShell({ children }: { children: ReactNode }) {
             >
               <Bell size={16} strokeWidth={1.75} />
               {waiting > 0 ? (
-                <span className="attention-once absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-sand-500 px-1 text-[0.5625rem] font-bold text-white">
+                <span className="attention-once absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-clay-500 px-1 text-[0.5625rem] font-bold text-white">
                   {waiting}
                 </span>
               ) : null}
@@ -216,21 +212,20 @@ export function CustomerShell({ children }: { children: ReactNode }) {
 
             <AccountMenu />
 
-            {/* Demo 목적의 Surface Switcher */}
-            <Link
-              href="/"
-              className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-line bg-ivory-50 px-2.5 text-xs font-semibold text-inkbody transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50 hover:text-pine-700"
-              title="내부 관리 화면(Business AX)으로 이동 — 시연용"
-              aria-label="관리자 화면으로 이동"
+            {/* 전체 메뉴 + 페이지 목차 */}
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-ivory-50 text-pine-800 transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50"
+              aria-label="전체 메뉴 열기"
             >
-              <LayoutDashboard size={15} strokeWidth={1.9} />
-              <span className="hidden whitespace-nowrap min-[1320px]:inline">관리자 화면</span>
-            </Link>
+              <Menu size={17} strokeWidth={2} />
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 md:px-6 md:pb-12">
+      <main className="mx-auto w-full max-w-6xl px-4 pb-24 pt-6 md:px-6 md:pb-12">
         {children}
       </main>
 
@@ -259,7 +254,7 @@ export function CustomerShell({ children }: { children: ReactNode }) {
                 >
                   <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
                   {badge ? (
-                    <span className="absolute right-1.5 top-0 h-1.5 w-1.5 rounded-full bg-sand-500" />
+                    <span className="absolute right-1.5 top-0 h-1.5 w-1.5 rounded-full bg-clay-500" />
                   ) : null}
                 </span>
                 <span
@@ -275,6 +270,8 @@ export function CustomerShell({ children }: { children: ReactNode }) {
           })}
         </div>
       </nav>
+
+      <CustomerDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
 }

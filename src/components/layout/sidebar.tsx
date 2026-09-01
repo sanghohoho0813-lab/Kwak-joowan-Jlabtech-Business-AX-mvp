@@ -151,10 +151,10 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold text-white">
-              고객 플랫폼 보기
+              고객 화면으로 전환
             </span>
             <span className="block truncate text-[0.625rem] text-white/45">
-              고객이 보는 화면
+              고객이 보는 화면 · 시연용
             </span>
           </span>
           <ArrowUpRight size={14} className="shrink-0 text-white/40" />

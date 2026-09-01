@@ -45,12 +45,12 @@ export function LiveClock() {
 
   return (
     <div
-      className="hidden h-9 shrink-0 items-center gap-2 rounded-xl border border-line bg-ivory-50 px-3 text-xs font-medium text-inkbody min-[1100px]:flex"
+      className="hidden h-9 shrink-0 items-center gap-2 rounded-xl border border-line bg-ivory-50 px-3 text-xs font-medium text-inkbody min-[1180px]:flex"
       aria-label="현재 날짜와 시각"
     >
       <CalendarDays className="h-3.5 w-3.5 shrink-0 text-pine-700" />
       {/* 좁은 화면에서는 시각만 노출해 탑바가 밀리지 않게 한다 */}
-      <span className="num hidden whitespace-nowrap min-[1500px]:inline">{date}</span>
+      <span className="num hidden whitespace-nowrap min-[1700px]:inline">{date}</span>
       <span className="num whitespace-nowrap font-semibold text-pine-800">{time}</span>
     </div>
   );

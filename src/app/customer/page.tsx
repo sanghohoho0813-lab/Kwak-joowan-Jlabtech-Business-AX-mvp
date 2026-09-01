@@ -125,7 +125,7 @@ export default function CustomerHomePage() {
       icon: Package,
       label: "정기 교체 소모품",
       value: `${consumableItems.length}종`,
-      tone: "bg-ivory-200 text-inkbody",
+      tone: "bg-mist-100 text-mist-600",
       href: "/customer/services",
     },
   ];
@@ -146,7 +146,7 @@ export default function CustomerHomePage() {
 
       {/* 확인이 필요한 요청 — 답변이 도착한 건 */}
       {needsAttention.length > 0 ? (
-        <Reveal delay={0.02}>
+        <Reveal delay={0.02} className="scroll-mt-20" id="sec-attention">
           <Link href="/customer/requests" className="block">
             <Card className="border-sand-400/60 bg-sand-100/40 hover:-translate-y-0.5 hover:shadow-card-hover">
               <CardContent className="flex items-start gap-3 p-4 md:p-5">
@@ -169,7 +169,7 @@ export default function CustomerHomePage() {
       ) : null}
 
       {/* 핵심 요약 */}
-      <Stagger className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <Stagger className="grid scroll-mt-20 grid-cols-2 gap-3 lg:grid-cols-4" id="sec-summary">
         {summary.map((s) => {
           const Icon = s.icon;
           return (
@@ -198,7 +198,7 @@ export default function CustomerHomePage() {
       </Stagger>
 
       {/* 다가오는 일정 */}
-      <Reveal delay={0.06}>
+      <Reveal delay={0.06} className="scroll-mt-20" id="sec-schedule">
         <Card>
           <CardContent className="p-5 md:p-6">
             <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -230,14 +230,16 @@ export default function CustomerHomePage() {
                           past
                             ? "bg-red-500"
                             : urgent
-                              ? "bg-sand-500"
-                              : "bg-pine-600",
+                              ? "bg-clay-500"
+                              : ev.kind === "소모품 교체"
+                                ? "bg-mist-500"
+                                : "bg-pine-600",
                         )}
                       />
                       <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5 rounded-xl border border-line/70 bg-ivory-100/60 p-3.5">
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-1.5">
-                            <Badge tone={ev.kind === "정기 교정" ? "success" : "info"}>
+                            <Badge tone={ev.kind === "정기 교정" ? "success" : "clay"}>
                               {ev.kind}
                             </Badge>
                             <span className="num text-2xs font-semibold text-inkbody">
@@ -249,7 +251,7 @@ export default function CustomerHomePage() {
                                 past
                                   ? "text-red-600"
                                   : urgent
-                                    ? "text-sand-600"
+                                    ? "text-clay-600"
                                     : "text-inkmuted",
                               )}
                             >
@@ -284,7 +286,7 @@ export default function CustomerHomePage() {
       </Reveal>
 
       {/* 빠른 요청 */}
-      <Reveal delay={0.1}>
+      <Reveal delay={0.1} className="scroll-mt-20" id="sec-quick">
         <Card>
           <CardContent className="p-5 md:p-6">
             <p className="text-base font-bold text-pine-900">무엇을 도와드릴까요?</p>
@@ -321,7 +323,7 @@ export default function CustomerHomePage() {
       </Reveal>
 
       {/* 최근 요청 */}
-      <Reveal delay={0.14}>
+      <Reveal delay={0.14} className="scroll-mt-20" id="sec-recent">
         <Card>
           <CardContent className="p-5 md:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
@@ -368,7 +370,7 @@ export default function CustomerHomePage() {
       </Reveal>
 
       {/* 관리 중 장비 */}
-      <Reveal delay={0.18}>
+      <Reveal delay={0.18} className="scroll-mt-20" id="sec-equipment">
         <Card>
           <CardContent className="p-5 md:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
@@ -412,7 +414,7 @@ export default function CustomerHomePage() {
       </Reveal>
 
       {/* 서비스 확장 안내 */}
-      <Reveal delay={0.22}>
+      <Reveal delay={0.22} className="scroll-mt-20" id="sec-services">
         <Link href="/customer/services" className="block">
           <Card className="border-pine-100 bg-pine-50/50 hover:-translate-y-0.5 hover:shadow-card-hover">
             <CardContent className="flex items-start gap-3.5 p-5 md:p-6">
@@ -424,7 +426,7 @@ export default function CustomerHomePage() {
                   <p className="text-base font-bold text-pine-900">
                     제이랩테크가 준비하고 있는 서비스
                   </p>
-                  <Badge tone="warning">
+                  <Badge tone="clay">
                     <Sparkles size={11} className="mr-1" />
                     준비 중 4 · 검토 중 4
                   </Badge>

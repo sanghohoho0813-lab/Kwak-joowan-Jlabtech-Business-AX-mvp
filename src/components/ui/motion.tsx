@@ -26,12 +26,16 @@ const itemVariants: Variants = {
 export function Stagger({
   children,
   className,
+  id,
 }: {
   children: ReactNode;
   className?: string;
+  /** 목차에서 이 섹션으로 이동할 때 쓰는 앵커 */
+  id?: string;
 }) {
   return (
     <motion.div
+      id={id}
       className={className}
       variants={containerVariants}
       initial="hidden"
@@ -45,12 +49,14 @@ export function Stagger({
 export function StaggerItem({
   children,
   className,
+  id,
 }: {
   children: ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
-    <motion.div className={className} variants={itemVariants}>
+    <motion.div id={id} className={className} variants={itemVariants}>
       {children}
     </motion.div>
   );
@@ -60,13 +66,17 @@ export function Reveal({
   children,
   className,
   delay = 0,
+  id,
 }: {
   children: ReactNode;
   className?: string;
   delay?: number;
+  /** 목차에서 이 섹션으로 이동할 때 쓰는 앵커 */
+  id?: string;
 }) {
   return (
     <motion.div
+      id={id}
       className={className}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}

@@ -3,12 +3,12 @@
 /**
  * 고객 플랫폼 전체 메뉴 드로어.
  *
- * 화면 이동(메뉴)과 현재 페이지 안의 위치 이동(목차)을 한 곳에 모은다.
- * 페이지가 길어 스크롤로 찾아야 했던 것을 드로어에서 바로 짚어 갈 수 있게 하는 것이
- * 목적이라, 각 페이지마다 그 페이지의 섹션 목록을 따로 만든다.
+ * 구조는 단순하게 — [계정] [기본 메뉴 3개] [서비스 하나만 따로] [화면 전환].
+ * 페이지 안 목차는 두지 않는다. 항목이 많아질수록 무엇이 메뉴인지 흐려진다.
+ * 서비스는 성격이 다른 곳이라 색을 달리해 한 묶음으로 분리한다.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -18,28 +18,24 @@ import {
   Wrench,
   Inbox,
   LayoutGrid,
-  ListTree,
   ChevronRight,
+  Check,
+  ArrowLeftRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { demoCustomer } from "@/data/mock/customer-portal";
-import { repo } from "@/data/repository";
+import { useCustomer } from "@/lib/use-customer";
 import { useStore } from "@/lib/store-context";
+import { repo } from "@/data/repository";
 import { SurfaceSwitcher } from "@/components/layout/surface-switcher";
 import { DataChip } from "@/components/ui/status-chip";
+import { AccountAvatar } from "@/components/customer/account-avatar";
 
+/** 기본 메뉴 3개 — 서비스는 여기 넣지 않는다 */
 export const customerNav = [
   { href: "/customer", label: "홈", icon: Home, hint: "현황과 다가오는 일정" },
   { href: "/customer/equipment", label: "내 장비", icon: Wrench, hint: "교정 시점과 이력" },
   { href: "/customer/requests", label: "요청 내역", icon: Inbox, hint: "진행 상황과 답변" },
-  { href: "/customer/services", label: "서비스", icon: LayoutGrid, hint: "제공 중·준비 중" },
 ];
-
-interface Section {
-  id: string;
-  label: string;
-  note?: string;
-}
 
 export function CustomerDrawer({
   open,
@@ -49,74 +45,18 @@ export function CustomerDrawer({
   onClose: () => void;
 }) {
   const pathname = usePathname();
+  const me = useCustomer();
   const { requests } = useStore();
 
-  const myEquipment = useMemo(
-    () => repo.getInstalledEquipment().filter((e) => e.customerId === demoCustomer.id),
-    [],
-  );
-  const myRequests = useMemo(
-    () =>
-      requests
-        .filter((r) => r.customerId === demoCustomer.id)
-        .sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt)),
-    [requests],
-  );
+  const myEquipment = repo.getInstalledEquipment().filter((e) => e.customerId === me.id);
+  const openRequests = requests.filter((r) => r.customerId === me.id && r.status !== "완료");
+  const catalog = repo.getServiceCatalog();
+  const preparing = catalog.filter((s) => s.stage === "준비 중").length;
 
   const counts: Record<string, string> = {
     "/customer/equipment": `${myEquipment.length}대`,
-    "/customer/requests": `${myRequests.filter((r) => r.status !== "완료").length}건 진행 중`,
-    "/customer/services": "11종",
+    "/customer/requests": `${openRequests.length}건 진행 중`,
   };
-
-  /** 현재 페이지의 목차 */
-  const sections: Section[] = useMemo(() => {
-    if (pathname === "/customer") {
-      const attention = myRequests.filter((r) => r.response && r.status !== "완료").length;
-      return [
-        ...(attention
-          ? [{ id: "sec-attention", label: "확인이 필요한 답변", note: `${attention}건` }]
-          : []),
-        { id: "sec-summary", label: "한눈에 보기" },
-        { id: "sec-schedule", label: "다가오는 일정" },
-        { id: "sec-quick", label: "무엇을 도와드릴까요?" },
-        { id: "sec-recent", label: "보내신 요청" },
-        { id: "sec-journey", label: "앞으로 이렇게 넓어집니다" },
-        { id: "sec-updates", label: "업데이트 소식" },
-      ];
-    }
-    if (pathname === "/customer/equipment") {
-      return [
-        { id: "sec-search", label: "검색·필터" },
-        ...myEquipment.map((e) => ({
-          id: `eq-${e.id}`,
-          label: `${e.itemName} ${e.model}`,
-          note: e.status,
-        })),
-      ];
-    }
-    if (pathname === "/customer/requests") {
-      return [
-        { id: "sec-filter", label: "상태 필터" },
-        ...myRequests.slice(0, 6).map((r) => ({
-          id: `req-${r.id}`,
-          label: r.title,
-          note: r.status,
-        })),
-      ];
-    }
-    if (pathname === "/customer/services") {
-      return [
-        { id: "sec-story", label: "매출 구조가 바뀌는 방향" },
-        { id: "stage-available", label: "이용 가능", note: "3종" },
-        { id: "stage-preparing", label: "준비 중", note: "4종" },
-        { id: "stage-review", label: "검토 중", note: "4종" },
-        { id: "sec-updates", label: "이 플랫폼의 변화" },
-        { id: "sec-notation", label: "표기에 대해" },
-      ];
-    }
-    return [];
-  }, [pathname, myEquipment, myRequests]);
 
   useEffect(() => {
     if (!open) return;
@@ -124,14 +64,6 @@ export function CustomerDrawer({
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
-
-  const goTo = (id: string) => {
-    onClose();
-    // 드로어가 닫히는 동안 기다렸다가 이동한다
-    window.setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 180);
-  };
 
   return (
     <AnimatePresence>
@@ -148,7 +80,7 @@ export function CustomerDrawer({
           />
           <motion.aside
             key="drawer"
-            className="fixed inset-y-0 right-0 z-50 flex w-[21rem] max-w-[88vw] flex-col bg-ivory-50 shadow-card-hover"
+            className="fixed inset-y-0 right-0 z-50 flex w-[21rem] max-w-[88vw] flex-col bg-white shadow-card-hover"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -156,40 +88,79 @@ export function CustomerDrawer({
             aria-label="전체 메뉴"
           >
             {/* 계정 */}
-            <div className="flex items-start gap-2.5 border-b border-line bg-pine-900 p-5 text-white">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sand-500 text-base font-bold text-pine-950">
-                {demoCustomer.company.slice(0, 1)}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="clamp-1 text-base font-bold">{demoCustomer.company}</p>
-                <p className="clamp-1 text-sm text-white/70">
-                  {demoCustomer.contactName} 담당자님 · {demoCustomer.contractType}
-                </p>
-                <span className="mt-2 inline-block">
-                  <DataChip />
-                </span>
+            <div className="border-b border-line bg-pine-900 p-5 text-white">
+              <div className="flex items-start gap-3">
+                <AccountAvatar
+                  id={me.id}
+                  company={me.company}
+                  className="h-11 w-11 text-lg ring-2 ring-white/20"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="clamp-1 text-base font-bold">{me.company}</p>
+                  <p className="clamp-1 text-sm text-white/70">
+                    {me.contactName} 담당자님 · {me.contractType}
+                  </p>
+                  <span className="mt-2 inline-block">
+                    <DataChip />
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="-mr-1 -mt-1 shrink-0 rounded-lg p-1.5 text-white/70 transition-colors duration-fast hover:bg-white/10 hover:text-white"
+                  aria-label="메뉴 닫기"
+                >
+                  <X size={17} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="-mr-1 -mt-1 shrink-0 rounded-lg p-1.5 text-white/70 transition-colors duration-fast hover:bg-white/10 hover:text-white"
-                aria-label="메뉴 닫기"
-              >
-                <X size={16} />
-              </button>
+
+              {/* 고객사 전환 — 시연용 */}
+              <p className="mt-4 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-white/60">
+                <ArrowLeftRight size={12} />
+                다른 고객사 예시로 보기
+              </p>
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                {me.all.map((c) => {
+                  const active = c.id === me.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => me.switchTo(c.id)}
+                      className={cn(
+                        "flex flex-col items-center gap-1.5 rounded-xl border px-1 py-2.5 text-center transition-colors duration-fast",
+                        active
+                          ? "border-sand-400 bg-white/10"
+                          : "border-white/15 hover:bg-white/10",
+                      )}
+                      aria-pressed={active}
+                    >
+                      <span className="relative">
+                        <AccountAvatar id={c.id} company={c.company} className="h-8 w-8 text-xs" />
+                        {active ? (
+                          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-sand-400 text-pine-950">
+                            <Check size={10} strokeWidth={3} />
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="clamp-1 w-full text-[0.6875rem] font-semibold leading-tight">
+                        {c.company}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-4">
-              {/* 메뉴 */}
-              <p className="px-1 text-sm font-bold uppercase tracking-wider text-inkmuted">
+              {/* 기본 메뉴 */}
+              <p className="px-1 text-xs font-bold uppercase tracking-wider text-inkmuted">
                 메뉴
               </p>
               <nav className="mt-2 space-y-1">
                 {customerNav.map((n) => {
                   const active =
-                    n.href === "/customer"
-                      ? pathname === n.href
-                      : pathname.startsWith(n.href);
+                    n.href === "/customer" ? pathname === n.href : pathname.startsWith(n.href);
                   const Icon = n.icon;
                   return (
                     <Link
@@ -198,15 +169,13 @@ export function CustomerDrawer({
                       onClick={onClose}
                       className={cn(
                         "flex items-center gap-3 rounded-xl px-3 py-3 transition-colors duration-fast",
-                        active
-                          ? "bg-pine-50 text-pine-900"
-                          : "text-inkbody hover:bg-ivory-200/70",
+                        active ? "bg-pine-50" : "hover:bg-cloud",
                       )}
                     >
                       <span
                         className={cn(
                           "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-                          active ? "bg-pine-700 text-white" : "bg-ivory-200 text-inkmuted",
+                          active ? "bg-pine-700 text-white" : "bg-cloud text-inkbody",
                         )}
                       >
                         <Icon size={18} strokeWidth={1.9} />
@@ -214,7 +183,7 @@ export function CustomerDrawer({
                       <span className="min-w-0 flex-1">
                         <span
                           className={cn(
-                            "block truncate text-base",
+                            "block truncate text-base text-inkstrong",
                             active ? "font-bold" : "font-semibold",
                           )}
                         >
@@ -223,7 +192,7 @@ export function CustomerDrawer({
                         <span className="clamp-1 block text-sm text-inkmuted">{n.hint}</span>
                       </span>
                       {counts[n.href] ? (
-                        <span className="num shrink-0 whitespace-nowrap rounded-full bg-ivory-200 px-2.5 py-1 text-xs font-bold text-inkmuted">
+                        <span className="num shrink-0 whitespace-nowrap rounded-full bg-cloud px-2.5 py-1 text-xs font-bold text-inkbody">
                           {counts[n.href]}
                         </span>
                       ) : null}
@@ -232,44 +201,45 @@ export function CustomerDrawer({
                 })}
               </nav>
 
-              {/* 이 페이지 목차 */}
-              {sections.length > 0 ? (
-                <>
-                  <p className="mt-6 flex items-center gap-2 px-1 text-sm font-bold uppercase tracking-wider text-inkmuted">
-                    <ListTree size={15} className="shrink-0 text-clay-600" />
-                    이 페이지 목차
-                  </p>
-                  <ul className="mt-2 space-y-0.5 border-l border-line pl-3">
-                    {sections.map((s) => (
-                      <li key={s.id}>
-                        <button
-                          type="button"
-                          onClick={() => goTo(s.id)}
-                          className="group flex w-full items-center gap-2 rounded-lg px-2.5 py-2.5 text-left transition-colors duration-fast hover:bg-clay-100/60"
-                        >
-                          <span className="clamp-1 min-w-0 flex-1 text-base font-semibold text-inkbody group-hover:text-clay-600">
-                            {s.label}
-                          </span>
-                          {s.note ? (
-                            <span className="num shrink-0 whitespace-nowrap text-sm text-inkmuted">
-                              {s.note}
-                            </span>
-                          ) : null}
-                          <ChevronRight
-                            size={15}
-                            className="shrink-0 text-inkmuted/60 transition-transform duration-fast group-hover:translate-x-0.5 group-hover:text-clay-600"
-                          />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : null}
+              {/* 서비스 — 따로 한 묶음 */}
+              <p className="mt-6 px-1 text-xs font-bold uppercase tracking-wider text-inkmuted">
+                서비스
+              </p>
+              <Link
+                href="/customer/services"
+                onClick={onClose}
+                className={cn(
+                  "mt-2 block rounded-2xl border p-4 transition-colors duration-fast",
+                  pathname.startsWith("/customer/services")
+                    ? "border-clay-500 bg-clay-100/70"
+                    : "border-clay-400/50 bg-clay-100/40 hover:bg-clay-100/70",
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-clay-500 text-white">
+                    <LayoutGrid size={20} strokeWidth={1.9} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-base font-bold text-inkstrong">
+                      제이랩테크 서비스
+                    </span>
+                    <span className="block text-sm text-inkbody">
+                      이용 가능 {catalog.length - preparing - catalog.filter((s) => s.stage === "검토 중").length}종 · 준비 중 {preparing}종 · 검토 중{" "}
+                      {catalog.filter((s) => s.stage === "검토 중").length}종
+                    </span>
+                  </span>
+                  <ChevronRight size={18} className="shrink-0 text-clay-600" />
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-inkbody">
+                  지금 되는 것과 앞으로 열릴 것을 한곳에 정리했습니다. 관심 있는 서비스에 표시를
+                  남기실 수 있습니다.
+                </p>
+              </Link>
             </div>
 
             {/* 화면 전환 */}
-            <div className="border-t border-line bg-ivory-100/70 p-4">
-              <p className="mb-2 px-1 text-sm font-bold uppercase tracking-wider text-inkmuted">
+            <div className="border-t border-line bg-cloud p-4">
+              <p className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-inkmuted">
                 화면 전환
               </p>
               <SurfaceSwitcher current="customer" expanded />

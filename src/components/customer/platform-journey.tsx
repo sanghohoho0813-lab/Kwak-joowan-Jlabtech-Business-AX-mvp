@@ -50,9 +50,9 @@ export function PlatformJourney({ interestCount = 0 }: { interestCount?: number 
     ).length;
 
   return (
-    <div className="rounded-2xl border border-line bg-ivory-50 p-5 shadow-card md:p-6">
+    <div className="rounded-2xl border border-line bg-white p-5 shadow-card md:p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-lg font-bold text-pine-900 md:text-xl">
+        <p className="text-lg font-bold text-inkstrong md:text-xl">
           이 플랫폼이 가는 방향
         </p>
         <Badge size="md" tone="outline">
@@ -97,7 +97,7 @@ export function PlatformJourney({ interestCount = 0 }: { interestCount?: number 
                     {here ? <Check size={18} strokeWidth={3} /> : st.no}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-base font-bold text-pine-900 md:text-lg">
+                    <span className="block text-base font-bold text-inkstrong md:text-lg">
                       {st.name}
                     </span>
                   </span>

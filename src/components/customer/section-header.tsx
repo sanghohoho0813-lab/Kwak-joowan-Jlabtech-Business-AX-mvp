@@ -52,7 +52,7 @@ export function SectionHeader({
           <Icon size={21} strokeWidth={1.9} />
         </span>
         <div className="min-w-0 flex-1 pt-0.5">
-          <h2 className="text-lg font-bold leading-tight text-pine-900 md:text-xl">{title}</h2>
+          <h2 className="text-lg font-bold leading-tight text-inkstrong md:text-xl">{title}</h2>
           {desc ? (
             <p className="mt-1 text-sm leading-relaxed text-inkmuted">{desc}</p>
           ) : null}
@@ -76,7 +76,7 @@ export function SectionAction({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 whitespace-nowrap rounded-lg border border-line bg-ivory-50 px-3 py-2 text-sm font-semibold text-pine-700 transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50",
+        "inline-flex items-center gap-1 whitespace-nowrap rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-pine-700 transition-colors duration-fast hover:border-pine-100 hover:bg-pine-50",
         className,
       )}
     >

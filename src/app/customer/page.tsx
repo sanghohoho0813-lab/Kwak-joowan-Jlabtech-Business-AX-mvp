@@ -15,6 +15,11 @@ import {
   ListChecks,
   Route,
   Megaphone,
+  Package,
+  RefreshCcw,
+  Ruler,
+  MessageSquare,
+  type LucideIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,9 +29,10 @@ import { RequestStatusBadge } from "@/components/customer/status-badge";
 import { SectionHeader, SectionAction } from "@/components/customer/section-header";
 import { PlatformJourney } from "@/components/customer/platform-journey";
 import { PlatformUpdates } from "@/components/customer/platform-updates";
+import { AccountAvatar } from "@/components/customer/account-avatar";
 import { useStore } from "@/lib/store-context";
+import { useCustomer } from "@/lib/use-customer";
 import { repo } from "@/data/repository";
-import { demoCustomer } from "@/data/mock/customer-portal";
 import { cn, formatDate, dday, daysLeft, addMonths } from "@/lib/utils";
 import type { RequestType, InstalledEquipment } from "@/data/types";
 
@@ -71,21 +77,57 @@ const howItWorks = [
   { icon: ListChecks, label: "진행 상황 확인", desc: "답변이 오면 알려드립니다" },
 ];
 
+/**
+ * 요청 유형마다 색을 달리한다.
+ * 다섯 개가 전부 초록이면 구분이 안 되고, 화면 전체가 한 톤으로 가라앉는다.
+ */
+const requestTone: Record<
+  RequestType,
+  { icon: LucideIcon; chip: string; hover: string }
+> = {
+  "교정 요청": {
+    icon: CalendarCheck,
+    chip: "bg-pine-700 text-white",
+    hover: "hover:border-pine-600 hover:bg-pine-50",
+  },
+  "소모품 요청": {
+    icon: Package,
+    chip: "bg-clay-500 text-white",
+    hover: "hover:border-clay-500 hover:bg-clay-100/60",
+  },
+  "재구매 요청": {
+    icon: RefreshCcw,
+    chip: "bg-mist-600 text-white",
+    hover: "hover:border-mist-600 hover:bg-mist-100",
+  },
+  "추가 계측 상담": {
+    icon: Ruler,
+    chip: "bg-sand-600 text-white",
+    hover: "hover:border-sand-600 hover:bg-sand-100",
+  },
+  "장비 문의": {
+    icon: MessageSquare,
+    chip: "bg-sage-600 text-white",
+    hover: "hover:border-sage-600 hover:bg-sage-100",
+  },
+};
+
 export default function CustomerHomePage() {
+  const me = useCustomer();
   const { requests, interests } = useStore();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<RequestType>("교정 요청");
 
   const myEquipment = useMemo(
-    () => repo.getInstalledEquipment().filter((e) => e.customerId === demoCustomer.id),
-    [],
+    () => repo.getInstalledEquipment().filter((e) => e.customerId === me.id),
+    [me.id],
   );
   const myRequests = useMemo(
     () =>
       requests
-        .filter((r) => r.customerId === demoCustomer.id)
+        .filter((r) => r.customerId === me.id)
         .sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt)),
-    [requests],
+    [requests, me.id],
   );
 
   const schedule = useMemo(() => buildSchedule(myEquipment), [myEquipment]);
@@ -96,6 +138,7 @@ export default function CustomerHomePage() {
   });
   const openRequests = myRequests.filter((r) => r.status !== "완료");
   const needsAttention = myRequests.filter((r) => r.response && r.status !== "완료");
+  const myInterests = interests.filter((i) => i.customerId === me.id).length;
 
   const openDialog = (t: RequestType) => {
     setDialogType(t);
@@ -109,7 +152,7 @@ export default function CustomerHomePage() {
       label: "관리 중인 장비",
       value: myEquipment.length,
       unit: "대",
-      tone: "bg-pine-50 text-pine-700",
+      tone: "bg-pine-700 text-white",
       href: "/customer/equipment",
     },
     {
@@ -117,7 +160,7 @@ export default function CustomerHomePage() {
       label: "곧 교정할 장비",
       value: calibrationSoon.length,
       unit: "대",
-      tone: "bg-sand-100 text-sand-600",
+      tone: "bg-sand-600 text-white",
       href: "/customer/equipment",
     },
     {
@@ -125,44 +168,61 @@ export default function CustomerHomePage() {
       label: "진행 중인 요청",
       value: openRequests.length,
       unit: "건",
-      tone: "bg-mist-100 text-mist-600",
+      tone: "bg-mist-600 text-white",
       href: "/customer/requests",
     },
   ];
 
   return (
     <div className="space-y-10">
-      {/* 인사 */}
+      {/* 인사 — 딥그린 히어로. 첫 화면에 확실한 대비를 준다 */}
       <Reveal>
-        <h1 className="text-2xl font-bold leading-tight tracking-tight text-pine-900 md:text-3xl">
-          {demoCustomer.company} {demoCustomer.contactName} 담당자님
-        </h1>
-        <p className="mt-3 text-base leading-relaxed text-inkbody md:text-lg">
-          제이랩테크와 함께 관리 중인 계측장비 현황입니다.
-        </p>
-      </Reveal>
+        <div className="relative overflow-hidden rounded-3xl bg-pine-900 p-6 text-white shadow-card-hover md:p-8">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-pine-700/60 blur-2xl"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -bottom-20 right-24 h-48 w-48 rounded-full bg-sand-500/25 blur-2xl"
+          />
+          <div className="relative flex flex-wrap items-start gap-4">
+            <AccountAvatar
+              id={me.id}
+              company={me.company}
+              className="h-14 w-14 text-xl ring-4 ring-white/15"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-sand-400">
+                {me.segment} · {me.region}
+              </p>
+              <h1 className="mt-1 text-2xl font-bold leading-tight tracking-tight md:text-3xl">
+                {me.company} {me.contactName} 담당자님
+              </h1>
+              <p className="mt-2 text-base leading-relaxed text-white/80 md:text-lg">
+                제이랩테크와 함께 관리 중인 계측장비 {myEquipment.length}대의 현황입니다.
+              </p>
+            </div>
+          </div>
 
-      {/* 사용 흐름 — 3단계 */}
-      <Reveal delay={0.02}>
-        <div className="rounded-2xl border border-line bg-ivory-100/70 p-4 md:p-5">
-          <p className="mb-3 text-sm font-bold text-inkmuted">이렇게 사용하시면 됩니다</p>
-          <ol className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+          {/* 사용 흐름 — 히어로 안에 3단계 */}
+          <ol className="relative mt-6 grid grid-cols-1 gap-2 sm:grid-cols-3">
             {howItWorks.map((h, i) => {
               const Icon = h.icon;
               return (
                 <li
                   key={h.label}
-                  className="flex items-center gap-3 rounded-xl bg-ivory-50 p-3.5"
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] p-3.5 backdrop-blur-sm"
                 >
-                  <span className="num flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-pine-800 text-base font-bold text-white">
+                  <span className="num flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sand-500 text-base font-bold text-pine-950">
                     {i + 1}
                   </span>
                   <span className="min-w-0">
-                    <span className="flex items-center gap-1.5 text-base font-bold text-pine-900">
-                      <Icon size={16} strokeWidth={2} className="shrink-0 text-pine-600" />
+                    <span className="flex items-center gap-1.5 text-base font-bold">
+                      <Icon size={16} strokeWidth={2} className="shrink-0 text-sand-400" />
                       {h.label}
                     </span>
-                    <span className="mt-0.5 block text-sm leading-snug text-inkmuted">
+                    <span className="mt-0.5 block text-sm leading-snug text-white/70">
                       {h.desc}
                     </span>
                   </span>
@@ -176,28 +236,21 @@ export default function CustomerHomePage() {
       {/* 확인이 필요한 답변 */}
       {needsAttention.length > 0 ? (
         <Reveal delay={0.04} className="scroll-mt-24" id="sec-attention">
-          <SectionHeader
-            icon={MessageCircle}
-            tone="clay"
-            title="확인하실 답변이 있습니다"
-            desc="제이랩테크가 보내드린 내용입니다."
-          />
           <Link href="/customer/requests" className="block">
-            <Card className="border-clay-400/60 bg-clay-100/50 hover:-translate-y-0.5 hover:shadow-card-hover">
-              <CardContent className="flex items-center gap-4 p-5 md:p-6">
-                <div className="min-w-0 flex-1">
-                  <p className="text-base font-bold text-pine-900">
-                    답변 {needsAttention.length}건이 도착했습니다
-                  </p>
-                  <p className="clamp-2 mt-1.5 text-sm leading-relaxed text-inkbody">
-                    {needsAttention[0].response}
-                  </p>
-                </div>
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-clay-500 text-white">
-                  <ChevronRight size={20} />
-                </span>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-4 rounded-2xl border-2 border-clay-500 bg-white p-5 shadow-card transition-all duration-base hover:-translate-y-0.5 hover:shadow-card-hover md:p-6">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-clay-500 text-white">
+                <MessageCircle size={26} strokeWidth={1.9} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-lg font-bold text-inkstrong">
+                  확인하실 답변이 {needsAttention.length}건 있습니다
+                </p>
+                <p className="clamp-2 mt-1 text-base leading-relaxed text-inkbody">
+                  {needsAttention[0].response}
+                </p>
+              </div>
+              <ChevronRight size={24} className="shrink-0 text-clay-600" />
+            </div>
           </Link>
         </Reveal>
       ) : null}
@@ -211,11 +264,11 @@ export default function CustomerHomePage() {
             return (
               <StaggerItem key={s.label}>
                 <Link href={s.href} className="block h-full">
-                  <Card className="h-full hover:-translate-y-0.5 hover:shadow-card-hover">
+                  <Card className="h-full border-transparent bg-white hover:-translate-y-0.5 hover:shadow-card-hover">
                     <CardContent className="flex h-full items-center gap-4 p-5">
                       <span
                         className={cn(
-                          "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl",
+                          "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl shadow-sm",
                           s.tone,
                         )}
                       >
@@ -225,7 +278,7 @@ export default function CustomerHomePage() {
                         <p className="text-sm font-semibold leading-snug text-inkmuted">
                           {s.label}
                         </p>
-                        <p className="num mt-1 text-3xl font-bold leading-none text-pine-900">
+                        <p className="num mt-1 text-3xl font-bold leading-none text-inkstrong">
                           {s.value}
                           <span className="ml-1 text-base font-semibold text-inkmuted">
                             {s.unit}
@@ -256,7 +309,7 @@ export default function CustomerHomePage() {
             </Link>
           }
         />
-        <Card>
+        <Card className="border-transparent bg-white">
           <CardContent className="p-4 md:p-5">
             {schedule.length === 0 ? (
               <p className="rounded-xl border border-dashed border-line py-10 text-center text-base text-inkmuted">
@@ -268,16 +321,19 @@ export default function CustomerHomePage() {
                   const left = daysLeft(ev.date);
                   const urgent = left >= 0 && left <= 30;
                   const past = left < 0;
+                  const isCal = ev.kind === "정기 교정";
                   return (
                     <li
                       key={ev.key}
                       className={cn(
-                        "rounded-2xl border p-4",
+                        "rounded-2xl border-l-4 bg-cloud p-4",
                         past
-                          ? "border-red-200 bg-red-50/50"
+                          ? "border-red-500"
                           : urgent
-                            ? "border-sand-400/50 bg-sand-100/40"
-                            : "border-line bg-ivory-100/60",
+                            ? "border-sand-600"
+                            : isCal
+                              ? "border-pine-600"
+                              : "border-mist-500",
                       )}
                     >
                       <div className="flex items-start gap-3.5">
@@ -290,7 +346,7 @@ export default function CustomerHomePage() {
                                 ? "text-red-600"
                                 : urgent
                                   ? "text-sand-600"
-                                  : "text-pine-800",
+                                  : "text-inkstrong",
                             )}
                           >
                             {dday(ev.date)}
@@ -301,13 +357,10 @@ export default function CustomerHomePage() {
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <Badge
-                            size="md"
-                            tone={ev.kind === "정기 교정" ? "success" : "mist"}
-                          >
+                          <Badge size="md" tone={isCal ? "success" : "mist"}>
                             {ev.kind}
                           </Badge>
-                          <p className="clamp-2 mt-1.5 text-base font-bold leading-snug text-pine-900">
+                          <p className="clamp-2 mt-1.5 text-base font-bold leading-snug text-inkstrong">
                             {ev.detail}
                           </p>
                           <p className="clamp-1 mt-1 flex items-center gap-1.5 text-sm text-inkmuted">
@@ -316,25 +369,27 @@ export default function CustomerHomePage() {
                           </p>
                         </div>
 
-                        {/* 넓은 화면에서는 오른쪽에 붙인다 */}
                         <button
                           type="button"
-                          onClick={() =>
-                            openDialog(ev.kind === "정기 교정" ? "교정 요청" : "소모품 요청")
-                          }
-                          className="hidden h-12 shrink-0 self-center whitespace-nowrap rounded-xl bg-pine-700 px-6 text-base font-bold text-white shadow-sm transition-colors duration-fast hover:bg-pine-600 sm:block"
+                          onClick={() => openDialog(isCal ? "교정 요청" : "소모품 요청")}
+                          className={cn(
+                            "hidden h-12 shrink-0 self-center whitespace-nowrap rounded-xl px-6 text-base font-bold text-white shadow-sm transition-colors duration-fast sm:block",
+                            isCal
+                              ? "bg-pine-700 hover:bg-pine-600"
+                              : "bg-mist-600 hover:bg-mist-500",
+                          )}
                         >
                           요청하기
                         </button>
                       </div>
 
-                      {/* 좁은 화면에서는 아래에 꽉 차게 */}
                       <button
                         type="button"
-                        onClick={() =>
-                          openDialog(ev.kind === "정기 교정" ? "교정 요청" : "소모품 요청")
-                        }
-                        className="mt-3 h-12 w-full whitespace-nowrap rounded-xl bg-pine-700 text-base font-bold text-white shadow-sm transition-colors duration-fast hover:bg-pine-600 sm:hidden"
+                        onClick={() => openDialog(isCal ? "교정 요청" : "소모품 요청")}
+                        className={cn(
+                          "mt-3 h-12 w-full whitespace-nowrap rounded-xl text-base font-bold text-white shadow-sm transition-colors duration-fast sm:hidden",
+                          isCal ? "bg-pine-700 hover:bg-pine-600" : "bg-mist-600 hover:bg-mist-500",
+                        )}
                       >
                         요청하기
                       </button>
@@ -347,37 +402,46 @@ export default function CustomerHomePage() {
         </Card>
       </Reveal>
 
-      {/* 요청하기 */}
+      {/* 요청하기 — 유형마다 다른 색 */}
       <Reveal delay={0.1} className="scroll-mt-24" id="sec-quick">
         <SectionHeader
           icon={Send}
           title="무엇을 도와드릴까요?"
           desc="누르시면 바로 요청이 접수되고, 담당자가 확인 후 알려드립니다."
         />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {REQUEST_TYPES.map((r) => {
-            const Icon = r.icon;
+            const tone = requestTone[r.type];
+            const Icon = tone.icon;
             return (
               <button
                 key={r.type}
                 type="button"
                 onClick={() => openDialog(r.type)}
-                className="group flex items-center gap-4 rounded-2xl border border-line bg-ivory-50 p-5 text-left shadow-card transition-all duration-base hover:-translate-y-0.5 hover:border-pine-200 hover:bg-pine-50/60 hover:shadow-card-hover"
+                className={cn(
+                  "group flex items-center gap-4 rounded-2xl border-2 border-transparent bg-white p-5 text-left shadow-card transition-all duration-base hover:-translate-y-0.5 hover:shadow-card-hover",
+                  tone.hover,
+                )}
               >
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-pine-50 text-pine-700 transition-colors duration-base group-hover:bg-pine-700 group-hover:text-white">
+                <span
+                  className={cn(
+                    "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl shadow-sm",
+                    tone.chip,
+                  )}
+                >
                   <Icon size={24} strokeWidth={1.9} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-base font-bold text-pine-900 md:text-lg">
+                  <span className="block text-base font-bold text-inkstrong md:text-lg">
                     {r.type}
                   </span>
-                  <span className="clamp-2 mt-1 block text-sm leading-snug text-inkmuted">
+                  <span className="clamp-2 mt-1 block text-sm leading-snug text-inkbody">
                     {r.hint}
                   </span>
                 </span>
                 <ArrowRight
                   size={20}
-                  className="shrink-0 text-inkmuted transition-transform duration-base group-hover:translate-x-1 group-hover:text-pine-700"
+                  className="shrink-0 text-inkmuted transition-transform duration-base group-hover:translate-x-1 group-hover:text-inkstrong"
                 />
               </button>
             );
@@ -401,7 +465,7 @@ export default function CustomerHomePage() {
           }
         />
         {myRequests.length === 0 ? (
-          <Card className="border-dashed">
+          <Card className="border-dashed bg-white">
             <CardContent className="py-12 text-center">
               <p className="text-base text-inkmuted">아직 보내신 요청이 없습니다.</p>
             </CardContent>
@@ -410,10 +474,10 @@ export default function CustomerHomePage() {
           <div className="space-y-3">
             {myRequests.slice(0, 3).map((r) => (
               <Link key={r.id} href="/customer/requests" className="block">
-                <Card className="hover:-translate-y-0.5 hover:shadow-card-hover">
+                <Card className="border-transparent bg-white hover:-translate-y-0.5 hover:shadow-card-hover">
                   <CardContent className="p-5">
                     <div className="flex flex-wrap items-start justify-between gap-3">
-                      <p className="clamp-2 min-w-0 flex-1 text-base font-bold text-pine-900">
+                      <p className="clamp-2 min-w-0 flex-1 text-base font-bold text-inkstrong">
                         {r.title}
                       </p>
                       <RequestStatusBadge status={r.status} size="md" />
@@ -422,7 +486,7 @@ export default function CustomerHomePage() {
                       {r.requestType} · {formatDate(r.createdAt)} 접수
                     </p>
                     {r.response ? (
-                      <p className="clamp-2 mt-3 rounded-xl bg-pine-50/80 p-3.5 text-sm leading-relaxed text-pine-900">
+                      <p className="clamp-2 mt-3 rounded-xl border-l-4 border-mist-500 bg-mist-100 p-3.5 text-sm leading-relaxed text-inkstrong">
                         {r.response}
                       </p>
                     ) : null}
@@ -449,9 +513,7 @@ export default function CustomerHomePage() {
             </Link>
           }
         />
-        <PlatformJourney
-          interestCount={interests.filter((i) => i.customerId === demoCustomer.id).length}
-        />
+        <PlatformJourney interestCount={myInterests} />
       </Reveal>
 
       {/* 업데이트 소식 */}

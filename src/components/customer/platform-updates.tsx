@@ -38,7 +38,7 @@ export function PlatformUpdates({ limit }: { limit?: number }) {
             className={cn(
               "flex gap-3.5 rounded-2xl border p-4 md:p-5",
               u.state === "적용됨"
-                ? "border-line bg-ivory-50"
+                ? "border-line bg-white"
                 : u.state === "다음 예정"
                   ? "border-clay-400/50 bg-clay-100/40"
                   : "border-dashed border-mist-200 bg-mist-100/40",
@@ -54,7 +54,7 @@ export function PlatformUpdates({ limit }: { limit?: number }) {
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-base font-bold text-pine-900 md:text-lg">{u.title}</p>
+                <p className="text-base font-bold text-inkstrong md:text-lg">{u.title}</p>
                 <Badge tone={st.badge}>{u.state}</Badge>
                 <span className="num text-sm text-inkmuted">
                   {u.version} · {u.date}

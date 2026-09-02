@@ -10,15 +10,38 @@ import type {
  * 실제 서비스에서는 로그인 세션에서 가져온다. 지금은 기존 mock 고객사 중
  * 한 곳(한성정밀화학, c-01)에 로그인했다고 가정한다.
  */
-export const demoCustomer: CustomerAccount = {
-  id: "c-01",
-  company: "한성정밀화학",
-  contactName: "김현우",
-  segment: "제조 공장",
-  region: "울산",
-  contractType: "건별 거래",
-  since: "2024-02-18",
-};
+export const demoCustomers: CustomerAccount[] = [
+  {
+    id: "c-01",
+    company: "한성정밀화학",
+    contactName: "김현우",
+    segment: "제조 공장",
+    region: "울산",
+    contractType: "건별 거래",
+    since: "2024-02-18",
+  },
+  {
+    id: "c-02",
+    company: "대한환경기술원",
+    contactName: "박서연",
+    segment: "환경 관리",
+    region: "대전",
+    contractType: "건별 거래",
+    since: "2025-03-05",
+  },
+  {
+    id: "c-03",
+    company: "서진플랜트",
+    contactName: "이도현",
+    segment: "현장 운영",
+    region: "여수",
+    contractType: "건별 거래",
+    since: "2024-05-14",
+  },
+];
+
+/** 기본으로 보여주는 고객사 — 시연 시작 시점의 계정 */
+export const demoCustomer: CustomerAccount = demoCustomers[0];
 
 /**
  * 데모 시작 시점에 이미 처리 중인 요청 몇 건.
@@ -66,6 +89,47 @@ export const seedRequests: CustomerRequest[] = [
     status: "검토 중",
     createdAt: "2026-08-18T05:40:00.000Z",
     updatedAt: "2026-08-19T00:30:00.000Z",
+  },
+  {
+    id: "req-seed-4",
+    customerId: "c-02",
+    customerName: "대한환경기술원",
+    requestType: "교정 요청",
+    equipmentId: "eq-03",
+    equipmentName: "다항목 수질 측정기 WM-700",
+    title: "수질실험동 측정기 9월 교정 일정 요청",
+    detail: "9월 8일 교정 예정일 전주에 방문 가능하신지 확인 부탁드립니다. 실험 일정상 오전이 좋습니다.",
+    status: "처리 중",
+    createdAt: "2026-08-11T02:15:00.000Z",
+    updatedAt: "2026-08-16T06:20:00.000Z",
+    response: "9월 3일(목) 오전 10시 방문으로 확정했습니다. 교정 후 성적서는 방문 당일 전달드립니다.",
+  },
+  {
+    id: "req-seed-5",
+    customerId: "c-02",
+    customerName: "대한환경기술원",
+    requestType: "장비 문의",
+    equipmentId: "eq-04",
+    equipmentName: "데이터로거 DL-500",
+    title: "측정망 A지점 로거 저장 주기 변경 문의",
+    detail: "저장 주기를 10분에서 5분으로 바꾸고 싶습니다. 배터리 소모에 영향이 있는지 궁금합니다.",
+    status: "접수",
+    createdAt: "2026-08-19T08:05:00.000Z",
+    updatedAt: "2026-08-19T08:05:00.000Z",
+  },
+  {
+    id: "req-seed-6",
+    customerId: "c-03",
+    customerName: "서진플랜트",
+    requestType: "재구매 요청",
+    equipmentId: "eq-05",
+    equipmentName: "진동 센서 VS-300",
+    title: "4단지 회전기계실 진동 센서 추가 도입",
+    detail: "3단지와 같은 구성으로 4단지에도 설치하려 합니다. 보증 만료된 기존 센서 점검도 함께 부탁드립니다.",
+    status: "일정·견적 제안",
+    createdAt: "2026-08-07T01:30:00.000Z",
+    updatedAt: "2026-08-13T05:10:00.000Z",
+    response: "4단지 40포인트 기준 견적과 기존 센서 점검 일정을 함께 보내드렸습니다. 확인 부탁드립니다.",
   },
 ];
 

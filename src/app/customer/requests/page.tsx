@@ -10,7 +10,7 @@ import { RequestDialog } from "@/components/customer/request-dialog";
 import { RequestStatusBadge } from "@/components/customer/status-badge";
 import { useStore } from "@/lib/store-context";
 import { repo } from "@/data/repository";
-import { demoCustomer } from "@/data/mock/customer-portal";
+import { useCustomer } from "@/lib/use-customer";
 import { cn, formatDateTime } from "@/lib/utils";
 import { REQUEST_STATUS_FLOW } from "@/data/types";
 import type { RequestStatus } from "@/data/types";
@@ -27,21 +27,22 @@ const nextStepText: Record<RequestStatus, string> = {
 };
 
 export default function CustomerRequestsPage() {
+  const me = useCustomer();
   const { requests } = useStore();
   const [filter, setFilter] = useState<(typeof filters)[number]>("전체");
   const [open, setOpen] = useState(false);
 
   const myEquipment = useMemo(
-    () => repo.getInstalledEquipment().filter((e) => e.customerId === demoCustomer.id),
-    [],
+    () => repo.getInstalledEquipment().filter((e) => e.customerId === me.id),
+    [me.id],
   );
 
   const mine = useMemo(
     () =>
       requests
-        .filter((r) => r.customerId === demoCustomer.id)
+        .filter((r) => r.customerId === me.id)
         .sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt)),
-    [requests],
+    [requests, me.id],
   );
 
   const filtered = mine.filter((r) =>
@@ -53,7 +54,7 @@ export default function CustomerRequestsPage() {
       <Reveal>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold leading-tight tracking-tight text-pine-900 md:text-3xl">
+            <h1 className="text-2xl font-bold leading-tight tracking-tight text-inkstrong md:text-3xl">
               요청 내역
             </h1>
             <p className="mt-3 text-base leading-relaxed text-inkbody md:text-lg">
@@ -77,7 +78,7 @@ export default function CustomerRequestsPage() {
                 "h-11 whitespace-nowrap rounded-full border px-5 text-sm font-bold transition-colors duration-fast",
                 filter === f
                   ? "border-pine-700 bg-pine-700 text-white shadow-sm"
-                  : "border-line bg-ivory-50 text-inkbody hover:border-pine-200 hover:bg-pine-50",
+                  : "border-line bg-white text-inkbody hover:border-pine-200 hover:bg-pine-50",
               )}
             >
               {f}
@@ -97,10 +98,10 @@ export default function CustomerRequestsPage() {
         <Reveal delay={0.08}>
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center gap-4 px-6 py-14 text-center">
-              <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-ivory-200 text-inkmuted">
+              <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cloud text-inkmuted">
                 <Inbox size={28} />
               </span>
-              <p className="text-lg font-bold text-pine-900">해당하는 요청이 없습니다</p>
+              <p className="text-lg font-bold text-inkstrong">해당하는 요청이 없습니다</p>
               <p className="max-w-sm text-base leading-relaxed text-inkmuted">
                 교정·소모품·추가 계측이 필요하시면 새 요청을 보내주세요.
               </p>
@@ -122,7 +123,7 @@ export default function CustomerRequestsPage() {
                     {/* 제목 · 상태 */}
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <p className="clamp-2 text-lg font-bold leading-snug text-pine-900 md:text-xl">
+                        <p className="clamp-2 text-lg font-bold leading-snug text-inkstrong md:text-xl">
                           {r.title}
                         </p>
                         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
@@ -142,12 +143,12 @@ export default function CustomerRequestsPage() {
                     </div>
 
                     {/* 진행 단계 — 지금 어디인지 한 줄로 먼저 말한다 */}
-                    <div className="mt-5 rounded-2xl border border-line bg-ivory-100/70 p-4">
+                    <div className="mt-5 rounded-2xl border border-line bg-cloud p-4">
                       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
                         <span className="num text-sm font-bold text-inkmuted">
                           {stepIndex + 1} / {REQUEST_STATUS_FLOW.length} 단계
                         </span>
-                        <span className="text-base font-bold text-pine-900">
+                        <span className="text-base font-bold text-inkstrong">
                           지금은 &lsquo;{r.status}&rsquo; 입니다
                         </span>
                       </div>
@@ -195,7 +196,7 @@ export default function CustomerRequestsPage() {
                           ? "bg-pine-50"
                           : r.response
                             ? "border border-clay-400/50 bg-clay-100/50"
-                            : "border border-line bg-ivory-100/70",
+                            : "border border-line bg-cloud",
                       )}
                     >
                       <span
@@ -205,7 +206,7 @@ export default function CustomerRequestsPage() {
                             ? "bg-pine-600 text-white"
                             : r.response
                               ? "bg-clay-500 text-white"
-                              : "bg-ivory-200 text-inkmuted",
+                              : "bg-cloud text-inkmuted",
                         )}
                       >
                         {done ? (
@@ -217,7 +218,7 @@ export default function CustomerRequestsPage() {
                         )}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-base font-bold text-pine-900">
+                        <p className="text-base font-bold text-inkstrong">
                           {r.response ? "제이랩테크 답변" : "지금 진행 상황"}
                         </p>
                         <p className="mt-1.5 text-base leading-relaxed text-inkbody">

@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { RequestDialog } from "@/components/customer/request-dialog";
 import { repo } from "@/data/repository";
-import { demoCustomer } from "@/data/mock/customer-portal";
+import { useCustomer } from "@/lib/use-customer";
 import { cn, formatDate, dday, daysLeft, addMonths } from "@/lib/utils";
 import type { EquipmentStatus, InstalledEquipment, RequestType } from "@/data/types";
 
@@ -37,9 +37,10 @@ const filters = ["전체", "교정 임박", "소모품 있음", "보증 중"] as
 type Filter = (typeof filters)[number];
 
 export default function CustomerEquipmentPage() {
+  const me = useCustomer();
   const myEquipment = useMemo(
-    () => repo.getInstalledEquipment().filter((e) => e.customerId === demoCustomer.id),
-    [],
+    () => repo.getInstalledEquipment().filter((e) => e.customerId === me.id),
+    [me.id],
   );
 
   const [query, setQuery] = useState("");
@@ -82,7 +83,7 @@ export default function CustomerEquipmentPage() {
   return (
     <div className="space-y-6">
       <Reveal>
-        <h1 className="text-2xl font-bold leading-tight tracking-tight text-pine-900 md:text-3xl">
+        <h1 className="text-2xl font-bold leading-tight tracking-tight text-inkstrong md:text-3xl">
           내 장비
         </h1>
         <p className="mt-3 text-base leading-relaxed text-inkbody md:text-lg">
@@ -104,7 +105,7 @@ export default function CustomerEquipmentPage() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="장비 이름으로 찾기"
               aria-label="장비 검색"
-              className="h-14 w-full rounded-2xl border border-line bg-ivory-50 pl-12 pr-4 text-base text-inkbody shadow-card placeholder:text-inkmuted/70 focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
+              className="h-14 w-full rounded-2xl border border-line bg-white pl-12 pr-4 text-base text-inkbody shadow-card placeholder:text-inkmuted/70 focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
             />
           </div>
           <div className="flex flex-wrap gap-2">
@@ -117,7 +118,7 @@ export default function CustomerEquipmentPage() {
                   "h-11 whitespace-nowrap rounded-full border px-5 text-sm font-bold transition-colors duration-fast",
                   filter === f
                     ? "border-pine-700 bg-pine-700 text-white shadow-sm"
-                    : "border-line bg-ivory-50 text-inkbody hover:border-pine-200 hover:bg-pine-50",
+                    : "border-line bg-white text-inkbody hover:border-pine-200 hover:bg-pine-50",
                 )}
               >
                 {f}
@@ -132,7 +133,7 @@ export default function CustomerEquipmentPage() {
         <Reveal delay={0.08}>
           <Card className="border-dashed">
             <CardContent className="px-6 py-14 text-center">
-              <p className="text-lg font-bold text-pine-900">찾으시는 장비가 없습니다</p>
+              <p className="text-lg font-bold text-inkstrong">찾으시는 장비가 없습니다</p>
               <p className="mt-2 text-base text-inkmuted">검색어나 조건을 바꿔 보세요.</p>
             </CardContent>
           </Card>
@@ -159,7 +160,7 @@ export default function CustomerEquipmentPage() {
                           <Wrench size={26} strokeWidth={1.9} />
                         </span>
                         <div className="min-w-0">
-                          <p className="clamp-2 text-lg font-bold leading-snug text-pine-900 md:text-xl">
+                          <p className="clamp-2 text-lg font-bold leading-snug text-inkstrong md:text-xl">
                             {e.itemName}{" "}
                             <span className="font-semibold text-inkmuted">{e.model}</span>
                           </p>
@@ -180,7 +181,7 @@ export default function CustomerEquipmentPage() {
                         "mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border p-4",
                         calLeft >= 0 && calLeft <= 30
                           ? "border-sand-400/60 bg-sand-100/50"
-                          : "border-line bg-ivory-100/70",
+                          : "border-line bg-cloud",
                       )}
                     >
                       <CalendarCheck
@@ -192,7 +193,7 @@ export default function CustomerEquipmentPage() {
                       />
                       <p className="min-w-0 flex-1 text-base font-semibold text-inkbody">
                         다음 교정{" "}
-                        <span className="num font-bold text-pine-900">
+                        <span className="num font-bold text-inkstrong">
                           {formatDate(e.nextCalibrationDate)}
                         </span>
                         <span
@@ -252,7 +253,7 @@ export default function CustomerEquipmentPage() {
                       type="button"
                       onClick={() => setExpanded(isOpen ? null : e.id)}
                       aria-expanded={isOpen}
-                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-inkmuted transition-colors duration-fast hover:bg-ivory-200/70 hover:text-pine-700"
+                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-inkmuted transition-colors duration-fast hover:bg-cloud hover:text-pine-700"
                     >
                       {isOpen ? "접기" : "설치 정보·이력 보기"}
                       <ChevronDown
@@ -275,7 +276,7 @@ export default function CustomerEquipmentPage() {
                         >
                           <div className="mt-2 space-y-5 border-t border-line pt-5">
                             {/* 설치 정보 */}
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-4 rounded-2xl bg-ivory-100/70 p-4 sm:grid-cols-3">
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-4 rounded-2xl bg-cloud p-4 sm:grid-cols-3">
                               {[
                                 { label: "설치일", value: formatDate(e.installedDate) },
                                 {
@@ -298,7 +299,7 @@ export default function CustomerEquipmentPage() {
 
                             {/* 이력 */}
                             <div>
-                              <p className="text-base font-bold text-pine-900">운영 이력</p>
+                              <p className="text-base font-bold text-inkstrong">운영 이력</p>
                               <ol className="mt-3 space-y-3 border-l-2 border-line pl-5">
                                 {[
                                   { label: "설치 완료", date: e.installedDate, done: true },
@@ -342,7 +343,7 @@ export default function CustomerEquipmentPage() {
                                       <CircleDot
                                         size={14}
                                         className={cn(
-                                          "absolute -left-[1.72rem] top-0.5 bg-ivory-50",
+                                          "absolute -left-[1.72rem] top-0.5 bg-white",
                                           h.done ? "text-pine-600" : "text-inkmuted/50",
                                         )}
                                       />
@@ -385,12 +386,12 @@ export default function CustomerEquipmentPage() {
                                     href="/customer/services"
                                     className="flex items-start gap-3 rounded-2xl border border-dashed border-clay-400/50 bg-clay-100/40 p-4 transition-colors duration-fast hover:bg-clay-100/70"
                                   >
-                                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ivory-50 text-clay-600">
+                                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-clay-600">
                                       <Icon size={18} strokeWidth={1.9} />
                                     </span>
                                     <span className="min-w-0">
                                       <span className="flex flex-wrap items-center gap-2">
-                                        <span className="text-base font-bold text-pine-900">
+                                        <span className="text-base font-bold text-inkstrong">
                                           {f.title}
                                         </span>
                                         <Badge tone="clay">준비 중</Badge>
@@ -416,7 +417,7 @@ export default function CustomerEquipmentPage() {
       )}
 
       <Reveal delay={0.1}>
-        <p className="flex items-start gap-2.5 rounded-2xl bg-ivory-200/60 p-4 text-sm leading-relaxed text-inkmuted">
+        <p className="flex items-start gap-2.5 rounded-2xl bg-cloud p-4 text-sm leading-relaxed text-inkmuted">
           <ShieldCheck size={17} className="mt-0.5 shrink-0 text-pine-600" />
           장비 정보는 제이랩테크 설치 대장과 연동되어 있습니다. 실제 운영 시에는 납품·설치
           완료 시점에 자동으로 등록됩니다.

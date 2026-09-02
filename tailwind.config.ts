@@ -55,6 +55,10 @@ const config: Config = {
         line: "var(--line)",
         inkbody: "var(--ink-body)",
         inkmuted: "var(--ink-muted)",
+        /* 고객 화면 — 제목·본문을 또렷하게 */
+        inkstrong: "var(--ink-strong)",
+        /* 고객 화면 캔버스 — 베이지가 아니라 차가운 밝은 회색 */
+        cloud: "var(--cloud)",
       },
       fontFamily: {
         sans: [

@@ -12,7 +12,7 @@ import { X, Send, Wrench, Package, RefreshCcw, Ruler, MessageSquare } from "luci
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store-context";
 import { useToast } from "@/components/ui/toast";
-import { demoCustomer } from "@/data/mock/customer-portal";
+import { useCustomer } from "@/lib/use-customer";
 import { cn } from "@/lib/utils";
 import type { RequestType, InstalledEquipment } from "@/data/types";
 
@@ -44,6 +44,7 @@ export function RequestDialog({
 }: Props) {
   const { createRequest } = useStore();
   const toast = useToast();
+  const me = useCustomer();
 
   const [type, setType] = useState<RequestType>(initialType);
   const [equipId, setEquipId] = useState<string>(equipment?.id ?? "");
@@ -67,8 +68,8 @@ export function RequestDialog({
       ? `${selectedEquip.itemName} ${selectedEquip.model}`
       : undefined;
     createRequest({
-      customerId: demoCustomer.id,
-      customerName: demoCustomer.company,
+      customerId: me.id,
+      customerName: me.company,
       requestType: type,
       equipmentId: selectedEquip?.id,
       equipmentName: equipLabel,
@@ -94,24 +95,24 @@ export function RequestDialog({
         onClick={onClose}
       >
         <motion.div
-          className="max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl bg-ivory-50 shadow-card-hover sm:max-w-lg sm:rounded-2xl"
+          className="max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-card-hover sm:max-w-lg sm:rounded-2xl"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}
           transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="sticky top-0 flex items-center justify-between gap-3 border-b border-line bg-ivory-50 px-5 py-4">
+          <div className="sticky top-0 flex items-center justify-between gap-3 border-b border-line bg-white px-5 py-4">
             <div className="min-w-0">
-              <p className="text-lg font-bold text-pine-900 md:text-xl">요청 보내기</p>
+              <p className="text-lg font-bold text-inkstrong md:text-xl">요청 보내기</p>
               <p className="clamp-1 text-sm text-inkmuted">
-                {demoCustomer.company} · 담당자 {demoCustomer.contactName}님
+                {me.company} · 담당자 {me.contactName}님
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="shrink-0 rounded-lg p-1.5 text-inkmuted transition-colors duration-fast hover:bg-ivory-200 hover:text-pine-700"
+              className="shrink-0 rounded-lg p-1.5 text-inkmuted transition-colors duration-fast hover:bg-cloud hover:text-pine-700"
               aria-label="닫기"
             >
               <X size={16} />
@@ -121,7 +122,7 @@ export function RequestDialog({
           <div className="space-y-5 px-5 py-5">
             {/* 요청 유형 */}
             <div>
-              <p className="mb-3 text-base font-bold text-pine-900 md:text-lg">무엇을 도와드릴까요?</p>
+              <p className="mb-3 text-base font-bold text-inkstrong md:text-lg">무엇을 도와드릴까요?</p>
               <div className="grid grid-cols-1 gap-2">
                 {REQUEST_TYPES.map((r) => {
                   const Icon = r.icon;
@@ -135,13 +136,13 @@ export function RequestDialog({
                         "flex items-center gap-3.5 rounded-2xl border p-4 text-left transition-colors duration-fast",
                         active
                           ? "border-pine-700 bg-pine-50"
-                          : "border-line bg-ivory-100/60 hover:border-pine-100",
+                          : "border-line bg-cloud hover:border-pine-100",
                       )}
                     >
                       <span
                         className={cn(
                           "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
-                          active ? "bg-pine-700 text-white" : "bg-ivory-200 text-inkmuted",
+                          active ? "bg-pine-700 text-white" : "bg-cloud text-inkmuted",
                         )}
                       >
                         <Icon size={21} strokeWidth={1.9} />
@@ -150,7 +151,7 @@ export function RequestDialog({
                         <span
                           className={cn(
                             "block text-base font-bold md:text-lg",
-                            active ? "text-pine-900" : "text-inkbody",
+                            active ? "text-inkstrong" : "text-inkbody",
                           )}
                         >
                           {r.type}
@@ -166,13 +167,13 @@ export function RequestDialog({
             {/* 대상 장비 */}
             {equipmentOptions.length > 0 ? (
               <div>
-                <p className="mb-3 text-base font-bold text-pine-900 md:text-lg">
+                <p className="mb-3 text-base font-bold text-inkstrong md:text-lg">
                   대상 장비 <span className="text-sm font-normal text-inkmuted">(선택)</span>
                 </p>
                 <select
                   value={equipId}
                   onChange={(e) => setEquipId(e.target.value)}
-                  className="h-14 w-full rounded-2xl border border-line bg-ivory-100 px-4 text-base text-inkbody focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
+                  className="h-14 w-full rounded-2xl border border-line bg-cloud px-4 text-base text-inkbody focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
                 >
                   <option value="">장비를 선택하지 않음</option>
                   {equipmentOptions.map((e) => (
@@ -186,7 +187,7 @@ export function RequestDialog({
 
             {/* 상세 */}
             <div>
-              <p className="mb-3 text-base font-bold text-pine-900 md:text-lg">
+              <p className="mb-3 text-base font-bold text-inkstrong md:text-lg">
                 내용 <span className="text-sm font-normal text-inkmuted">(선택)</span>
               </p>
               <textarea
@@ -194,12 +195,12 @@ export function RequestDialog({
                 onChange={(e) => setDetail(e.target.value)}
                 rows={3}
                 placeholder="희망 일정이나 수량 등 알려주실 내용이 있으면 적어 주세요."
-                className="w-full resize-none rounded-2xl border border-line bg-ivory-100 p-4 text-base leading-relaxed text-inkbody placeholder:text-inkmuted/70 focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
+                className="w-full resize-none rounded-2xl border border-line bg-cloud p-4 text-base leading-relaxed text-inkbody placeholder:text-inkmuted/70 focus:border-pine-600/50 focus:outline-none focus:ring-2 focus:ring-pine-600/15"
               />
             </div>
           </div>
 
-          <div className="sticky bottom-0 flex gap-2 border-t border-line bg-ivory-50 px-5 py-4">
+          <div className="sticky bottom-0 flex gap-2 border-t border-line bg-white px-5 py-4">
             <Button variant="outline" size="xl" className="flex-1" onClick={onClose}>
               취소
             </Button>

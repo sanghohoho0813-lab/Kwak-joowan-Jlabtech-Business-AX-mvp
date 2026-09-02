@@ -77,9 +77,12 @@ interface Settings {
   motion: MotionMode;
   role: RolePreview;
   notifications: boolean;
+  /** 고객 플랫폼에서 "로그인했다고 가정하는" 고객사 — 시연용 전환 */
+  customer: string;
 }
 
 interface SettingsContextValue extends Settings {
+  setCustomer: (id: string) => void;
   setFontSize: (size: FontSize) => void;
   setTheme: (id: string) => void;
   setMotion: (m: MotionMode) => void;
@@ -94,6 +97,7 @@ const defaultSettings: Settings = {
   motion: "default",
   role: "대표",
   notifications: true,
+  customer: "c-01",
 };
 
 const SettingsContext = createContext<SettingsContextValue>({
@@ -103,6 +107,7 @@ const SettingsContext = createContext<SettingsContextValue>({
   setMotion: () => {},
   setRole: () => {},
   setNotifications: () => {},
+  setCustomer: () => {},
   resetAll: () => {},
 });
 
@@ -157,6 +162,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setMotion: (motion) => persist({ ...settings, motion }),
         setRole: (role) => persist({ ...settings, role }),
         setNotifications: (notifications) => persist({ ...settings, notifications }),
+        setCustomer: (customer) => persist({ ...settings, customer }),
         resetAll,
       }}
     >
